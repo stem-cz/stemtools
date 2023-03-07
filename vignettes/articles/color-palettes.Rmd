@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
 library(stemtools)
+library(ggplot2)
 library(scales)
 ```
 
@@ -50,3 +51,4 @@ mtcars |>
   geom_point(size = 3) +
   scale_color_stem(palette = "modern")
 ```
+
