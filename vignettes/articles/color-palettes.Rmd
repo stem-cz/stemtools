@@ -11,9 +11,7 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=FALSE, warning=FALSE, echo=FALSE}
 library(stemtools)
-library(tidyverse)
 library(scales)
-library(palmerpenguins)
 ```
 
 `stemtool` provides a set of color palettes for plotting. There are three types of palettes:
@@ -44,9 +42,11 @@ show_col(stem_palettes(palette = "modern"))
 Palettes can be used in `ggplot2` figures by using functions `scale_color_stem()` and `scale_fill_stem()`. Specific palette can be chosen by `palette` argument, using `direction = -1` can be used to reverse the order of colors. Note that for diverging palettes, colors are used from both ends of the palette in an alternating pattern.
 
 ```{r ggplot-example}
-penguins |> 
-  count(species) |> 
-  ggplot(aes(x = species, y = n, fill = species)) +
-  geom_col() +
-  scale_fill_stem(palette = "modern")
+mtcars |> 
+  within(gear <- as.factor(gear)) |> 
+  ggplot(aes(x = mpg,
+             y = hp,
+             color = gear)) +
+  geom_point(size = 3) +
+  scale_color_stem(palette = "modern")
 ```
