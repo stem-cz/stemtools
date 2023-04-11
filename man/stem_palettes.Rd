@@ -18,7 +18,7 @@ A vector of color hexcodes
 Returns a vector of colors forming a cohesive palette. Current palettes include:
 \itemize{
 \item Nominal: \code{gruvbox},
-\item Diverging: \code{gruvbox_div}, \code{modern}
+\item Diverging: \code{gruvbox_div}, \code{modern}, \code{bluered_light}
 }
 }
 \examples{

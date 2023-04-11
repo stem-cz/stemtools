@@ -8,7 +8,7 @@
 #' @description
 #' Returns a vector of colors forming a cohesive palette. Current palettes include:
 #' * Nominal: `gruvbox`,
-#' * Diverging: `gruvbox_div`, `modern`
+#' * Diverging: `gruvbox_div`, `modern`, `bluered_light`
 #'
 #' @return A vector of color hexcodes
 #' @export
@@ -27,7 +27,8 @@ stem_palettes <- function(palette = "modern", n = NA) {
 
     # Diverging
     gruvbox_div = c("#b9211a", "#cc241d", "#fb4934", "#fac64c", "#83a598", "#649590", "#458588"),
-    modern = c("#35978F", "#80CDC1", "#B0C89F" ,"#DFC27D", "#BF812D")
+    modern = c("#35978F", "#80CDC1", "#B0C89F" ,"#DFC27D", "#BF812D"),
+    bluered_light = c("#2166AC", "#92C5DE", "#E8DC99", "#F4A582", "#B2182B")
   )
 
   if (!is.na(n)) {
@@ -53,7 +54,7 @@ stem_palettes <- function(palette = "modern", n = NA) {
 #' }
 stem_palette_generator <- function(palette = "modern", direction = 1) {
 
-  diverging <- c("gruvbox_div", "modern")
+  diverging <- c("gruvbox_div", "modern", "bluered_light")
 
   function(n) {
 
