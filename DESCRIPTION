@@ -15,6 +15,9 @@ BugReports: https://github.com/stem-cz/stemtools/issues
 Imports: 
     ggplot2,
     dplyr,
+    tidyr,
+    stringr,
+    tidyselect,
     srvyr,
     scales,
     forcats,
