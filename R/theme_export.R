@@ -39,6 +39,7 @@ theme_stem <- function(...) {
 #' @param path Optional path to export the plot to.
 #' @param device Device to be used for exporting, e.g. "png" or "pdf".
 #' @param dpi Resultion of the exported plot. Usually 300 for "medium" resolution, 600 for "high".
+#' @param ... Additional arguments passed to [ggplot2::ggsave()].
 #'
 #'@details
 #'This function aims at exporting common types of plots in correct size and resolution with minimal user input.
@@ -58,7 +59,7 @@ theme_stem <- function(...) {
 #' }
 #'
 
-stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300) {
+stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300, ...) {
 
 
   type <- attr(plot, "plot_fn")
@@ -72,12 +73,28 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                                                   dpi = dpi,
                                                   units = "cm",
                                                   width = 16,
-                                                  height = 4),
+                                                  height = 4,
+                                                  ...),
                    type == "plot_multiple" ~ ggsave(filename = name,
                                                      device = device,
                                                      path = path,
                                                      dpi = dpi,
                                                      units = "cm",
                                                      width = 16,
-                                                     height = 3 + 1 * attr(plot, "n_items")))
+                                                     height = 3 + 1 * attr(plot, "n_items"),
+                                                    ...),
+                   type == "plot_bar_v" ~  ggsave(filename = name,
+                                                device = device,
+                                                path = path,
+                                                dpi = dpi,
+                                                units = "cm",
+                                                width = 16,
+                                                height = 1.4 * attr(plot, "n_items")),
+                   type == "plot_bar_h" ~  ggsave(filename = name,
+                                                  device = device,
+                                                  path = path,
+                                                  dpi = dpi,
+                                                  units = "cm",
+                                                  width = 3.2 * attr(plot, "n_items"),
+                                                  height = 1.4 * attr(plot, "n_items")))
 }
