@@ -34,9 +34,27 @@
     <loc>https://stem-cz.github.io/stemtools/reference/scale_colour_stem.html</loc>
   </url>
   <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_ggsave.html</loc>
+  </url>
+  <url>
     <loc>https://stem-cz.github.io/stemtools/reference/stem_palette_generator.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/stem_palettes.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_bar.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_bartable.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_multiple.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_single.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/theme_stem.html</loc>
   </url>
 </urlset>
