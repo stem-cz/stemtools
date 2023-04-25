@@ -188,7 +188,7 @@ stem_plot_multiple <- function(data,
 #' @param nudge_label Distance between bar and label. Can be negative to put label inside bar.
 #' @param label_suffix Suffix for labels inside the plot (e.g. "%" or " %").
 #' @param axis_suffix Suffix for the x axis labels (e.g. "%" or " %").
-#' @param axis_wrap Width of y axis label line before the text gets wrapped.
+#' @param axis_wrap Width of y axis label lines before the text gets wrapped.
 #' @param reverse Reverses order of response categories.
 #' @param coord_flip Reverses plot axes.
 #'
@@ -245,6 +245,96 @@ stem_plot_bar <- function(data,
   }
 
   attr(plot, "n_items") <- length(unique(data$item))
+
+  return(plot)
+
+}
+
+#' Plot Table of Barplots
+#'
+#' @description
+#' Plots three categorical variables, one represented by table rows, second by table columns and the last one by a horizontal barplot.
+#'
+#'
+#' @param data Dataframe with the items to be plotted.
+#' @param row Item in table row.
+#' @param column Item in table column.
+#' @param item Item inside the table.
+#' @param weight If `NA`, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.
+#' @param reverse Reverses order of response categories.
+#' @param label Logical value. Should plot include numerical labels for each category?
+#' @param hide_labels Value between 0 and 1. Hides labels with with frequencies lower than this value.
+#' @param label_suffix Suffix for labels inside the plot (e.g. "%" or " %").
+#' @param wrap_row Width of row label lines before the text gets wrapped.
+#' @param wrap_col Width of column label lines before the text gets wrapped.
+#'
+#' @return A ggplot2 graph
+#' @export
+#'
+stem_plot_bartable <- function(data,
+                               row,
+                               column,
+                               item,
+                               weight = FALSE,
+                               reverse = TRUE,
+                               label = TRUE,
+                               hide_labels = 0.05,
+                               label_suffix = "",
+                               wrap_row = 20,
+                               wrap_col = 20) {
+
+  if(weight == FALSE) {
+    data <- data |>
+      dplyr::select(row = {{row}}, col = {{column}}, item = {{item}}) |>
+      tidyr::pivot_longer(item) |>
+      dplyr::count(row, col, value)
+  } else {
+    data <- data |>
+      dplyr::select(row = {{row}}, col = {{column}}, item = {{item}}, W = weight) |>
+      tidyr::pivot_longer(item) |>
+      srvyr::as_survey_design(weights = W) |>
+      srvyr::survey_count(row, col, value, vartype = NULL)
+  }
+
+
+  if(reverse) {
+    data$value <- forcats::fct_rev(data$value)
+  }
+
+
+  plot <- data |>
+    dplyr::group_by(row, col) |>
+    dplyr::mutate(freq = n / sum(n),
+                  freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
+                  freq_label = dplyr::if_else(freq < 0.05,
+                                              true = "",
+                                              false = freq_label)) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(row = forcats::fct_relabel(row, stringr::str_wrap, width = wrap_row),
+                  col = forcats::fct_relabel(col, stringr::str_wrap, width = wrap_col)) |>
+    ggplot2::ggplot(ggplot2::aes(y = "",
+                                 x = freq,
+                                 fill = value)) +
+    ggplot2::facet_grid(row~col, switch = "y") +
+    ggplot2::geom_col()
+
+  if(label) {
+    plot <- plot + ggplot2::geom_text(mapping = ggplot2::aes(label = freq_label),
+                                      position = ggplot2::position_stack(vjust = 0.5))
+  }
+
+  plot <- plot +
+    ggplot2::theme(legend.position = "bottom",
+                   axis.ticks = ggplot2::element_blank(),
+                   axis.text = ggplot2::element_blank(),
+                   strip.clip = "off") +
+    ggplot2::labs(x = ggplot2::element_blank(),
+                  y = ggplot2::element_blank(),
+                  fill = ggplot2::element_blank()) +
+    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+
+
+  attr(plot, "plot_fn") <- "plot_bartable"
 
   return(plot)
 

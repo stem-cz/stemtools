@@ -4,7 +4,7 @@
 \alias{stem_ggsave}
 \title{Export Stem plots}
 \usage{
-stem_ggsave(plot, name = NA, path = NULL, device = "png", dpi = 300, ...)
+stem_ggsave(plot, name = NA, path = NULL, device = "png", dpi = 300)
 }
 \arguments{
 \item{plot}{Plot created by \verb{stem_plot_*}, e.g. \code{\link[=stem_plot_single]{stem_plot_single()}}.}
@@ -16,8 +16,6 @@ stem_ggsave(plot, name = NA, path = NULL, device = "png", dpi = 300, ...)
 \item{device}{Device to be used for exporting, e.g. "png" or "pdf".}
 
 \item{dpi}{Resultion of the exported plot. Usually 300 for "medium" resolution, 600 for "high".}
-
-\item{...}{Additional arguments passed to \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}}.}
 }
 \value{
 File with exported plot.

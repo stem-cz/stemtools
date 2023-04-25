@@ -32,7 +32,7 @@ stem_plot_bar(
 
 \item{axis_suffix}{Suffix for the x axis labels (e.g. "\%" or " \%").}
 
-\item{axis_wrap}{Width of y axis label line before the text gets wrapped.}
+\item{axis_wrap}{Width of y axis label lines before the text gets wrapped.}
 
 \item{reverse}{Reverses order of response categories.}
 

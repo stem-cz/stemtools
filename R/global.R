@@ -5,4 +5,10 @@ utils::globalVariables(c("n",
                          "item",
                          "response",
                          "label",
-                         "ordering"))
+                         "ordering",
+                         "value",
+                         "W"))
+
+ignore_unused_imports <- function() {
+  ragg::agg_png
+}
