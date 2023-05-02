@@ -66,7 +66,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
   if(is.na(name)) {name = paste0(deparse(substitute(plot)),".",device)}
 
   if(type == "plot_single") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -74,7 +75,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 16,
                     height = 4)
   } else if(type == "plot_multiple") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -82,7 +84,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 16,
                     height = 3 + 1 * attr(plot, "n_items"))
   } else if(type == "plot_bar_v") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -90,7 +93,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 16,
                     height = 1.4 * attr(plot, "n_items"))
   } else if(type == "plot_bar_h") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -98,7 +102,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 3.2 * attr(plot, "n_items"),
                     height = 1.4 * attr(plot, "n_items"))
   } else if(type == "plot_bar_grouped_h") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -106,7 +111,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 4.8 * attr(plot, "n_items"),
                     height = 2.1 * attr(plot, "n_items"))
   } else if(type == "plot_bar_grouped_v"){
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -114,7 +120,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 16,
                     height = 2 + 1 * attr(plot, "n_items"))
   } else if(type == "plot_bartable") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -122,7 +129,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 14,
                     height = 12)
   } else if(type == "plot_grouped_bar_v") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
@@ -130,7 +138,8 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     width = 16,
                     height = 1.4 * attr(plot, "n_items"))
   } else if(type == "plot_grouped_bar_h") {
-    ggplot2::ggsave(filename = name,
+    ggplot2::ggsave(plot = plot,
+                    filename = name,
                     device = device,
                     path = path,
                     dpi = dpi,
