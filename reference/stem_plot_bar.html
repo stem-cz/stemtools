@@ -65,10 +65,12 @@
 <span>  label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nudge_label <span class="op">=</span> <span class="fl">0.02</span>,</span>
 <span>  label_suffix <span class="op">=</span> <span class="st">"%"</span>,</span>
+<span>  hide_labels <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  axis_suffix <span class="op">=</span> <span class="st">"%"</span>,</span>
 <span>  axis_wrap <span class="op">=</span> <span class="fl">40</span>,</span>
 <span>  axis_expand <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/waiver.html" class="external-link">waiver</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  reverse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  order_by <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  coord_flip <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -88,7 +90,7 @@
 
 
 <dt>weight</dt>
-<dd><p>If <code>NA</code>, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.</p></dd>
+<dd><p>If <code>NA</code>, returns plot with unweighted frequencies. If name of variable holding survey weights, returns weighted frequencies.</p></dd>
 
 
 <dt>label</dt>
@@ -101,6 +103,10 @@
 
 <dt>label_suffix</dt>
 <dd><p>Suffix for labels inside the plot (e.g. "%" or " %").</p></dd>
+
+
+<dt>hide_labels</dt>
+<dd><p>Number between 0 and 1. Labels with smaller frequencies are hidden.</p></dd>
 
 
 <dt>axis_suffix</dt>
@@ -117,6 +123,10 @@
 
 <dt>reverse</dt>
 <dd><p>Reverses order of response categories.</p></dd>
+
+
+<dt>order_by</dt>
+<dd><p>In grouped plot, categories to order item by.</p></dd>
 
 
 <dt>coord_flip</dt>
