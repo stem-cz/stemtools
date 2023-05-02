@@ -184,14 +184,16 @@ stem_plot_multiple <- function(data,
 #' @param data Dataframe with the item to be plotted.
 #' @param item Items to plot.
 #' @param group Optional grouping variable
-#' @param weight If `NA`, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.
+#' @param weight If `NA`, returns plot with unweighted frequencies. If name of variable holding survey weights, returns weighted frequencies.
 #' @param label Logical value. Should plot include numerical labels for each category?
 #' @param nudge_label Distance between bar and label. Can be negative to put label inside bar.
 #' @param label_suffix Suffix for labels inside the plot (e.g. "%" or " %").
+#' @param hide_labels Number between 0 and 1. Labels with smaller frequencies are hidden.
 #' @param axis_suffix Suffix for the x axis labels (e.g. "%" or " %").
 #' @param axis_wrap Width of y axis label lines before the text gets wrapped.
 #' @param axis_expand Vector of coordinates to expand axis with frequencies.
 #' @param reverse Reverses order of response categories.
+#' @param order_by In grouped plot, categories to order item by.
 #' @param coord_flip Reverses plot axes.
 #'
 #' @return A ggplot2 plot
@@ -200,19 +202,22 @@ stem_plot_multiple <- function(data,
 #' @examples
 #' stem_plot_bar(iris, Species)
 stem_plot_bar <- function(data,
-                          item,
-                          group = NA,
-                          weight = FALSE,
-                          label = TRUE,
-                          nudge_label = 0.02,
-                          label_suffix = "%",
-                          axis_suffix = "%",
-                          axis_wrap = 40,
-                          axis_expand = ggplot2::waiver(),
-                          reverse = FALSE,
-                          coord_flip = FALSE) {
+                           item,
+                           group = NA,
+                           weight = FALSE,
+                           label = TRUE,
+                           nudge_label = 0.02,
+                           label_suffix = "%",
+                           hide_labels = 0.05,
+                           axis_suffix = "%",
+                           axis_wrap = 40,
+                           axis_expand = ggplot2::waiver(),
+                           reverse = FALSE,
+                           order_by = NA,
+                           coord_flip = FALSE) {
 
   group_var = deparse(substitute(group))
+  weight = deparse(substitute(weight))
 
   if(weight == FALSE) {
     if(group_var != "NA") {
@@ -220,12 +225,20 @@ stem_plot_bar <- function(data,
         dplyr::count(item = {{item}}, group = {{ group }}) |>
         dplyr::group_by(group) |>
         dplyr::mutate(freq = n / sum(n),
-                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
+                      freq_label = dplyr::if_else(freq < hide_labels,
+                                                  true = "",
+                                                  false = freq_label)) |>
+        dplyr::ungroup()
     } else {
       data <- data |>
         dplyr::count(item = {{ item }}) |>
         dplyr::mutate(freq = n / sum(n),
-                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
+                      freq_label = dplyr::if_else(freq < hide_labels,
+                                                  true = "",
+                                                  false = freq_label)) |>
+        dplyr::ungroup()
     }
 
   } else {
@@ -236,13 +249,21 @@ stem_plot_bar <- function(data,
         srvyr::survey_count(item = {{ item }}, group = {{ group }}) |>
         srvyr::group_by(group) |>
         srvyr::mutate(freq = n / sum(n)) |>
-        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
+                      freq_label = dplyr::if_else(freq < hide_labels,
+                                                  true = "",
+                                                  false = freq_label)) |>
+        dplyr::ungroup()
     } else {
       data <- data |>
         srvyr::as_survey_design(weights = weight) |>
         srvyr::group_by(item = {{ item }}) |>
         srvyr::summarise(freq = srvyr::survey_prop(vartype = NULL)) |>
-        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
+                      freq_label = dplyr::if_else(freq < hide_labels,
+                                                  true = "",
+                                                  false = freq_label)) |>
+        dplyr::ungroup()
 
     }
 
@@ -252,13 +273,20 @@ stem_plot_bar <- function(data,
     data$item <- forcats::fct_rev(data$item)
   }
 
+  if(group_var != "NA" & !any(is.na(order_by))) {
+    data <- data |>
+      dplyr::mutate(ordering = sum(freq[item %in% order_by]),
+             .by = group) |>
+      dplyr::mutate(group = forcats::fct_reorder(group, ordering))
+  }
+
   if(group_var != "NA") {
     plot <- ggplot2::ggplot(data = data,
-                            ggplot2::aes(x = item,
+                            ggplot2::aes(x = group,
                                          y = freq,
-                                         fill = group,
+                                         fill = item,
                                          label = freq_label)) +
-      ggplot2::geom_col(position = ggplot2::position_dodge()) +
+      ggplot2::geom_col(position = ggplot2::position_stack()) +
       ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
                                                                   suffix = axis_suffix),
                                   expand = axis_expand) +
@@ -281,15 +309,18 @@ stem_plot_bar <- function(data,
 
   if(label) {
     if(group_var != "NA" & coord_flip == FALSE) {
-      plot <- plot + ggplot2::geom_text(position = ggplot2::position_dodge(width = 0.9),
-                                        vjust = -nudge_label)
+      plot <- plot + ggplot2::geom_text(position = ggplot2::position_stack(vjust = 0.5))
     } else if(group_var != "NA" & coord_flip == TRUE) {
-      plot <- plot + ggplot2::geom_text(position = ggplot2::position_dodge(width = 0.9),
-                                        hjust = -nudge_label)
+      plot <- plot + ggplot2::geom_text(position = ggplot2::position_stack(vjust = 0.5))
     } else {
       plot <- plot + ggplot2::geom_text(nudge_y = nudge_label)
     }
 
+  }
+
+
+  if(reverse) {
+    plot <- plot + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
   }
 
   if(coord_flip) {

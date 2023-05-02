@@ -112,7 +112,7 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     dpi = dpi,
                     units = "cm",
                     width = 16,
-                    height = 2.1 * attr(plot, "n_items"))
+                    height = 2 + 1 * attr(plot, "n_items"))
   } else if(type == "plot_bartable") {
     ggplot2::ggsave(filename = name,
                     device = device,

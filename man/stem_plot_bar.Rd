@@ -12,10 +12,12 @@ stem_plot_bar(
   label = TRUE,
   nudge_label = 0.02,
   label_suffix = "\%",
+  hide_labels = 0.05,
   axis_suffix = "\%",
   axis_wrap = 40,
   axis_expand = ggplot2::waiver(),
   reverse = FALSE,
+  order_by = NA,
   coord_flip = FALSE
 )
 }
@@ -26,13 +28,15 @@ stem_plot_bar(
 
 \item{group}{Optional grouping variable}
 
-\item{weight}{If \code{NA}, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.}
+\item{weight}{If \code{NA}, returns plot with unweighted frequencies. If name of variable holding survey weights, returns weighted frequencies.}
 
 \item{label}{Logical value. Should plot include numerical labels for each category?}
 
 \item{nudge_label}{Distance between bar and label. Can be negative to put label inside bar.}
 
 \item{label_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
+
+\item{hide_labels}{Number between 0 and 1. Labels with smaller frequencies are hidden.}
 
 \item{axis_suffix}{Suffix for the x axis labels (e.g. "\%" or " \%").}
 
@@ -41,6 +45,8 @@ stem_plot_bar(
 \item{axis_expand}{Vector of coordinates to expand axis with frequencies.}
 
 \item{reverse}{Reverses order of response categories.}
+
+\item{order_by}{In grouped plot, categories to order item by.}
 
 \item{coord_flip}{Reverses plot axes.}
 }
