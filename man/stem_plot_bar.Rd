@@ -7,12 +7,14 @@
 stem_plot_bar(
   data,
   item,
+  group = NA,
   weight = FALSE,
   label = TRUE,
   nudge_label = 0.02,
   label_suffix = "\%",
   axis_suffix = "\%",
   axis_wrap = 40,
+  axis_expand = ggplot2::waiver(),
   reverse = FALSE,
   coord_flip = FALSE
 )
@@ -21,6 +23,8 @@ stem_plot_bar(
 \item{data}{Dataframe with the item to be plotted.}
 
 \item{item}{Items to plot.}
+
+\item{group}{Optional grouping variable}
 
 \item{weight}{If \code{NA}, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.}
 
@@ -33,6 +37,8 @@ stem_plot_bar(
 \item{axis_suffix}{Suffix for the x axis labels (e.g. "\%" or " \%").}
 
 \item{axis_wrap}{Width of y axis label lines before the text gets wrapped.}
+
+\item{axis_expand}{Vector of coordinates to expand axis with frequencies.}
 
 \item{reverse}{Reverses order of response categories.}
 

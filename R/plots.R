@@ -183,12 +183,14 @@ stem_plot_multiple <- function(data,
 #'
 #' @param data Dataframe with the item to be plotted.
 #' @param item Items to plot.
+#' @param group Optional grouping variable
 #' @param weight If `NA`, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.
 #' @param label Logical value. Should plot include numerical labels for each category?
 #' @param nudge_label Distance between bar and label. Can be negative to put label inside bar.
 #' @param label_suffix Suffix for labels inside the plot (e.g. "%" or " %").
 #' @param axis_suffix Suffix for the x axis labels (e.g. "%" or " %").
 #' @param axis_wrap Width of y axis label lines before the text gets wrapped.
+#' @param axis_expand Vector of coordinates to expand axis with frequencies.
 #' @param reverse Reverses order of response categories.
 #' @param coord_flip Reverses plot axes.
 #'
@@ -199,49 +201,111 @@ stem_plot_multiple <- function(data,
 #' stem_plot_bar(iris, Species)
 stem_plot_bar <- function(data,
                           item,
+                          group = NA,
                           weight = FALSE,
                           label = TRUE,
                           nudge_label = 0.02,
                           label_suffix = "%",
                           axis_suffix = "%",
                           axis_wrap = 40,
+                          axis_expand = ggplot2::waiver(),
                           reverse = FALSE,
                           coord_flip = FALSE) {
+
+  group_var = deparse(substitute(group))
+
   if(weight == FALSE) {
-    data <- data |>
-      dplyr::count(item = {{ item }}) |>
-      dplyr::mutate(freq = n / sum(n),
-                    freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+    if(group_var != "NA") {
+      data <- data |>
+        dplyr::count(item = {{item}}, group = {{ group }}) |>
+        dplyr::group_by(group) |>
+        dplyr::mutate(freq = n / sum(n),
+                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+    } else {
+      data <- data |>
+        dplyr::count(item = {{ item }}) |>
+        dplyr::mutate(freq = n / sum(n),
+                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+    }
+
   } else {
-    data <- data |>
-      srvyr::as_survey_design(weights = weight) |>
-      srvyr::group_by(item = {{item}}) |>
-      srvyr::summarise(freq = srvyr::survey_prop(vartype = NULL)) |>
-      srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+
+    if(group_var != "NA") {
+      data <- data |>
+        srvyr::as_survey_design(weights = weight) |>
+        srvyr::survey_count(item = {{ item }}, group = {{ group }}) |>
+        srvyr::group_by(group) |>
+        srvyr::mutate(freq = n / sum(n)) |>
+        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+    } else {
+      data <- data |>
+        srvyr::as_survey_design(weights = weight) |>
+        srvyr::group_by(item = {{ item }}) |>
+        srvyr::summarise(freq = srvyr::survey_prop(vartype = NULL)) |>
+        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix))
+
+    }
+
   }
 
   if(reverse) {
     data$item <- forcats::fct_rev(data$item)
   }
 
-  plot <- ggplot2::ggplot(data = data,
-                          ggplot2::aes(x = item,
-                                       y = freq,
-                                       label = freq_label)) +
-    ggplot2::geom_col() +
-    ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
-                                                                suffix = axis_suffix)) +
-    ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(., axis_wrap))
+  if(group_var != "NA") {
+    plot <- ggplot2::ggplot(data = data,
+                            ggplot2::aes(x = item,
+                                         y = freq,
+                                         fill = group,
+                                         label = freq_label)) +
+      ggplot2::geom_col(position = ggplot2::position_dodge()) +
+      ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+                                                                  suffix = axis_suffix),
+                                  expand = axis_expand) +
+      ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(., axis_wrap)) +
+      ggplot2::theme(legend.position = "bottom")
+
+  } else {
+    plot <- ggplot2::ggplot(data = data,
+                            ggplot2::aes(x = item,
+                                         y = freq,
+                                         label = freq_label)) +
+      ggplot2::geom_col() +
+      ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+                                                                  suffix = axis_suffix),
+                                  expand = axis_expand) +
+      ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(., axis_wrap))
+
+  }
+
 
   if(label) {
-    plot <- plot + ggplot2::geom_text(nudge_y = nudge_label)
+    if(group_var != "NA" & coord_flip == FALSE) {
+      plot <- plot + ggplot2::geom_text(position = ggplot2::position_dodge(width = 0.9),
+                                        vjust = -nudge_label)
+    } else if(group_var != "NA" & coord_flip == TRUE) {
+      plot <- plot + ggplot2::geom_text(position = ggplot2::position_dodge(width = 0.9),
+                                        hjust = -nudge_label)
+    } else {
+      plot <- plot + ggplot2::geom_text(nudge_y = nudge_label)
+    }
+
   }
 
   if(coord_flip) {
-    plot <- plot + ggplot2::coord_flip()
-    attr(plot, "plot_fn") <- "plot_bar_v"
+    if(group_var != "NA") {
+      plot <- plot + ggplot2::coord_flip()
+      attr(plot, "plot_fn") <- "plot_bar_grouped_v"
+    } else {
+      plot <- plot + ggplot2::coord_flip()
+      attr(plot, "plot_fn") <- "plot_bar_v"
+    }
   } else {
-    attr(plot, "plot_fn") <- "plot_bar_h"
+    if(group_var != "NA") {
+      attr(plot, "plot_fn") <- "plot_bar_grouped_h"
+    } else {
+      attr(plot, "plot_fn") <- "plot_bar_h"
+    }
   }
 
   attr(plot, "n_items") <- length(unique(data$item))
@@ -335,6 +399,98 @@ stem_plot_bartable <- function(data,
 
 
   attr(plot, "plot_fn") <- "plot_bartable"
+
+  return(plot)
+
+}
+
+
+#' Plot Simple Barplot Grouped by Category
+#'
+#' @description
+#' Aggregates category frequencies and plots them based on grouping variable.
+#'
+#' @param data Dataframe with the items to be plotted.
+#' @param item Item to be aggregated and ploted.
+#' @param group Grouping variable.
+#' @param weight Optional suvey weights.
+#' @param freq_by Character vector of responses whose frequencies are ploted.
+#' @param axis_suffix Axis label suffix (e.g. "%").
+#' @param axis_wrap Number of Axis labels characters before the text is wrapped.
+#' @param nudge_label Numeric, distance between bar and label. Can be negative to put label inside bar.
+#' @param segment_suffix Category Label suffix (e.g. "%").
+#' @param order_group Logical, should the grouping variable be ordered by frequencies?
+#' @param reverse Logical, should the order of grouping categories be reversed?
+#' @param coord_flip Logical, should the axis be reversed?
+#'
+#' @return A ggplot object
+#' @export
+#'
+stem_plot_grouped_bar <- function(data,
+                                  item,
+                                  group = NA,
+                                  weight = FALSE,
+                                  freq_by,
+                                  axis_suffix = "%",
+                                  axis_wrap = 20,
+                                  nudge_label = 0.02,
+                                  segment_suffix = "",
+                                  order_group = TRUE,
+                                  reverse = FALSE,
+                                  coord_flip = FALSE) {
+
+  weight = deparse(substitute(weight))
+
+  if(weight == FALSE) {
+    data <- data |>
+      dplyr::count(item = {{ item }}, group = {{ group }}) |>
+      dplyr::mutate(freq = n / sum(n),
+                    .by = group) |>
+      dplyr::summarise(group_freq = sum(freq[item %in% freq_by]),
+                       freq_label = scales::percent(group_freq,
+                                                    accuracy = 1,
+                                                    suffix = segment_suffix),
+                       .by = group)
+  } else {
+    data <- data |>
+      srvyr::as_survey_design(weights = weight) |>
+      srvyr::survey_count(item = {{ item }}, group = {{ group }}) |>
+      dplyr::mutate(freq = n / sum(n),
+                    .by = group) |>
+      dplyr::summarise(group_freq = sum(freq[item %in% freq_by]),
+                       freq_label = scales::percent(group_freq,
+                                                    accuracy = 1,
+                                                    suffix = segment_suffix),
+                       .by = group)
+  }
+
+  if(order_group) {
+    data$group <- forcats::fct_reorder(data$group, data$group_freq)
+  }
+
+
+  if(reverse) {
+    data$group <- forcats::fct_rev(data$group)
+  }
+
+  plot <- data |>
+    ggplot2::ggplot(ggplot2::aes(y = group,
+                                 x = group_freq,
+                                 label = freq_label)) +
+    ggplot2::geom_col() +
+    ggplot2::geom_text(nudge_x = nudge_label) +
+    ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1,
+                                                                suffix = axis_suffix)) +
+    ggplot2::scale_y_discrete(labels = ~stringr::str_wrap(., axis_wrap))
+
+  if(coord_flip) {
+    plot <- plot + ggplot2::coord_flip()
+    attr(plot, "plot_fn") <- "plot_grouped_bar_h"
+  } else {
+    attr(plot, "plot_fn") <- "plot_grouped_bar_v"
+  }
+
+  attr(plot, "n_items") <- length(unique(data$group))
 
   return(plot)
 

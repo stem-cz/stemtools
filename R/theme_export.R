@@ -97,6 +97,22 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     units = "cm",
                     width = 3.2 * attr(plot, "n_items"),
                     height = 1.4 * attr(plot, "n_items"))
+  } else if(type == "plot_bar_grouped_h") {
+    ggplot2::ggsave(filename = name,
+                    device = device,
+                    path = path,
+                    dpi = dpi,
+                    units = "cm",
+                    width = 4.8 * attr(plot, "n_items"),
+                    height = 2.1 * attr(plot, "n_items"))
+  } else if(type == "plot_bar_grouped_v"){
+    ggplot2::ggsave(filename = name,
+                    device = device,
+                    path = path,
+                    dpi = dpi,
+                    units = "cm",
+                    width = 16,
+                    height = 2.1 * attr(plot, "n_items"))
   } else if(type == "plot_bartable") {
     ggplot2::ggsave(filename = name,
                     device = device,
@@ -105,6 +121,22 @@ stem_ggsave <- function(plot, name = NA, path = NULL, device = "png" ,dpi = 300)
                     units = "cm",
                     width = 14,
                     height = 12)
+  } else if(type == "plot_grouped_bar_v") {
+    ggplot2::ggsave(filename = name,
+                    device = device,
+                    path = path,
+                    dpi = dpi,
+                    units = "cm",
+                    width = 16,
+                    height = 1.4 * attr(plot, "n_items"))
+  } else if(type == "plot_grouped_bar_h") {
+    ggplot2::ggsave(filename = name,
+                    device = device,
+                    path = path,
+                    dpi = dpi,
+                    units = "cm",
+                    width = 3.2 * attr(plot, "n_items"),
+                    height = 1.5 * attr(plot, "n_items"))
   } else {print("Unknown plot type.")}
 
 }
