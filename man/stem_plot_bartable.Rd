@@ -10,10 +10,15 @@ stem_plot_bartable(
   column,
   item,
   weight = FALSE,
-  reverse = TRUE,
+  stem_palette = "modern",
+  reverse_responses = TRUE,
+  reverse_legend = TRUE,
+  reverse_row = FALSE,
+  reverse_column = FALSE,
   label = TRUE,
   hide_labels = 0.05,
-  label_suffix = "",
+  segment_size = 4,
+  segment_suffix = "",
   wrap_row = 20,
   wrap_col = 20
 )
@@ -29,13 +34,23 @@ stem_plot_bartable(
 
 \item{weight}{If \code{NA}, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.}
 
-\item{reverse}{Reverses order of response categories.}
+\item{stem_palette}{Name of a palette from \code{\link[=stem_palettes]{stem_palettes()}}.}
+
+\item{reverse_responses}{Reverses order of response categories.}
+
+\item{reverse_legend}{If TRUE, reverses order of response categories in legend.}
+
+\item{reverse_row}{Reverses response categories of the row variable.}
+
+\item{reverse_column}{Reverses response categories of the column variable.}
 
 \item{label}{Logical value. Should plot include numerical labels for each category?}
 
 \item{hide_labels}{Value between 0 and 1. Hides labels with with frequencies lower than this value.}
 
-\item{label_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
+\item{segment_size}{Font size for segments labels.}
+
+\item{segment_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
 
 \item{wrap_row}{Width of row label lines before the text gets wrapped.}
 

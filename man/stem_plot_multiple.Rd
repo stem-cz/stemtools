@@ -8,16 +8,19 @@ stem_plot_multiple(
   data,
   items,
   weight = NA,
-  var_labels = NA,
   order_by = NA,
-  reverse_responses = TRUE,
+  var_labels = NA,
+  stem_palette = "modern",
   labels = TRUE,
-  hide_labels = 0.05,
-  labels_size = 5,
   labels_color = "black",
-  labels_suffix = "\%",
+  hide_labels = 0.05,
+  segment_size = 4,
+  segment_suffix = "",
   axis_suffix = "\%",
-  axis_wrap = 80
+  axis_wrap = 80,
+  reverse_responses = TRUE,
+  reverse_legend = TRUE,
+  legend_width = 25
 )
 }
 \arguments{
@@ -27,25 +30,31 @@ stem_plot_multiple(
 
 \item{weight}{If \code{NA}, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.}
 
-\item{var_labels}{Optional dataframe with item labels used in the plot. Has to include columns \code{item} and \code{label}.}
-
 \item{order_by}{Optional vector of response category/categories. Items in the plot will be sorted based on their frequencies.}
 
-\item{reverse_responses}{Reverses order of response categories. Defaults to \code{TRUE}, since most often we want positive responses on the left.}
+\item{var_labels}{Optional dataframe with item labels used in the plot. Has to include columns \code{item} and \code{label}.}
+
+\item{stem_palette}{Name of a palette from \code{\link[=stem_palettes]{stem_palettes()}}.}
 
 \item{labels}{Logical value. Should plot include numerical labels for each category?}
 
-\item{hide_labels}{Value between 0 and 1. Hides labels with with frequencies lower than this value.}
-
-\item{labels_size}{Font size for labels inside the plot.}
-
 \item{labels_color}{Color of labels inside the plot. Can be either label ("black", "white") or hexcode.}
 
-\item{labels_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
+\item{hide_labels}{Value between 0 and 1. Hides labels with with frequencies lower than this value.}
+
+\item{segment_size}{Font size for labels inside the plot.}
+
+\item{segment_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
 
 \item{axis_suffix}{Suffix for the x axis labels (e.g. "\%" or " \%").}
 
 \item{axis_wrap}{Width of y axis label line before the text gets wrapped.}
+
+\item{reverse_responses}{Reverses order of response categories. Defaults to \code{TRUE}, since most often we want positive responses on the left.}
+
+\item{reverse_legend}{If TRUE, reverses order of response categories in legend.}
+
+\item{legend_width}{Length of the legend categories names before they are wrapped to the next line.}
 }
 \value{
 A ggplot2 graph.

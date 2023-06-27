@@ -11,12 +11,15 @@ stem_plot_bar(
   weight = FALSE,
   label = TRUE,
   nudge_label = 0.02,
-  label_suffix = "\%",
+  segment_size = 4,
+  segment_suffix = "",
   hide_labels = 0.05,
   axis_suffix = "\%",
   axis_wrap = 40,
   axis_expand = ggplot2::waiver(),
-  reverse = FALSE,
+  reverse_responses = TRUE,
+  reverse_groups = FALSE,
+  reverse_legend = TRUE,
   order_by = NA,
   coord_flip = FALSE
 )
@@ -34,7 +37,9 @@ stem_plot_bar(
 
 \item{nudge_label}{Distance between bar and label. Can be negative to put label inside bar.}
 
-\item{label_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
+\item{segment_size}{Font size for segments labels.}
+
+\item{segment_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
 
 \item{hide_labels}{Number between 0 and 1. Labels with smaller frequencies are hidden.}
 
@@ -44,7 +49,11 @@ stem_plot_bar(
 
 \item{axis_expand}{Vector of coordinates to expand axis with frequencies.}
 
-\item{reverse}{Reverses order of response categories.}
+\item{reverse_responses}{Reverses order of response categories.}
+
+\item{reverse_groups}{Reverse order of grouping variable categories.}
+
+\item{reverse_legend}{If TRUE, reverses order of response categories in legend.}
 
 \item{order_by}{In grouped plot, categories to order item by.}
 

@@ -26,3 +26,6 @@ Imports:
     ragg
 Suggests: 
     rmarkdown
+Depends: 
+    R (>= 2.10)
+LazyData: true

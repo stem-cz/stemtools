@@ -8,11 +8,14 @@ stem_plot_single(
   data,
   item,
   weight = FALSE,
-  wrap_width = 17,
   stem_palette = "modern",
   text_color = "black",
+  hide_labels = 0.05,
+  legend_width = 25,
   axis_suffix = "\%",
-  segment_suffix = "\%"
+  segment_suffix = "",
+  reverse_responses = FALSE,
+  reverse_legend = TRUE
 )
 }
 \arguments{
@@ -20,17 +23,23 @@ stem_plot_single(
 
 \item{item}{Item to plot}
 
-\item{weight}{If \code{FALSE} raw frequencies are ploted. Can be a variable holding survey weights. For now, the name of the variable has to be quoted.}
-
-\item{wrap_width}{Length of the legend categories names before they are wrapped to the next line.}
+\item{weight}{If \code{FALSE} raw frequencies are ploted. Can be a variable holding survey weights.}
 
 \item{stem_palette}{Name of a palette from \code{\link[=stem_palettes]{stem_palettes()}}.}
 
 \item{text_color}{Color of the labels inside the plot.}
 
+\item{hide_labels}{Value between 0 and 1. Hides labels with with frequencies lower than this value.}
+
+\item{legend_width}{Length of the legend categories names before they are wrapped to the next line.}
+
 \item{axis_suffix}{Suffixes of labels on the X axis.}
 
 \item{segment_suffix}{Suffixes of labels inside the plot.}
+
+\item{reverse_responses}{Reverses order of response categories.}
+
+\item{reverse_legend}{If TRUE, reverses order of response categories in legend.}
 }
 \value{
 A ggplot2 graph.
@@ -39,5 +48,6 @@ A ggplot2 graph.
 Plots a single categorical item (usually a likert item) as a horizontal barplot.
 }
 \examples{
-stem_plot_single(iris, Species)
+stem_plot_single(data = trust, item = police)
+stem_plot_single(data = trust, item = police, weight = W)
 }
