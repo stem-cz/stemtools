@@ -7,7 +7,7 @@
 stem_plot_multiple(
   data,
   items,
-  weight = NA,
+  weight = FALSE,
   order_by = NA,
   var_labels = NA,
   stem_palette = "modern",
@@ -20,7 +20,8 @@ stem_plot_multiple(
   axis_wrap = 80,
   reverse_responses = TRUE,
   reverse_legend = TRUE,
-  legend_width = 25
+  legend_width = 25,
+  items_n = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ stem_plot_multiple(
 \item{reverse_legend}{If TRUE, reverses order of response categories in legend.}
 
 \item{legend_width}{Length of the legend categories names before they are wrapped to the next line.}
+
+\item{items_n}{If \code{TRUE}, shows number of responses for each item.}
 }
 \value{
 A ggplot2 graph.

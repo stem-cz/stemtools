@@ -105,13 +105,14 @@ stem_plot_single <- function(data,
 #' @param axis_suffix Suffix for the x axis labels (e.g. "%" or " %").
 #' @param axis_wrap Width of y axis label line before the text gets wrapped.
 #' @param reverse_legend If TRUE, reverses order of response categories in legend.
+#' @param items_n If `TRUE`, shows number of responses for each item.
 #'
 #' @return A ggplot2 graph.
 #' @export
 #'
 stem_plot_multiple <- function(data,
                                items,
-                               weight = NA,
+                               weight = FALSE,
                                order_by = NA,
                                var_labels = NA,
                                stem_palette = "modern",
@@ -124,11 +125,19 @@ stem_plot_multiple <- function(data,
                                axis_wrap = 80,
                                reverse_responses = TRUE,
                                reverse_legend = TRUE,
-                               legend_width = 25) {
+                               legend_width = 25,
+                               items_n = FALSE) {
 
   weight = deparse(substitute(weight))
 
-  if(is.na(weight)) {
+  item_totals <- data |>
+    dplyr::select({{items}}) |>
+    tidyr::pivot_longer(cols = tidyselect::everything(),
+                        names_to = "item",
+                        values_to = "response") |>
+    dplyr::count(item, name = "item_total")
+
+  if(weight == FALSE) {
     #Raw frequencies
     data <- data |>
       dplyr::select({{items}}) |>
@@ -161,6 +170,9 @@ stem_plot_multiple <- function(data,
       dplyr::ungroup()
   }
 
+  data <- dplyr::left_join(data, item_totals, by = "item") |>
+    dplyr::mutate(item = as.factor(item))
+
   #Adding labels
   if(is.data.frame(var_labels)) {
 
@@ -182,6 +194,9 @@ stem_plot_multiple <- function(data,
       dplyr::mutate(item = forcats::fct_reorder(item, ordering)) |>
       dplyr::select(-ordering)
   }
+
+  #Adding item totals
+  if(items_n) {levels(data$item) <- paste0(levels(data$item), " (n=", unique(data$item_total), ")")}
 
   #Reverse order of response categories
   if(reverse_responses) {
