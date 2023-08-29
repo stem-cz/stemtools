@@ -8,7 +8,12 @@ utils::globalVariables(c("n",
                          "ordering",
                          "value",
                          "W",
-                         "group_freq"))
+                         "group_freq",
+                         "se",
+                         "group_n",
+                         "item_n",
+                         "group_cat",
+                         "item_cat"))
 
 ignore_unused_imports <- function() {
   ragg::agg_png
