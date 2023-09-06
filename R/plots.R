@@ -1,3 +1,190 @@
+#' Template plotting function
+#'
+#' @param data
+#' @param item
+#' @param group
+#' @param weight
+#' @param collapse_item
+#' @param collapse_group
+#' @param geom
+#' @param geom_args
+#' @param freq_labels
+#' @param freq_args
+#' @param title
+#' @param title_label
+#' @param title_wrap
+#' @param format_axis
+#' @param caption
+#' @param label_accuracy
+#' @param label_scale
+#' @param label_prefix
+#' @param label_suffix
+#' @param label_big
+#' @param label_decimal
+#' @param group_size
+#' @param item_size
+#' @param scale_x
+#' @param scale_y
+#' @param scale_fill
+#' @param scale_color
+#' @param facet
+#' @param guides
+#'
+#' @return
+#' @export
+#'
+#' @examples
+stem_plot <- function(data,
+                      item,
+                      group  = NULL,
+                      weight = NULL,
+                      collapse_item = NULL,
+                      collapse_group = NULL,
+                      geom = ggplot2::geom_col,
+                      geom_args = list(position = ggplot2::position_dodge(width = 0.95)),
+                      freq_labels = TRUE,
+                      freq_args = list(position = ggplot2::position_dodge(width = 0.95),
+                                       color = "black",
+                                       vjust = -1),
+                      title = TRUE,
+                      title_label = TRUE,
+                      title_wrap = 50,
+                      format_axis = TRUE,
+                      caption = TRUE,
+                      label_accuracy = 1,
+                      label_scale = 1,
+                      label_prefix = "",
+                      label_suffix = "",
+                      label_big = " ",
+                      label_decimal = ",",
+                      group_size = "none",
+                      item_size = "none",
+                      scale_x = ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(.x, width = 30)),
+                      scale_y = ggplot2::scale_y_continuous(limits = c(0, NA)),
+                      scale_fill = scale_fill_stem(palette = "modern"),
+                      scale_color = scale_color_stem(palette = "modern"),
+                      facet = FALSE,
+                      guides = ggplot2::guides()) {
+
+
+  summ <- stem_summarise(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }},
+                         return_n = TRUE, collapse_item = collapse_item, collapse_group = collapse_group)
+  summ <- dplyr::rename_with(summ, ~gsub(x = ., pattern = "freq|mean", replacement = "estimate"))
+
+
+  group_check <- rlang::enquo(group)
+
+  # Extracting names weird way that also works in loops
+  item_name <- data |> select({{ item }}) |> names()
+  item_label <- data |> pull({{ item }}) |> attr("label")
+
+  if(!rlang::quo_is_null(group_check)) {
+    group_name <- data |> select({{ group }}) |> names()
+    group_label <- data |> pull({{ group }}) |> attr("label")
+  }
+
+  # stem_summarise_num doesn't return item column by default. we added so that something can plotte
+  if(!item_name %in% names(summ)) {summ[[item_name]] <- item_name}
+
+
+  # Add group size to break labels
+  if(!rlang::quo_is_null(group_check)) {
+    summ <- summ |>
+      dplyr::mutate(group_prop = round(group_n / sum(n) * 100),
+                    item_prop = round(item_n / sum(n) * 100))
+
+    item_sizes <- dplyr::distinct(summ, {{ item }}, item_prop, item_n) #|> dplyr::arrange({{ group }})
+    group_sizes <- dplyr::distinct(summ, {{ group }}, group_prop, group_n) #|> dplyr::arrange({{ item }})
+
+    switch (group_size,
+            "n" = levels(summ[[group_name]])    <- paste0(group_sizes[[group_name]], "\n(n = ",group_sizes$group_n, ")"),
+            "prop" = levels(summ[[group_name]]) <- paste0(group_sizes[[group_name]], "\n(",group_sizes$group_prop, "%)"))
+
+    switch (item_size,
+            "n" = levels(summ[[item_name]])    <- paste0(item_sizes[[item_name]], "\n(n = ", item_sizes$item_n, ")"),
+            "prop" = levels(summ[[item_name]]) <- paste0(item_sizes[[item_name]], "\n(",  item_sizes$item_prop, "%)"))
+  }
+
+  # Basic mapping
+  if(quo_is_null(group_check)) {
+    p <- ggplot2::ggplot(data = summ,
+                         mapping = ggplot2::aes(x = {{ item }},
+                                                y = estimate,
+                                                ymin  = estimate_low,
+                                                ymax  = estimate_upp,
+                                                label = scales::number(estimate,
+                                                                       accuracy = label_accuracy,
+                                                                       scale = label_scale,
+                                                                       prefix = label_prefix,
+                                                                       suffix = label_suffix,
+                                                                       big.mark = label_big,
+                                                                       decimal.mark = label_decimal)))
+  } else {
+    p <- ggplot2::ggplot(data = summ,
+                         mapping = ggplot2::aes(x = {{group}},
+                                                y = estimate,
+                                                ymin  = estimate_low,
+                                                ymax  = estimate_upp,
+                                                fill = {{ item }},
+                                                color = {{ item }},
+                                                label = scales::number(estimate,
+                                                                       accuracy = label_accuracy,
+                                                                       scale = label_scale,
+                                                                       prefix = label_prefix,
+                                                                       suffix = label_suffix,
+                                                                       big.mark = label_big,
+                                                                       decimal.mark = label_decimal)))
+  }
+
+  # Geom and scales
+  p <- p + do.call(geom, geom_args) + scale_x + scale_y + scale_fill + scale_color + guides
+
+  # Optionally format Axis labels
+  if(format_axis) {
+    p <- p + ggplot2::labs(y = element_blank(),
+                           fill = element_blank(),
+                           color = element_blank())
+
+    if(rlang::quo_is_null(group_check)) {
+      p <- p + ggplot2::labs(x = element_blank(),
+                             y = element_blank())
+    } else {
+      if(is.null(group_label)) {
+        p <- p + ggplot2::labs(x = group_name,
+                               y = element_blank())
+      } else {
+        p <- p + ggplot2::labs(x = group_label,
+                               y = element_blank())
+      }
+    }
+  }
+
+  # Optionally freq labels
+  if(freq_labels) {p <- p + do.call(ggplot2::geom_text, freq_args)}
+
+  # Optionally title. If title_label = TRUE and the variable has attribute "label", it will be used insted of
+  # the variable name.
+  if(title) {
+    if(title_label & !is.null(item_label)) {
+      p <- p + ggplot2::ggtitle(label = item_label)
+    } else {p <- p + ggplot2::ggtitle(label = item_name)}
+  }
+
+  # Optionally caption with sample size used
+  if(caption) {
+    total_n <- scales::number(sum(summ$n), big.mark = " ")
+    p <- p + ggplot2::labs(caption = paste0("Velikost vzorku:", total_n, " respondentů."))
+  }
+
+  #facets (only if group is present)
+  if(!quo_is_null(group_check) & facet == TRUE) {p <- p + facet_wrap(vars({{ group }}), scales = "free_x")}
+
+  return(p)
+
+}
+
+
+
 #' Plot a Single Item in Line
 #'
 #' @description
