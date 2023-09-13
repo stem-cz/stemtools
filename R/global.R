@@ -13,7 +13,13 @@ utils::globalVariables(c("n",
                          "group_n",
                          "item_n",
                          "group_cat",
-                         "item_cat"))
+                         "item_cat",
+                         "item_prop",
+                         "group_prop",
+                         "estimate",
+                         "geom_label",
+                         "estimate_low",
+                         "estimate_upp"))
 
 ignore_unused_imports <- function() {
   ragg::agg_png

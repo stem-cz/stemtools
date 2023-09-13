@@ -1,39 +1,62 @@
 #' Template plotting function
+#' @encoding UTF-8
 #'
-#' @param data
-#' @param item
-#' @param group
-#' @param weight
-#' @param collapse_item
-#' @param collapse_group
-#' @param geom
-#' @param geom_args
-#' @param freq_labels
-#' @param freq_args
-#' @param title
-#' @param title_label
-#' @param title_wrap
-#' @param format_axis
-#' @param caption
-#' @param label_accuracy
-#' @param label_scale
-#' @param label_prefix
-#' @param label_suffix
-#' @param label_big
-#' @param label_decimal
-#' @param group_size
-#' @param item_size
-#' @param scale_x
-#' @param scale_y
-#' @param scale_fill
-#' @param scale_color
-#' @param facet
-#' @param guides
+#' @param data dataframe including item (and group) variables
+#' @param item plotted item
+#' @param group Optional; plotted grouping variable
+#' @param weight Optional; survey weights
+#' @param collapse_item Optional, a named list to collapse item categories
+#' @param collapse_group Optional, a named list to collapse group categories
+#' @param geom geom that will represent data
+#' @param geom_args arguments for the geom function like size, color, etc.
+#' @param title Should the name of item be used as plot title? Yes by default
+#' @param title_label Should title use item label instead of name? Only if item has attribute "label".
+#' @param title_wrap Length of title in characters before it gets wrapped. Defaults to 50.
+#' @param format_axis If `TRUE`, adds title for x axis and removes titles for other scales.
+#' @param caption If `TRUE`, adds a caption with sample size.
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_args arguments for the labels function like vjust, postion, etc.
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.05.
+#' @param label_accuracy Accuracy geom labels. `1` means no decimal places, `0.1` one decimal place.
+#' @param label_scale Multiplicative scale of geom labels. `100` multiple the values by 100
+#' @param label_prefix Prefix for geom labels.
+#' @param label_suffix Suffix for geom labels
+#' @param label_big Character to split big numbers. Whitespace by default (e.g. `1000` will be printed as "1 000").
+#' @param label_decimal Character to separate decimal digits. Comma by default (e.g. `1.2` will be printed as "1,2")
+#' @param group_size Should the group size be included in the group legend? Either `n` (absolute frequency), `prop` (proportions) or `none` (nothing).
+#' @param group_wrap How many characters in group categories before wrapping to the next line. Defaults to `NULL` - no wrapping.
+#' @param item_size Should the group size be included in the item legend? Either `n` (absolute frequency), `prop` (proportions) or `none` (nothing).
+#' @param item_wrap How many characters in item categories before wrapping to the next line. Defaults to `NULL` - no wrapping.
+#' @param scale_x Pass [ggplot2::scale_x_discrete()] to the plot if needed.
+#' @param scale_y Pass [ggplot2::scale_y_continuous()] to the plot if needed.
+#' @param scale_fill Pass `scale_fill_*` to the plot if needed.
+#' @param scale_color Pass `scale_color_*` to the plot if needed.
+#' @param facet Should groups be splitted into facets? No by default.
+#' @param guides Pass [ggplot2::guides()] function to the plot if needed.
+#' @param coord_flip If `TRUE`, switches x and y axes.
+#' @param item_reverse Reverse order of item categories
+#' @param group_reverse Reverse order of group categories
 #'
-#' @return
+#' @return a ggplot2 graph with custom attribute "stem_plot"
 #' @export
 #'
 #' @examples
+#' stem_plot(data = trust,
+#' item = government,
+#' label = FALSE)
+#'
+#' stem_plot(data = trust,
+#'           item = police,
+#'           group = eu_index,
+#'           weight = W,
+#'           geom_args = list(position = "stack"),
+#'           label_args = list(position = ggplot2::position_stack(vjust = 0.5), color = "white"),
+#'           label_scale = 100,
+#'           label_suffix = "",
+#'           item_size = "prop",
+#'           group_size = "n",
+#'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1))) +
+#' theme_stem(legend.position = "bottom")
 stem_plot <- function(data,
                       item,
                       group  = NULL,
@@ -42,15 +65,16 @@ stem_plot <- function(data,
                       collapse_group = NULL,
                       geom = ggplot2::geom_col,
                       geom_args = list(position = ggplot2::position_dodge(width = 0.95)),
-                      freq_labels = TRUE,
-                      freq_args = list(position = ggplot2::position_dodge(width = 0.95),
-                                       color = "black",
-                                       vjust = -1),
                       title = TRUE,
                       title_label = TRUE,
                       title_wrap = 50,
                       format_axis = TRUE,
                       caption = TRUE,
+                      label = TRUE,
+                      label_args = list(position = ggplot2::position_dodge(width = 0.95),
+                                        color = "black",
+                                        vjust = -1),
+                      label_hide = 0.05,
                       label_accuracy = 1,
                       label_scale = 1,
                       label_prefix = "",
@@ -58,13 +82,18 @@ stem_plot <- function(data,
                       label_big = " ",
                       label_decimal = ",",
                       group_size = "none",
+                      group_wrap = NULL,
                       item_size = "none",
-                      scale_x = ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(.x, width = 30)),
+                      item_wrap = NULL,
+                      scale_x = ggplot2::scale_x_discrete(),
                       scale_y = ggplot2::scale_y_continuous(limits = c(0, NA)),
                       scale_fill = scale_fill_stem(palette = "modern"),
                       scale_color = scale_color_stem(palette = "modern"),
                       facet = FALSE,
-                      guides = ggplot2::guides()) {
+                      guides = ggplot2::guides(),
+                      coord_flip = FALSE,
+                      item_reverse = FALSE,
+                      group_reverse = FALSE) {
 
 
   summ <- stem_summarise(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }},
@@ -75,17 +104,26 @@ stem_plot <- function(data,
   group_check <- rlang::enquo(group)
 
   # Extracting names weird way that also works in loops
-  item_name <- data |> select({{ item }}) |> names()
-  item_label <- data |> pull({{ item }}) |> attr("label")
+  item_name <- data |> dplyr::select({{ item }}) |> names()
+  item_label <- data |> dplyr::pull({{ item }}) |> attr("label")
 
   if(!rlang::quo_is_null(group_check)) {
-    group_name <- data |> select({{ group }}) |> names()
-    group_label <- data |> pull({{ group }}) |> attr("label")
+    group_name <- data |> dplyr::select({{ group }}) |> names()
+    group_label <- data |> dplyr::pull({{ group }}) |> attr("label")
   }
 
-  # stem_summarise_num doesn't return item column by default. we added so that something can plotte
+  # stem_summarise_num doesn't return item column by default. we added so that something can be plotted
   if(!item_name %in% names(summ)) {summ[[item_name]] <- item_name}
 
+  # Optionally wrap item categories
+  if(!is.null(item_wrap)) {
+    levels(summ[[item_name]]) <- stringr::str_wrap(levels(summ[[item_name]]), item_wrap)
+  }
+
+  # Optionally wrap group categories
+  if(!is.null(group_wrap)) {
+    levels(summ[[group_name]]) <- stringr::str_wrap(levels(summ[[group_name]]), group_wrap)
+  }
 
   # Add group size to break labels
   if(!rlang::quo_is_null(group_check)) {
@@ -105,20 +143,30 @@ stem_plot <- function(data,
             "prop" = levels(summ[[item_name]]) <- paste0(item_sizes[[item_name]], "\n(",  item_sizes$item_prop, "%)"))
   }
 
+  # Optionally reverse order of item and group categories
+  if(item_reverse) {summ <- summ |> dplyr::mutate({{ item }} := forcats::fct_rev({{ item }}))}
+  if(group_reverse & !rlang::quo_is_null(group_check)) {summ <- summ |> dplyr::mutate({{ group }} := forcats::fct_rev({{ group }}))}
+
   # Basic mapping
-  if(quo_is_null(group_check)) {
+  summ <- summ |>
+    dplyr::mutate(geom_label =  scales::number(estimate,
+                                               accuracy = label_accuracy,
+                                               scale = label_scale,
+                                               prefix = label_prefix,
+                                               suffix = label_suffix,
+                                               big.mark = label_big,
+                                               decimal.mark = label_decimal),
+                  geom_label = dplyr::if_else(estimate < label_hide,
+                                              true = "",
+                                              false = geom_label))
+
+  if(rlang::quo_is_null(group_check)) {
     p <- ggplot2::ggplot(data = summ,
                          mapping = ggplot2::aes(x = {{ item }},
                                                 y = estimate,
                                                 ymin  = estimate_low,
                                                 ymax  = estimate_upp,
-                                                label = scales::number(estimate,
-                                                                       accuracy = label_accuracy,
-                                                                       scale = label_scale,
-                                                                       prefix = label_prefix,
-                                                                       suffix = label_suffix,
-                                                                       big.mark = label_big,
-                                                                       decimal.mark = label_decimal)))
+                                                label = geom_label))
   } else {
     p <- ggplot2::ggplot(data = summ,
                          mapping = ggplot2::aes(x = {{group}},
@@ -127,13 +175,7 @@ stem_plot <- function(data,
                                                 ymax  = estimate_upp,
                                                 fill = {{ item }},
                                                 color = {{ item }},
-                                                label = scales::number(estimate,
-                                                                       accuracy = label_accuracy,
-                                                                       scale = label_scale,
-                                                                       prefix = label_prefix,
-                                                                       suffix = label_suffix,
-                                                                       big.mark = label_big,
-                                                                       decimal.mark = label_decimal)))
+                                                label = geom_label))
   }
 
   # Geom and scales
@@ -141,26 +183,26 @@ stem_plot <- function(data,
 
   # Optionally format Axis labels
   if(format_axis) {
-    p <- p + ggplot2::labs(y = element_blank(),
-                           fill = element_blank(),
-                           color = element_blank())
+    p <- p + ggplot2::labs(y = ggplot2::element_blank(),
+                           fill = ggplot2::element_blank(),
+                           color = ggplot2::element_blank())
 
     if(rlang::quo_is_null(group_check)) {
-      p <- p + ggplot2::labs(x = element_blank(),
-                             y = element_blank())
+      p <- p + ggplot2::labs(x = ggplot2::element_blank(),
+                             y = ggplot2::element_blank())
     } else {
       if(is.null(group_label)) {
         p <- p + ggplot2::labs(x = group_name,
-                               y = element_blank())
+                               y = ggplot2::element_blank())
       } else {
         p <- p + ggplot2::labs(x = group_label,
-                               y = element_blank())
+                               y = ggplot2::element_blank())
       }
     }
   }
 
   # Optionally freq labels
-  if(freq_labels) {p <- p + do.call(ggplot2::geom_text, freq_args)}
+  if(label) {p <- p + do.call(ggplot2::geom_text, label_args)}
 
   # Optionally title. If title_label = TRUE and the variable has attribute "label", it will be used insted of
   # the variable name.
@@ -177,7 +219,10 @@ stem_plot <- function(data,
   }
 
   #facets (only if group is present)
-  if(!quo_is_null(group_check) & facet == TRUE) {p <- p + facet_wrap(vars({{ group }}), scales = "free_x")}
+  if(!rlang::quo_is_null(group_check) & facet == TRUE) {p <- p + ggplot2::facet_wrap(ggplot2::vars({{ group }}), scales = "free_x")}
+
+  #Optionally switch x and y axis
+  if(coord_flip) {p <- p + ggplot2::coord_flip()}
 
   return(p)
 
