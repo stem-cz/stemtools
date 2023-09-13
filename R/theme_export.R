@@ -8,7 +8,7 @@
 #' @export
 #'
 #' @examples
-#' stem_plot_single(iris, Species) + theme_stem()
+#' stem_plot_bar(trust, government) + theme_stem()
 theme_stem <- function(...) {
   ggplot2::theme(rect = ggplot2::element_rect(fil = NA, color = NA),
                  panel.background = ggplot2::element_rect(fill = NA),
@@ -34,7 +34,7 @@ theme_stem <- function(...) {
 #' Only works for plots created by `stem_plot_*` family of functions.
 #'
 #'
-#' @param plot Plot created by `stem_plot_*`, e.g. [stemtools::stem_plot_single()].
+#' @param plot Plot created by `stem_plot_*`, e.g. [stemtools::stem_plot_bar()].
 #' @param name Name of exported file, which has to include extension (e.g. ".png"). If `NA`, will be the same as the plot object (extension not needed then).
 #' @param path Optional path to export the plot to.
 #' @param device Device to be used for exporting, e.g. "png" or "pdf".
@@ -43,7 +43,7 @@ theme_stem <- function(...) {
 #'@details
 #'This function aims at exporting common types of plots in correct size and resolution with minimal user input.
 #'Each plot created by `stem_plot_*` function has `plot_fn` attribute used to set default width and heigh of the output.
-#'For example, plots created by [stemtools::stem_plot_single()] have attribute value of `"plot_single"`, which leads to
+#'For example, plots created by [stemtools::stem_plot_bar()] have attribute value of `"stem_plot_bar"`, which leads to
 #'them being exported in 16x4 cm dimensions.
 #'
 #'
@@ -52,7 +52,7 @@ theme_stem <- function(...) {
 #'
 #' @examples
 #' \dontrun{
-#' species_plot <- stem_plot_single(iris, Species)
+#' species_plot <- stem_plot_bar(trust, government)
 #'
 #' stem_ggsave(species_plot)
 #' }

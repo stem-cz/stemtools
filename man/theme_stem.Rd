@@ -16,5 +16,5 @@ ggplot2 \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 Basic ggplot2 theme for Stem.
 }
 \examples{
-stem_plot_single(iris, Species) + theme_stem()
+stem_plot_bar(trust, government) + theme_stem()
 }

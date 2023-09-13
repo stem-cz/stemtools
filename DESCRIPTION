@@ -17,7 +17,6 @@ Imports:
     dplyr,
     tidyr,
     stringr,
-    tidyselect,
     rlang,
     srvyr,
     scales,

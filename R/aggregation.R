@@ -159,7 +159,9 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
   if(rlang::quo_is_null(weight_check)) {
     means <- data |>
       dplyr::group_by({{ group }}) |>
-      dplyr::summarise(n = dplyr::n(),
+      dplyr::summarise(group_n = dplyr::n(),
+                       item_n = dplyr::n(),
+                       n = group_n,
                 se = se_mean({{ item }}),
                 mean = mean({{ item }}, na.rm = TRUE)) |>
       dplyr::group_by({{ group }}) |>
@@ -173,7 +175,9 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
     means <- data |>
       srvyr::as_survey_design(weights = weight_name) |>
       srvyr::group_by({{ group }}) |>
-      srvyr::summarise(n = dplyr::n(),
+      srvyr::summarise(group_n = dplyr::n(),
+                       group_n = dplyr::n(),
+                       n = group_n,
                 mean = srvyr::survey_mean({{ item }}, vartype = "ci"))
   }
 
