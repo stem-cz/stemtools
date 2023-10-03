@@ -25,7 +25,9 @@ Imports:
     rstudioapi,
     ragg
 Suggests: 
+    knitr,
     rmarkdown
 Depends: 
     R (>= 4.1.0)
 LazyData: true
+VignetteBuilder: knitr
