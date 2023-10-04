@@ -16,6 +16,9 @@
     <loc>https://stem-cz.github.io/stemtools/articles/index.html</loc>
   </url>
   <url>
+    <loc>https://stem-cz.github.io/stemtools/articles/plotting.html</loc>
+  </url>
+  <url>
     <loc>https://stem-cz.github.io/stemtools/authors.html</loc>
   </url>
   <url>
@@ -25,13 +28,22 @@
     <loc>https://stem-cz.github.io/stemtools/news/index.html</loc>
   </url>
   <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/desub.html</loc>
+  </url>
+  <url>
     <loc>https://stem-cz.github.io/stemtools/reference/diverging_color_extractor.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/prop_se.html</loc>
+  </url>
+  <url>
     <loc>https://stem-cz.github.io/stemtools/reference/scale_colour_stem.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/se_mean.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/stem_ggsave.html</loc>
@@ -43,21 +55,30 @@
     <loc>https://stem-cz.github.io/stemtools/reference/stem_palettes.html</loc>
   </url>
   <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot.html</loc>
+  </url>
+  <url>
     <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_bar.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_bartable.html</loc>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_barstack.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_grouped_bar.html</loc>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_battery.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_multiple.html</loc>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_single.html</loc>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise_cat.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise_num.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/theme_stem.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/trust.html</loc>
   </url>
 </urlset>

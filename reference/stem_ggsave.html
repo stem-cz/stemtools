@@ -27,6 +27,7 @@ Only works for plots created by stem_plot_* family of functions."><!-- mathjax -
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
     <a class="dropdown-item" href="../articles/color-palettes.html">Color Palettes in stemtool</a>
+    <a class="dropdown-item" href="../articles/plotting.html">Plotting with stemtools</a>
   </div>
 </li>
 <li class="nav-item">
@@ -66,7 +67,7 @@ Only works for plots created by <code>stem_plot_*</code> family of functions.</p
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>plot</dt>
-<dd><p>Plot created by <code>stem_plot_*</code>, e.g. <code><a href="stem_plot_single.html">stem_plot_single()</a></code>.</p></dd>
+<dd><p>Plot created by <code>stem_plot_*</code>, e.g. <code><a href="stem_plot_bar.html">stem_plot_bar()</a></code>.</p></dd>
 
 
 <dt>name</dt>
@@ -95,14 +96,14 @@ Only works for plots created by <code>stem_plot_*</code> family of functions.</p
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>This function aims at exporting common types of plots in correct size and resolution with minimal user input.
 Each plot created by <code>stem_plot_*</code> function has <code>plot_fn</code> attribute used to set default width and heigh of the output.
-For example, plots created by <code><a href="stem_plot_single.html">stem_plot_single()</a></code> have attribute value of <code>"plot_single"</code>, which leads to
+For example, plots created by <code><a href="stem_plot_bar.html">stem_plot_bar()</a></code> have attribute value of <code>"stem_plot_bar"</code>, which leads to
 them being exported in 16x4 cm dimensions.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span><span class="va">species_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="stem_plot_single.html">stem_plot_single</a></span><span class="op">(</span><span class="va">iris</span>, <span class="va">Species</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">species_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="stem_plot_bar.html">stem_plot_bar</a></span><span class="op">(</span><span class="va">trust</span>, <span class="va">government</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">stem_ggsave</span><span class="op">(</span><span class="va">species_plot</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
