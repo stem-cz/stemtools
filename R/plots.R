@@ -1,528 +1,441 @@
-#' Plot a Single Item in Line
-#'
-#' @description
-#' Plots a single categorical item (usually a likert item) as a horizontal barplot.
+#' General plotting function
 #'
 #'
-#' @param data Dataframe with the item to be plotted.
-#' @param item Item to plot
-#' @param weight If `FALSE` raw frequencies are ploted. Can be a variable holding survey weights. For now, the name of the variable has to be quoted.
-#' @param wrap_width Length of the legend categories names before they are wrapped to the next line.
-#' @param stem_palette Name of a palette from [stemtools::stem_palettes()].
-#' @param text_color Color of the labels inside the plot.
-#' @param axis_suffix Suffixes of labels on the X axis.
-#' @param segment_suffix Suffixes of labels inside the plot.
+#' @param data Dataframe including item (and group) variables
+#' @param item Plotted item
+#' @param group Optional; plotted grouping variable
+#' @param weight Optional; survey weights
+#' @param collapse_item Optional, a named list to collapse item categories
+#' @param collapse_group Optional, a named list to collapse group categories
+#' @param geom Geom that will represent data
+#' @param geom_args Arguments for the geom function like size, color, etc.
+#' @param title Should the name of item be used as plot title? Yes by default
+#' @param title_label Should title use item label instead of name? Only if item has attribute "label".
+#' @param title_wrap Length of title in characters before it gets wrapped. Defaults to 50.
+#' @param format_axis If `TRUE`, adds title for x axis and removes titles for other scales.
+#' @param caption If `TRUE`, adds a caption with sample size.
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_args Arguments for the labels function like vjust, postion, etc.
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.05.
+#' @param label_accuracy Accuracy geom labels. `1` means no decimal places, `0.1` one decimal place.
+#' @param label_scale Multiplicative scale of geom labels. `100` multiple the values by 100
+#' @param label_prefix Prefix for geom labels.
+#' @param label_suffix Suffix for geom labels
+#' @param label_big Character to split big numbers. Whitespace by default (e.g. `1000` will be printed as "1 000").
+#' @param label_decimal Character to separate decimal digits. Comma by default (e.g. `1.2` will be printed as "1,2")
+#' @param group_size Should the group size be included in the group legend? Either `n` (absolute frequency), `prop` (proportions) or `none` (nothing).
+#' @param group_wrap How many characters in group categories before wrapping to the next line. Defaults to `NULL` - no wrapping.
+#' @param item_size Should the group size be included in the item legend? Either `n` (absolute frequency), `prop` (proportions) or `none` (nothing).
+#' @param item_wrap How many characters in item categories before wrapping to the next line. Defaults to `NULL` - no wrapping.
+#' @param scale_x Pass [ggplot2::scale_x_discrete()] to the plot if needed.
+#' @param scale_y Pass [ggplot2::scale_y_continuous()] to the plot if needed.
+#' @param scale_fill Pass `scale_fill_*` to the plot if needed.
+#' @param scale_color Pass `scale_color_*` to the plot if needed.
+#' @param facet Should groups be splitted into facets? No by default.
+#' @param guides Pass [ggplot2::guides()] function to the plot if needed.
+#' @param coord_flip If `TRUE`, switches x and y axes.
+#' @param item_reverse Reverse order of item categories
+#' @param group_reverse Reverse order of group categories
 #'
-#' @return A ggplot2 graph.
+#' @return a ggplot2 graph with custom attribute "stem_plot"
 #' @export
 #'
 #' @examples
-#' stem_plot_single(iris, Species)
-stem_plot_single <- function(data, item, weight = FALSE, wrap_width = 17, stem_palette = "modern",
-                             text_color = "black", axis_suffix = "%", segment_suffix = "%") {
+#' stem_plot(data = trust,
+#' item = government,
+#' label = FALSE)
+#'
+#' stem_plot(data = trust,
+#'           item = police,
+#'           group = eu_index,
+#'           weight = W,
+#'           geom_args = list(position = "stack"),
+#'           label_args = list(position = ggplot2::position_stack(vjust = 0.5), color = "white"),
+#'           label_scale = 100,
+#'           label_suffix = "",
+#'           item_size = "prop",
+#'           group_size = "n",
+#'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1))) +
+#' theme_stem(legend.position = "bottom")
+stem_plot <- function(data,
+                      item,
+                      group  = NULL,
+                      weight = NULL,
+                      collapse_item = NULL,
+                      collapse_group = NULL,
+                      geom = ggplot2::geom_col,
+                      geom_args = list(position = ggplot2::position_dodge(width = 0.95)),
+                      title = TRUE,
+                      title_label = TRUE,
+                      title_wrap = 50,
+                      format_axis = TRUE,
+                      caption = TRUE,
+                      label = TRUE,
+                      label_args = list(position = ggplot2::position_dodge(width = 0.95),
+                                        color = "black",
+                                        vjust = -1),
+                      label_hide = 0.05,
+                      label_accuracy = 1,
+                      label_scale = 1,
+                      label_prefix = "",
+                      label_suffix = "",
+                      label_big = " ",
+                      label_decimal = ",",
+                      group_size = "none",
+                      group_wrap = NULL,
+                      item_size = "none",
+                      item_wrap = NULL,
+                      scale_x = ggplot2::scale_x_discrete(),
+                      scale_y = ggplot2::scale_y_continuous(limits = c(0, NA)),
+                      scale_fill = scale_fill_stem(palette = "modern"),
+                      scale_color = scale_color_stem(palette = "modern"),
+                      facet = FALSE,
+                      guides = ggplot2::guides(),
+                      coord_flip = FALSE,
+                      item_reverse = FALSE,
+                      group_reverse = FALSE) {
 
-  if(weight == FALSE) {
-    data <- data |>
-      dplyr::count(item = {{ item }}) |>
-      dplyr::mutate(freq = n / sum(n),
-                    freq_label = scales::percent(freq, accuracy = 1, suffix = segment_suffix))
-  } else {
-    data <- data |>
-      srvyr::as_survey_design(weights = weight) |>
-      srvyr::group_by(item = {{item}}) |>
-      srvyr::summarise(freq = srvyr::survey_prop(vartype = NULL)) |>
-      srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = segment_suffix))
+
+  summ <- stem_summarise(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }},
+                         return_n = TRUE, collapse_item = collapse_item, collapse_group = collapse_group)
+  summ <- dplyr::rename_with(summ, ~gsub(x = ., pattern = "freq|mean", replacement = "estimate"))
+
+
+  group_check <- rlang::enquo(group)
+
+  # Extracting names weird way that also works in loops
+  item_name <- data |> dplyr::select({{ item }}) |> names()
+  item_label <- data |> dplyr::pull({{ item }}) |> attr("label")
+
+  if(!rlang::quo_is_null(group_check)) {
+    group_name <- data |> dplyr::select({{ group }}) |> names()
+    group_label <- data |> dplyr::pull({{ group }}) |> attr("label")
   }
 
-  plot <- data |>
-    dplyr::mutate(item = forcats::fct_rev(item)) |>
-    ggplot2::ggplot(ggplot2::aes(x = freq,
-                                 y = "",
-                                 fill = item,
-                                 label = freq_label)) +
-    ggplot2::geom_col(position = "stack") +
-    ggplot2::geom_text(position = ggplot2::position_stack(vjust = 0.5),
-                       color = text_color) +
-    scale_fill_stem(palette = stem_palette,
-                    direction = -1,
-                    labels = scales::label_wrap(width = wrap_width)) +
-    ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1, suffix = axis_suffix)) +
-    ggplot2::theme(legend.position = "bottom") +
-    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+  # stem_summarise_num doesn't return item column by default. we added so that something can be plotted
+  if(!item_name %in% names(summ)) {summ[[item_name]] <- item_name}
 
-  attr(plot, "plot_fn") <- "plot_single"
-
-  return(plot)
-
-}
-
-
-#' Plot Multiple Items in Line
-#'
-#' @description
-#' Plot multiple categorical items (e.g. battery of likert items) in a stacked barplot.
-#'
-#'
-#' @param data Dataframe with the items to be plotted.
-#' @param items Items to plot, can be selected using dplyr's selection helpers.
-#' @param weight If `NA`, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.
-#' @param var_labels Optional dataframe with item labels used in the plot. Has to include columns `item` and `label`.
-#' @param order_by Optional vector of response category/categories. Items in the plot will be sorted based on their frequencies.
-#' @param reverse_responses Reverses order of response categories. Defaults to `TRUE`, since most often we want positive responses on the left.
-#' @param labels Logical value. Should plot include numerical labels for each category?
-#' @param hide_labels Value between 0 and 1. Hides labels with with frequencies lower than this value.
-#' @param labels_size Font size for labels inside the plot.
-#' @param labels_color Color of labels inside the plot. Can be either label ("black", "white") or hexcode.
-#' @param labels_suffix Suffix for labels inside the plot (e.g. "%" or " %").
-#' @param axis_suffix Suffix for the x axis labels (e.g. "%" or " %").
-#' @param axis_wrap Width of y axis label line before the text gets wrapped.
-#'
-#' @return A ggplot2 graph.
-#' @export
-#'
-stem_plot_multiple <- function(data,
-                               items,
-                               weight = NA,
-                               var_labels = NA,
-                               order_by = NA,
-                               reverse_responses = TRUE,
-                               labels = TRUE,
-                               hide_labels = 0.05,
-                               labels_size = 5,
-                               labels_color = "black",
-                               labels_suffix = "%",
-                               axis_suffix = "%",
-                               axis_wrap = 80) {
-
-  if(is.na(weight)) {
-    data <- data |>
-      dplyr::select({{items}}) |>
-      tidyr::pivot_longer(cols = tidyselect::everything(),
-                   names_to = "item",
-                   values_to = "response") |>
-      dplyr::count(item, response) |>
-      dplyr::group_by(item) |>
-      dplyr::mutate(freq = n / sum(n),
-                    freq_label = scales::percent(freq, accuracy = 1),
-                    freq_label = dplyr::if_else(freq < hide_labels,
-                                                true = "",
-                                                false = freq_label)) |>
-      dplyr::ungroup()
-  } else {
-    data <- data |>
-      dplyr::select({{items}}, weight) |>
-      tidyr::pivot_longer(cols = -weight,
-                   names_to = "item",
-                   values_to = "response") |>
-      srvyr::as_survey_design(weights = weight) |>
-      srvyr::survey_count(item, response) |>
-      dplyr::group_by(item) |>
-      dplyr::mutate(freq = n / sum(n),
-                    freq_label = scales::percent(freq, accuracy = 1, suffix = labels_suffix),
-                    freq_label = dplyr::if_else(freq < hide_labels,
-                                                true = "",
-                                                false = freq_label)) |>
-      dplyr::ungroup()
+  # Optionally wrap item categories
+  if(!is.null(item_wrap)) {
+    levels(summ[[item_name]]) <- stringr::str_wrap(levels(summ[[item_name]]), item_wrap)
   }
 
-  if(is.data.frame(var_labels)) {
-
-    if(!any(names(var_labels) %in% c("item", "label")) ) {
-      stop("Datarame with item labels has to include columns called `item` and `label`.")
-    }
-
-    data <- dplyr::left_join(data, var_labels, by = "item") |>
-            dplyr::mutate(item = label) |>
-            dplyr::select(-label)
+  # Optionally wrap group categories
+  if(!is.null(group_wrap)) {
+    levels(summ[[group_name]]) <- stringr::str_wrap(levels(summ[[group_name]]), group_wrap)
   }
 
-  if(!any(is.na(order_by))) {
-    data <- data |>
-      dplyr::group_by(item) |>
-      dplyr::mutate(ordering = sum(freq[response %in% order_by])) |>
-      dplyr::ungroup() |>
-      dplyr::mutate(item = forcats::fct_reorder(item, ordering)) |>
-      dplyr::select(-ordering)
+  # Add group size to break labels
+  if(!rlang::quo_is_null(group_check)) {
+    summ <- summ |>
+      dplyr::mutate(group_prop = round(group_n / sum(n) * 100),
+                    item_prop = round(item_n / sum(n) * 100))
+
+    item_sizes <- dplyr::distinct(summ, {{ item }}, item_prop, item_n) #|> dplyr::arrange({{ group }})
+    group_sizes <- dplyr::distinct(summ, {{ group }}, group_prop, group_n) #|> dplyr::arrange({{ item }})
+
+    switch (group_size,
+            "n" = levels(summ[[group_name]])    <- paste0(group_sizes[[group_name]], "\n(n = ",group_sizes$group_n, ")"),
+            "prop" = levels(summ[[group_name]]) <- paste0(group_sizes[[group_name]], "\n(",group_sizes$group_prop, "%)"))
+
+    switch (item_size,
+            "n" = levels(summ[[item_name]])    <- paste0(item_sizes[[item_name]], "\n(n = ", item_sizes$item_n, ")"),
+            "prop" = levels(summ[[item_name]]) <- paste0(item_sizes[[item_name]], "\n(",  item_sizes$item_prop, "%)"))
   }
 
-  if(reverse_responses) {
-    data$response <- forcats::fct_rev(data$response)
-  }
+  # Optionally reverse order of item and group categories
+  if(item_reverse) {summ <- summ |> dplyr::mutate({{ item }} := forcats::fct_rev({{ item }}))}
+  if(group_reverse & !rlang::quo_is_null(group_check)) {summ <- summ |> dplyr::mutate({{ group }} := forcats::fct_rev({{ group }}))}
 
-  plot <- ggplot2::ggplot(data = data,
-                          mapping = ggplot2::aes(x = freq,
-                                                 y = item,
-                                                 fill = response)) +
-    ggplot2::geom_col() +
-    ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1, suffix = axis_suffix)) +
-    ggplot2::scale_y_discrete(labels = ~stringr::str_wrap(., width = axis_wrap))
-
-  if(labels) {
-    plot <- plot + ggplot2::geom_text(mapping = ggplot2::aes(label = freq_label),
-                                                color = labels_color,
-                                                size = labels_size,
-                                                position = ggplot2::position_stack(vjust = 0.5))
-  }
-
-  plot <- plot +
-    ggplot2::theme(legend.position = "bottom") +
-    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
-
-  attr(plot, "plot_fn") <- "plot_multiple"
-  attr(plot, "n_items") <- length(unique(data$item))
-
-  return(plot)
-
-}
-
-#' Plot Item As Simple Barplot
-#'
-#' @description
-#' Plots a single categorical variable as a simple barplot.
-#'
-#'
-#' @param data Dataframe with the item to be plotted.
-#' @param item Items to plot.
-#' @param group Optional grouping variable
-#' @param weight If `NA`, returns plot with unweighted frequencies. If name of variable holding survey weights, returns weighted frequencies.
-#' @param label Logical value. Should plot include numerical labels for each category?
-#' @param nudge_label Distance between bar and label. Can be negative to put label inside bar.
-#' @param label_suffix Suffix for labels inside the plot (e.g. "%" or " %").
-#' @param hide_labels Number between 0 and 1. Labels with smaller frequencies are hidden.
-#' @param axis_suffix Suffix for the x axis labels (e.g. "%" or " %").
-#' @param axis_wrap Width of y axis label lines before the text gets wrapped.
-#' @param axis_expand Vector of coordinates to expand axis with frequencies.
-#' @param reverse Reverses order of response categories.
-#' @param order_by In grouped plot, categories to order item by.
-#' @param coord_flip Reverses plot axes.
-#'
-#' @return A ggplot2 plot
-#' @export
-#'
-#' @examples
-#' stem_plot_bar(iris, Species)
-stem_plot_bar <- function(data,
-                           item,
-                           group = NA,
-                           weight = FALSE,
-                           label = TRUE,
-                           nudge_label = 0.02,
-                           label_suffix = "%",
-                           hide_labels = 0.05,
-                           axis_suffix = "%",
-                           axis_wrap = 40,
-                           axis_expand = ggplot2::waiver(),
-                           reverse = FALSE,
-                           order_by = NA,
-                           coord_flip = FALSE) {
-
-  group_var = deparse(substitute(group))
-  weight = deparse(substitute(weight))
-
-  if(weight == FALSE) {
-    if(group_var != "NA") {
-      data <- data |>
-        dplyr::count(item = {{item}}, group = {{ group }}) |>
-        dplyr::group_by(group) |>
-        dplyr::mutate(freq = n / sum(n),
-                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
-                      freq_label = dplyr::if_else(freq < hide_labels,
-                                                  true = "",
-                                                  false = freq_label)) |>
-        dplyr::ungroup()
-    } else {
-      data <- data |>
-        dplyr::count(item = {{ item }}) |>
-        dplyr::mutate(freq = n / sum(n),
-                      freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
-                      freq_label = dplyr::if_else(freq < hide_labels,
-                                                  true = "",
-                                                  false = freq_label)) |>
-        dplyr::ungroup()
-    }
-
-  } else {
-
-    if(group_var != "NA") {
-      data <- data |>
-        srvyr::as_survey_design(weights = weight) |>
-        srvyr::survey_count(item = {{ item }}, group = {{ group }}) |>
-        srvyr::group_by(group) |>
-        srvyr::mutate(freq = n / sum(n)) |>
-        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
-                      freq_label = dplyr::if_else(freq < hide_labels,
-                                                  true = "",
-                                                  false = freq_label)) |>
-        dplyr::ungroup()
-    } else {
-      data <- data |>
-        srvyr::as_survey_design(weights = weight) |>
-        srvyr::group_by(item = {{ item }}) |>
-        srvyr::summarise(freq = srvyr::survey_prop(vartype = NULL)) |>
-        srvyr::mutate(freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
-                      freq_label = dplyr::if_else(freq < hide_labels,
-                                                  true = "",
-                                                  false = freq_label)) |>
-        dplyr::ungroup()
-
-    }
-
-  }
-
-  if(reverse) {
-    data$item <- forcats::fct_rev(data$item)
-  }
-
-  if(group_var != "NA" & !any(is.na(order_by))) {
-    data <- data |>
-      dplyr::mutate(ordering = sum(freq[item %in% order_by]),
-             .by = group) |>
-      dplyr::mutate(group = forcats::fct_reorder(group, ordering))
-  }
-
-  if(group_var != "NA") {
-    plot <- ggplot2::ggplot(data = data,
-                            ggplot2::aes(x = group,
-                                         y = freq,
-                                         fill = item,
-                                         label = freq_label)) +
-      ggplot2::geom_col(position = ggplot2::position_stack()) +
-      ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
-                                                                  suffix = axis_suffix),
-                                  expand = axis_expand) +
-      ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(., axis_wrap)) +
-      ggplot2::theme(legend.position = "bottom")
-
-  } else {
-    plot <- ggplot2::ggplot(data = data,
-                            ggplot2::aes(x = item,
-                                         y = freq,
-                                         label = freq_label)) +
-      ggplot2::geom_col() +
-      ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
-                                                                  suffix = axis_suffix),
-                                  expand = axis_expand) +
-      ggplot2::scale_x_discrete(labels = ~stringr::str_wrap(., axis_wrap))
-
-  }
-
-
-  if(label) {
-    if(group_var != "NA" & coord_flip == FALSE) {
-      plot <- plot + ggplot2::geom_text(position = ggplot2::position_stack(vjust = 0.5))
-    } else if(group_var != "NA" & coord_flip == TRUE) {
-      plot <- plot + ggplot2::geom_text(position = ggplot2::position_stack(vjust = 0.5))
-    } else {
-      plot <- plot + ggplot2::geom_text(nudge_y = nudge_label)
-    }
-
-  }
-
-
-  if(reverse) {
-    plot <- plot + ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
-  }
-
-  if(coord_flip) {
-    if(group_var != "NA") {
-      plot <- plot + ggplot2::coord_flip()
-      attr(plot, "plot_fn") <- "plot_bar_grouped_v"
-    } else {
-      plot <- plot + ggplot2::coord_flip()
-      attr(plot, "plot_fn") <- "plot_bar_v"
-    }
-  } else {
-    if(group_var != "NA") {
-      attr(plot, "plot_fn") <- "plot_bar_grouped_h"
-    } else {
-      attr(plot, "plot_fn") <- "plot_bar_h"
-    }
-  }
-
-  attr(plot, "n_items") <- length(unique(data$item))
-
-  return(plot)
-
-}
-
-#' Plot Table of Barplots
-#'
-#' @description
-#' Plots three categorical variables, one represented by table rows, second by table columns and the last one by a horizontal barplot.
-#'
-#'
-#' @param data Dataframe with the items to be plotted.
-#' @param row Item in table row.
-#' @param column Item in table column.
-#' @param item Item inside the table.
-#' @param weight If `NA`, returns plot with unweighted frequencies. If (quoted) name of variable holding survey weights, returns weighted frequencies.
-#' @param reverse Reverses order of response categories.
-#' @param label Logical value. Should plot include numerical labels for each category?
-#' @param hide_labels Value between 0 and 1. Hides labels with with frequencies lower than this value.
-#' @param label_suffix Suffix for labels inside the plot (e.g. "%" or " %").
-#' @param wrap_row Width of row label lines before the text gets wrapped.
-#' @param wrap_col Width of column label lines before the text gets wrapped.
-#'
-#' @return A ggplot2 graph
-#' @export
-#'
-stem_plot_bartable <- function(data,
-                               row,
-                               column,
-                               item,
-                               weight = FALSE,
-                               reverse = TRUE,
-                               label = TRUE,
-                               hide_labels = 0.05,
-                               label_suffix = "",
-                               wrap_row = 20,
-                               wrap_col = 20) {
-
-  if(weight == FALSE) {
-    data <- data |>
-      dplyr::select(row = {{row}}, col = {{column}}, item = {{item}}) |>
-      tidyr::pivot_longer(item) |>
-      dplyr::count(row, col, value)
-  } else {
-    data <- data |>
-      dplyr::select(row = {{row}}, col = {{column}}, item = {{item}}, W = weight) |>
-      tidyr::pivot_longer(item) |>
-      srvyr::as_survey_design(weights = W) |>
-      srvyr::survey_count(row, col, value, vartype = NULL)
-  }
-
-
-  if(reverse) {
-    data$value <- forcats::fct_rev(data$value)
-  }
-
-
-  plot <- data |>
-    dplyr::group_by(row, col) |>
-    dplyr::mutate(freq = n / sum(n),
-                  freq_label = scales::percent(freq, accuracy = 1, suffix = label_suffix),
-                  freq_label = dplyr::if_else(freq < 0.05,
+  # Formatting labels
+  summ <- summ |>
+    dplyr::mutate(geom_label =  scales::number(estimate,
+                                               accuracy = label_accuracy,
+                                               scale = label_scale,
+                                               prefix = label_prefix,
+                                               suffix = label_suffix,
+                                               big.mark = label_big,
+                                               decimal.mark = label_decimal),
+                  geom_label = dplyr::if_else(estimate < label_hide,
                                               true = "",
-                                              false = freq_label)) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(row = forcats::fct_relabel(row, stringr::str_wrap, width = wrap_row),
-                  col = forcats::fct_relabel(col, stringr::str_wrap, width = wrap_col)) |>
-    ggplot2::ggplot(ggplot2::aes(y = "",
-                                 x = freq,
-                                 fill = value)) +
-    ggplot2::facet_grid(row~col, switch = "y") +
-    ggplot2::geom_col()
-
-  if(label) {
-    plot <- plot + ggplot2::geom_text(mapping = ggplot2::aes(label = freq_label),
-                                      position = ggplot2::position_stack(vjust = 0.5))
+                                              false = geom_label))
+  # Basic mapping
+  if(rlang::quo_is_null(group_check)) {
+    p <- ggplot2::ggplot(data = summ,
+                         mapping = ggplot2::aes(x = {{ item }},
+                                                y = estimate,
+                                                ymin  = estimate_low,
+                                                ymax  = estimate_upp,
+                                                label = geom_label))
+  } else {
+    p <- ggplot2::ggplot(data = summ,
+                         mapping = ggplot2::aes(x = {{group}},
+                                                y = estimate,
+                                                ymin  = estimate_low,
+                                                ymax  = estimate_upp,
+                                                fill = {{ item }},
+                                                color = {{ item }},
+                                                label = geom_label))
   }
 
-  plot <- plot +
-    ggplot2::theme(legend.position = "bottom",
-                   axis.ticks = ggplot2::element_blank(),
-                   axis.text = ggplot2::element_blank(),
-                   strip.clip = "off") +
-    ggplot2::labs(x = ggplot2::element_blank(),
-                  y = ggplot2::element_blank(),
-                  fill = ggplot2::element_blank()) +
-    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
+  # Geom and scales
+  p <- p + do.call(geom, geom_args) + scale_x + scale_y + scale_fill + scale_color + guides
 
+  # Optionally format Axis labels
+  if(format_axis) {
+    p <- p + ggplot2::labs(y = ggplot2::element_blank(),
+                           fill = ggplot2::element_blank(),
+                           color = ggplot2::element_blank())
 
-  attr(plot, "plot_fn") <- "plot_bartable"
+    if(rlang::quo_is_null(group_check)) {
+      p <- p + ggplot2::labs(x = ggplot2::element_blank(),
+                             y = ggplot2::element_blank())
+    } else {
+      if(is.null(group_label)) {
+        p <- p + ggplot2::labs(x = group_name,
+                               y = ggplot2::element_blank())
+      } else {
+        p <- p + ggplot2::labs(x = group_label,
+                               y = ggplot2::element_blank())
+      }
+    }
+  }
 
-  return(plot)
+  # Optionally freq labels
+  if(label) {p <- p + do.call(ggplot2::geom_text, label_args)}
+
+  # Optionally title. If title_label = TRUE and the variable has attribute "label", it will be used insted of
+  # the variable name.
+  if(title) {
+    if(title_label & !is.null(item_label)) {
+      p <- p + ggplot2::ggtitle(label = item_label)
+    } else {p <- p + ggplot2::ggtitle(label = item_name)}
+  }
+
+  # Optionally caption with sample size used
+  if(caption) {
+    total_n <- scales::number(sum(summ$n), big.mark = " ")
+    p <- p + ggplot2::labs(caption = paste0("Velikost vzorku:", total_n, " respondentů."))
+  }
+
+  #facets (only if group is present)
+  if(!rlang::quo_is_null(group_check) & facet == TRUE) {p <- p + ggplot2::facet_wrap(ggplot2::vars({{ group }}), scales = "free_x")}
+
+  #Optionally switch x and y axis
+  if(coord_flip) {p <- p + ggplot2::coord_flip()}
+
+  attr(p, which = "stem_plot") <- "stem_plot"
+
+  suppressWarnings(print(p))
 
 }
 
 
-#' Plot Simple Barplot Grouped by Category
+#' Plot a simple barchart
 #'
-#' @description
-#' Aggregates category frequencies and plots them based on grouping variable.
+#' Wrapper around [stemtools::stem_plot()] to make creating barplots easier.
 #'
-#' @param data Dataframe with the items to be plotted.
-#' @param item Item to be aggregated and ploted.
-#' @param group Grouping variable.
-#' @param weight Optional suvey weights.
-#' @param freq_by Character vector of responses whose frequencies are ploted.
-#' @param axis_suffix Axis label suffix (e.g. "%").
-#' @param axis_wrap Number of Axis labels characters before the text is wrapped.
-#' @param nudge_label Numeric, distance between bar and label. Can be negative to put label inside bar.
-#' @param segment_suffix Category Label suffix (e.g. "%").
-#' @param order_group Logical, should the grouping variable be ordered by frequencies?
-#' @param reverse Logical, should the order of grouping categories be reversed?
-#' @param coord_flip Logical, should the axis be reversed?
+#' @param data Dataframe including item (and group) variables
+#' @param item Plotted item
+#' @param group Optional; plotted grouping variable
+#' @param weight Optional; survey weights
+#' @param scale_y Format y axis using [ggplot2::scale_y_continuous()]
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_scale Multiplicative scale of geom labels. `100` multiple the values by 100
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.
+#' @param ... Other arguments passed to [stemtools::stem_plot()]
 #'
-#' @return A ggplot object
+#' @return A ggplot2 object with custom attribute "stem_plot"
 #' @export
 #'
-stem_plot_grouped_bar <- function(data,
-                                  item,
-                                  group = NA,
-                                  weight = FALSE,
-                                  freq_by,
-                                  axis_suffix = "%",
-                                  axis_wrap = 20,
-                                  nudge_label = 0.02,
-                                  segment_suffix = "",
-                                  order_group = TRUE,
-                                  reverse = FALSE,
-                                  coord_flip = FALSE) {
+#' @examples
+#' stem_plot_bar(trust, government)
+stem_plot_bar <- function(data,
+                          item,
+                          group = NULL,
+                          weight = NULL,
+                          scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                                                                limits = c(0, NA)),
+                          label = TRUE,
+                          label_scale = 100,
+                          label_hide = 0,
+                          ...) {
+  p <- stem_plot(data = data,
+                 item = {{ item }},
+                 group = {{ group }},
+                 weight = {{weight}},
+                 scale_y = scale_y,
+                 label = label,
+                 label_scale = label_scale,
+                 label_hide = label_hide,
+                 ...)
 
-  weight = deparse(substitute(weight))
+  attr(p, which = "stem_plot") <- "stem_plot_bar"
 
-  if(weight == FALSE) {
-    data <- data |>
-      dplyr::count(item = {{ item }}, group = {{ group }}) |>
-      dplyr::mutate(freq = n / sum(n),
-                    .by = group) |>
-      dplyr::summarise(group_freq = sum(freq[item %in% freq_by]),
-                       freq_label = scales::percent(group_freq,
-                                                    accuracy = 1,
-                                                    suffix = segment_suffix),
-                       .by = group)
-  } else {
-    data <- data |>
-      srvyr::as_survey_design(weights = weight) |>
-      srvyr::survey_count(item = {{ item }}, group = {{ group }}) |>
-      dplyr::mutate(freq = n / sum(n),
-                    .by = group) |>
-      dplyr::summarise(group_freq = sum(freq[item %in% freq_by]),
-                       freq_label = scales::percent(group_freq,
-                                                    accuracy = 1,
-                                                    suffix = segment_suffix),
-                       .by = group)
-  }
-
-  if(order_group) {
-    data$group <- forcats::fct_reorder(data$group, data$group_freq)
-  }
-
-
-  if(reverse) {
-    data$group <- forcats::fct_rev(data$group)
-  }
-
-  plot <- data |>
-    ggplot2::ggplot(ggplot2::aes(y = group,
-                                 x = group_freq,
-                                 label = freq_label)) +
-    ggplot2::geom_col() +
-    ggplot2::geom_text(nudge_x = nudge_label) +
-    ggplot2::scale_x_continuous(labels = scales::percent_format(accuracy = 1,
-                                                                suffix = axis_suffix)) +
-    ggplot2::scale_y_discrete(labels = ~stringr::str_wrap(., axis_wrap))
-
-  if(coord_flip) {
-    plot <- plot + ggplot2::coord_flip()
-    attr(plot, "plot_fn") <- "plot_grouped_bar_h"
-  } else {
-    attr(plot, "plot_fn") <- "plot_grouped_bar_v"
-  }
-
-  attr(plot, "n_items") <- length(unique(data$group))
-
-  return(plot)
-
+  return(p)
 }
+
+
+#' Plot a stacked barchart
+#'
+#' Wrapper around [stemtools::stem_plot()] to make creating stacked barplots easier.
+#'
+#' @param data Dataframe including item (and group) variables
+#' @param item Plotted item
+#' @param group Optional; plotted grouping variable
+#' @param weight Optional; survey weights
+#' @param geom geom that will represent data
+#' @param geom_args Optional, a named list to collapse group categories
+#' @param label_text_color Color of text labels. Default is `black`.
+#' @param label_args Arguments for the labels function like vjust, postion, etc.
+#' @param scale_y Format y axis using [ggplot2::scale_y_continuous()]
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_scale Multiplicative scale of geom labels. `100` multiple the values by 100.
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.05.
+#' @param ... Other arguments passed to [stemtools::stem_plot()]
+#'
+#' @return A ggplot2 object with custom attribute "stem_plot"
+#' @export
+#'
+#' @examples
+#' stem_plot_barstack(trust, police, eu_index)
+#' stem_plot_barstack(trust, police)
+#'
+stem_plot_barstack <- function(data,
+                               item,
+                               group = NULL,
+                               weight = NULL,
+                               geom = ggplot2::geom_col,
+                               geom_args = list(position = "stack"),
+                               label_text_color = "black",
+                               label_args = list(position = ggplot2::position_stack(vjust = 0.5), color = label_text_color),
+                               scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                                                                     limits = c(0, NA)),
+                               label = TRUE,
+                               label_scale = 100,
+                               label_hide = 0.05,
+                               ...) {
+
+  group_check <- rlang::enquo(group)
+
+  p <- stem_plot(data = data,
+                 item = {{ item }},
+                 group = {{ group }},
+                 weight = {{weight}},
+                 scale_y = scale_y,
+                 geom_args = geom_args,
+                 label_args = label_args,
+                 label = label,
+                 label_scale = label_scale,
+                 label_hide = label_hide,
+                 ...)
+
+  # If only item is present, x axis will have dummy value
+  if(rlang::quo_is_null(group_check)) {
+    p <- p + ggplot2::aes(x = '', fill = {{ item }})
+  }
+
+  attr(p, which = "stem_plot") <- "stem_plot_barstack"
+
+  suppressWarnings(print(p))
+}
+
+
+#' Plot battery of like items
+#'
+#' Plots a set of categorical variables with same response categories as a single graph.
+#'
+#' @param data Dataframe including item (and group) variables
+#' @param items Plotted items. Can be selected using Tidyselect's selection helpers.
+#' @param weight Optional; survey weights
+#' @param order_by Vector of response categories to order items by, e.g. `c("Definitely Agree", "Rather Agree")`.
+#' @param geom_args Arguments for the geom function like size, color, etc.
+#' @param label_args Arguments for the labels function like vjust, postion, etc.
+#' @param label_scale Multiplicative scale of geom labels. `100` multiple the values by 100.
+#' @param label_text_color Color of text labels. Default is `black`.
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.05.
+#' @param item_label If `TRUE`, item labels are used instead of names (all items must have a label).
+#' @param group_size Should the group size be included in the group legend? Either `n` (absolute frequency), `prop` (proportions) or `none` (nothing).
+#' @param scale_y Format y axis using [ggplot2::scale_y_continuous()]
+#' @param coord_flip If `TRUE`, switches x and y axes.
+#' @param ... Other arguments passed to [stemtools::stem_plot()]
+#'
+#' @return A ggplot2 object with custom attribute "stem_plot"
+#' @export
+#'
+#' @examples
+#' stem_plot_battery(trust,
+#'                   items = c(police, eu, government, army),
+#'                   weight = W,
+#'                   order_by = c("Definitely Agree", "Rather Agree"))
+stem_plot_battery <- function(data,
+                              items,
+                              weight = NULL,
+                              order_by = NULL,
+                              geom_args = list(position = "stack"),
+                              label_args = list(position = ggplot2::position_stack(vjust = 0.5), color = label_text_color),
+                              label_scale = 100,
+                              label_text_color = "black",
+                              label_hide = 0.05,
+                              item_label = TRUE,
+                              group_size = "none",
+                              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)),
+                              coord_flip = TRUE,
+                              ...) {
+
+  selected <- dplyr::select(.data = data, {{ items }}, {{ weight }})
+
+  selected_long <- tidyr::pivot_longer(selected, cols = -{{ weight }}) |>
+    dplyr::mutate(name = as.factor(name))
+
+  # Check if all items have label
+  if(item_label) {
+    label_check <-  unlist(lapply(data, function(x) attr(x, "label")))
+    label_check <- any(is.null(label_check))
+  }
+
+  if(label_check) {warning('At least one item does not have attribute "label"')}
+
+  if(item_label & !label_check) {
+    selected_name <- names(selected)
+    selected_labs <- unlist(lapply(selected, function(x) attr(x, which = "label")))
+    selected_cats <- as.list(selected_name)
+    names(selected_cats) <- selected_labs
+
+    selected_long$name <- do.call(forcats::fct_recode, c(list(selected_long$name), selected_cats))
+  }
+
+  if(!is.null(order_by)) {
+    ordered_levels <- selected_long |>
+      dplyr::count(name, value, wt = {{ weight }}) |>
+      dplyr::mutate(freq = n / sum(n),
+                    ordering = sum(freq[value %in% order_by]),
+                    .by = name) |>
+      dplyr::mutate(name = forcats::fct_reorder(name, ordering))
+
+    ordered_levels <- rev(levels(ordered_levels$name))
+
+    selected_long$name <- factor(selected_long$name, levels = ordered_levels)
+  }
+
+  p <- stem_plot(data = selected_long,
+                 item = value,
+                 group = name,
+                 weight = {{ weight }},
+                 geom_args = geom_args,
+                 label_args = label_args,
+                 label_scale = label_scale,
+                 label_hide = label_hide,
+                 group_size = group_size,
+                 scale_y = scale_y,
+                 caption = FALSE,
+                 title = FALSE,
+                 coord_flip = coord_flip,
+                 ...)
+
+  attr(p, which = "stem_plot") <- "stem_plot_battery"
+
+  suppressWarnings(print(p))
+}
+
+

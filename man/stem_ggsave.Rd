@@ -7,7 +7,7 @@
 stem_ggsave(plot, name = NA, path = NULL, device = "png", dpi = 300)
 }
 \arguments{
-\item{plot}{Plot created by \verb{stem_plot_*}, e.g. \code{\link[=stem_plot_single]{stem_plot_single()}}.}
+\item{plot}{Plot created by \verb{stem_plot_*}, e.g. \code{\link[=stem_plot_bar]{stem_plot_bar()}}.}
 
 \item{name}{Name of exported file, which has to include extension (e.g. ".png"). If \code{NA}, will be the same as the plot object (extension not needed then).}
 
@@ -27,12 +27,12 @@ Only works for plots created by \verb{stem_plot_*} family of functions.
 \details{
 This function aims at exporting common types of plots in correct size and resolution with minimal user input.
 Each plot created by \verb{stem_plot_*} function has \code{plot_fn} attribute used to set default width and heigh of the output.
-For example, plots created by \code{\link[=stem_plot_single]{stem_plot_single()}} have attribute value of \code{"plot_single"}, which leads to
+For example, plots created by \code{\link[=stem_plot_bar]{stem_plot_bar()}} have attribute value of \code{"stem_plot_bar"}, which leads to
 them being exported in 16x4 cm dimensions.
 }
 \examples{
 \dontrun{
-species_plot <- stem_plot_single(iris, Species)
+species_plot <- stem_plot_bar(trust, government)
 
 stem_ggsave(species_plot)
 }

@@ -2,60 +2,46 @@
 % Please edit documentation in R/plots.R
 \name{stem_plot_bar}
 \alias{stem_plot_bar}
-\title{Plot Item As Simple Barplot}
+\title{Plot a simple barchart}
 \usage{
 stem_plot_bar(
   data,
   item,
-  group = NA,
-  weight = FALSE,
+  group = NULL,
+  weight = NULL,
+  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+    limits = c(0, NA)),
   label = TRUE,
-  nudge_label = 0.02,
-  label_suffix = "\%",
-  hide_labels = 0.05,
-  axis_suffix = "\%",
-  axis_wrap = 40,
-  axis_expand = ggplot2::waiver(),
-  reverse = FALSE,
-  order_by = NA,
-  coord_flip = FALSE
+  label_scale = 100,
+  label_hide = 0,
+  ...
 )
 }
 \arguments{
-\item{data}{Dataframe with the item to be plotted.}
+\item{data}{Dataframe including item (and group) variables}
 
-\item{item}{Items to plot.}
+\item{item}{Plotted item}
 
-\item{group}{Optional grouping variable}
+\item{group}{Optional; plotted grouping variable}
 
-\item{weight}{If \code{NA}, returns plot with unweighted frequencies. If name of variable holding survey weights, returns weighted frequencies.}
+\item{weight}{Optional; survey weights}
 
-\item{label}{Logical value. Should plot include numerical labels for each category?}
+\item{scale_y}{Format y axis using \code{\link[ggplot2:scale_continuous]{ggplot2::scale_y_continuous()}}}
 
-\item{nudge_label}{Distance between bar and label. Can be negative to put label inside bar.}
+\item{label}{Should geom labels be printed? Yes by default}
 
-\item{label_suffix}{Suffix for labels inside the plot (e.g. "\%" or " \%").}
+\item{label_scale}{Multiplicative scale of geom labels. \code{100} multiple the values by 100}
 
-\item{hide_labels}{Number between 0 and 1. Labels with smaller frequencies are hidden.}
+\item{label_hide}{Hides geom labels with values smaller than this threshold. Defaults to 0.}
 
-\item{axis_suffix}{Suffix for the x axis labels (e.g. "\%" or " \%").}
-
-\item{axis_wrap}{Width of y axis label lines before the text gets wrapped.}
-
-\item{axis_expand}{Vector of coordinates to expand axis with frequencies.}
-
-\item{reverse}{Reverses order of response categories.}
-
-\item{order_by}{In grouped plot, categories to order item by.}
-
-\item{coord_flip}{Reverses plot axes.}
+\item{...}{Other arguments passed to \code{\link[=stem_plot]{stem_plot()}}}
 }
 \value{
-A ggplot2 plot
+A ggplot2 object with custom attribute "stem_plot"
 }
 \description{
-Plots a single categorical variable as a simple barplot.
+Wrapper around \code{\link[=stem_plot]{stem_plot()}} to make creating barplots easier.
 }
 \examples{
-stem_plot_bar(iris, Species)
+stem_plot_bar(trust, government)
 }
