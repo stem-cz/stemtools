@@ -79,7 +79,8 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
       dplyr::mutate(group_n = sum(n)) |>
       dplyr::group_by({{ item }}) |>
       dplyr::mutate(item_n = sum(n)) |>
-      dplyr::ungroup()
+      dplyr::ungroup() |>
+      dplyr::relocate(n, group_n, item_n, .after = tidyr::last_col())
   }
 
   if(!return_n) {
@@ -176,7 +177,7 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
       srvyr::as_survey_design(weights = weight_name) |>
       srvyr::group_by({{ group }}) |>
       srvyr::summarise(group_n = dplyr::n(),
-                       group_n = dplyr::n(),
+                       item_n = dplyr::n(),
                        n = group_n,
                 mean = srvyr::survey_mean({{ item }}, vartype = "ci"))
   }

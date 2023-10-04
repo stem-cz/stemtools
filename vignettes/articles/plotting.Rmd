@@ -1,6 +1,7 @@
 ---
 title: "Plotting with stemtools"
 output: rmarkdown::html_vignette
+dpit: 300
 vignette: >
   %\VignetteIndexEntry{plotting}
   %\VignetteEngine{knitr::rmarkdown}
@@ -31,7 +32,9 @@ stem_plot(data = trust, item = police)
 
 `stem_plot()` automatically recognizes whether the item variable is numerical or categorical. For numerical variables, grouping variable should also be included using `group` argument. Survey weights can be used by calling the `weight` argument.
 
-!TODO: FIX NUMERICAL PLOTS
+```{r stem-summarise-show-num}
+stem_plot(data = trust, item = age, group = eu_index, weight = W)
+```
 
 ## Customizing labels
 
