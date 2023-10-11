@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,13 +103,20 @@ a variety of standardized plots. We’ll use a simuated dataset
 <span><span class="co">#&gt; 4            Rather Disagree    Definitely Agree Neither Agree nor Disagree</span></span>
 <span><span class="co">#&gt; 5 Neither Agree nor Disagree    Definitely Agree               Rather Agree</span></span>
 <span><span class="co">#&gt; 6 Neither Agree nor Disagree Definitely Disagree Neither Agree nor Disagree</span></span>
-<span><span class="co">#&gt;      eu_index   nat_index age         W</span></span>
-<span><span class="co">#&gt; 1    Likes EU     Neutral  41 0.6452540</span></span>
-<span><span class="co">#&gt; 2     Neutral   Satisfied  38 0.1800867</span></span>
-<span><span class="co">#&gt; 3    Likes EU Disatisfied  39 0.2939668</span></span>
-<span><span class="co">#&gt; 4     Neutral     Neutral  34 0.8033685</span></span>
-<span><span class="co">#&gt; 5    Likes EU   Satisfied  41 0.3471653</span></span>
-<span><span class="co">#&gt; 6 Dislikes EU Disatisfied  35 1.2082489</span></span></code></pre></div>
+<span><span class="co">#&gt;      eu_index   nat_index age         W biggest_concern1 biggest_concern2</span></span>
+<span><span class="co">#&gt; 1    Likes EU     Neutral  41 0.6452540     Unemployment     Unemployment</span></span>
+<span><span class="co">#&gt; 2     Neutral   Satisfied  38 0.1800867      Immigration       Corruption</span></span>
+<span><span class="co">#&gt; 3    Likes EU Disatisfied  39 0.2939668      Immigration       Healthcare</span></span>
+<span><span class="co">#&gt; 4     Neutral     Neutral  34 0.8033685      Immigration       Healthcare</span></span>
+<span><span class="co">#&gt; 5    Likes EU   Satisfied  41 0.3471653       Healthcare     Unemployment</span></span>
+<span><span class="co">#&gt; 6 Dislikes EU Disatisfied  35 1.2082489      Immigration       Healthcare</span></span>
+<span><span class="co">#&gt;   biggest_concern3</span></span>
+<span><span class="co">#&gt; 1      Immigration</span></span>
+<span><span class="co">#&gt; 2      Immigration</span></span>
+<span><span class="co">#&gt; 3       Corruption</span></span>
+<span><span class="co">#&gt; 4       Corruption</span></span>
+<span><span class="co">#&gt; 5      Immigration</span></span>
+<span><span class="co">#&gt; 6       Corruption</span></span></code></pre></div>
 <p>The core function is <code><a href="../reference/stem_plot.html">stem_plot()</a></code>, a convinient wrapper
 around <code><a href="../reference/stem_summarise.html">stem_summarise()</a></code>, followed by a flexible
 <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> template. The aim of the <code><a href="../reference/stem_plot.html">stem_plot()</a></code>
