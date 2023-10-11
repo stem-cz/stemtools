@@ -438,4 +438,49 @@ stem_plot_battery <- function(data,
   suppressWarnings(print(p))
 }
 
+#' Plot a set of multiple choice items
+#'
+#' @param data Dataframe including item (and group) variables
+#' @param items Plotted items. Can be selected using Tidyselect's selection helpers.
+#' @param group Optional; plotted grouping variable
+#' @param weight Optional; survey weights
+#' @param item_reverse Optional; should item order be reversed?
+#' @param infreq_order Optional; should items be ordered in order of their frequency?
+#' @param ... Other arguments passed to [stemtools::stem_plot()]
+#'
+#' @return A ggplot2 object with custom attribute "stem_plot"
+#' @export
+#'
+#' @examples
+#' stem_plot_multichoice(trust, items = dplyr::starts_with("biggest"))
+stem_plot_multichoice <- function(data,
+                                  items,
+                                  group = NULL,
+                                  weight = NULL,
+                                  item_reverse = FALSE,
+                                  infreq_order = TRUE,
+                                  ...) {
+  n_items <- dplyr::select(.data = trust, {{ items }}) |> ncol()
 
+  data <- data |>
+    dplyr::select({{ items }}, {{ weight }}, {{ group }}) |>
+    tidyr::pivot_longer(-c({{ weight }}, {{ group }}),
+                 names_to = "item",
+                 values_to = "response")
+  if(infreq_order) {data$response <- forcats::fct_infreq(data$response)}
+
+  p <- data |>
+    stem_plot(item = response,
+              group = {{ group }},
+              weight = {{ weight }},
+              label_scale = n_items * 100,
+              caption = FALSE,
+              title = FALSE,
+              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(scale = n_items*100)),
+              item_reverse = FALSE,
+              ...)
+
+  attr(p, which = "stem_plot") <- "stem_plot_multichoice"
+
+  return(plot)
+}

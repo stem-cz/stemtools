@@ -20,7 +20,8 @@ utils::globalVariables(c("n",
                          "geom_label",
                          "estimate_low",
                          "estimate_upp",
-                         "name"))
+                         "name",
+                         "trust"))
 
 ignore_unused_imports <- function() {
   ragg::agg_png
