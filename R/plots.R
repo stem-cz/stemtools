@@ -55,7 +55,7 @@
 #'           label_suffix = "",
 #'           item_size = "prop",
 #'           group_size = "n",
-#'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1))) +
+#'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = " %"))) +
 #' theme_stem(legend.position = "bottom")
 stem_plot <- function(data,
                       item,
@@ -204,7 +204,7 @@ stem_plot <- function(data,
   # Optionally freq labels
   if(label) {p <- p + do.call(ggplot2::geom_text, label_args)}
 
-  # Optionally title. If title_label = TRUE and the variable has attribute "label", it will be used insted of
+  # Optionally title. If title_label = TRUE and the variable has attribute "label", it will be used instead of
   # the variable name.
   if(title) {
     if(title_label & !is.null(item_label)) {
@@ -254,7 +254,7 @@ stem_plot_bar <- function(data,
                           item,
                           group = NULL,
                           weight = NULL,
-                          scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                          scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = " %"),
                                                                 limits = c(0, NA)),
                           label = TRUE,
                           label_scale = 100,
@@ -309,7 +309,7 @@ stem_plot_barstack <- function(data,
                                geom_args = list(position = "stack"),
                                label_text_color = "black",
                                label_args = list(position = ggplot2::position_stack(vjust = 0.5), color = label_text_color),
-                               scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
+                               scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = " %"),
                                                                      limits = c(0, NA)),
                                label = TRUE,
                                label_scale = 100,
@@ -379,7 +379,7 @@ stem_plot_battery <- function(data,
                               label_hide = 0.05,
                               item_label = TRUE,
                               group_size = "none",
-                              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)),
+                              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = " %")),
                               coord_flip = TRUE,
                               ...) {
 
@@ -476,7 +476,7 @@ stem_plot_multichoice <- function(data,
               label_scale = n_items * 100,
               caption = FALSE,
               title = FALSE,
-              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(scale = n_items*100)),
+              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(scale = n_items*100, suffix = " %")),
               item_reverse = FALSE,
               ...)
 
