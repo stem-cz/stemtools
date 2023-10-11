@@ -438,7 +438,7 @@ stem_plot_battery <- function(data,
   suppressWarnings(print(p))
 }
 
-#' Plot a set of multiple choice items
+#' Plot a set of multiselection choice items
 #'
 #' @param data Dataframe including item (and group) variables
 #' @param items Plotted items. Can be selected using Tidyselect's selection helpers.
@@ -452,8 +452,8 @@ stem_plot_battery <- function(data,
 #' @export
 #'
 #' @examples
-#' stem_plot_multichoice(trust, items = dplyr::starts_with("biggest"))
-stem_plot_multichoice <- function(data,
+#' stem_plot_multiselection(trust, items = dplyr::starts_with("biggest"))
+stem_plot_multiselection <- function(data,
                                   items,
                                   group = NULL,
                                   weight = NULL,
