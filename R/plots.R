@@ -447,6 +447,8 @@ stem_plot_battery <- function(data,
 #' @param item_reverse Optional; should item order be reversed?
 #' @param infreq_order Optional; should items be ordered in order of their frequency?
 #' @param ... Other arguments passed to [stemtools::stem_plot()]
+#' @param backround_fill Color of backround bars. Default is `grey`.
+#' @param backround_alpha Alpha of backround bars. Default is `1`.
 #'
 #' @return A ggplot2 object with custom attribute "stem_plot"
 #' @export
@@ -459,6 +461,8 @@ stem_plot_multiselect <- function(data,
                                   weight = NULL,
                                   item_reverse = FALSE,
                                   infreq_order = TRUE,
+                                  backround_fill = "grey",
+                                  backround_alpha = 1,
                                   ...) {
   n_items <- dplyr::select(.data = trust, {{ items }}) |> ncol()
 
@@ -467,6 +471,7 @@ stem_plot_multiselect <- function(data,
     tidyr::pivot_longer(-c({{ weight }}, {{ group }}),
                  names_to = "item",
                  values_to = "response")
+
   if(infreq_order) {data$response <- forcats::fct_infreq(data$response)}
 
   p <- data |>
@@ -476,11 +481,16 @@ stem_plot_multiselect <- function(data,
               label_scale = n_items * 100,
               caption = FALSE,
               title = FALSE,
-              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(scale = n_items*100, suffix = " %")),
+              scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(scale = n_items*100, suffix = " %"), limits = c(0, 1 / n_items)),
               item_reverse = FALSE,
               ...)
 
+  n_cats <- nrow(p$data)
+  p <- p + annotate(geom = "col", x = 1:n_cats, y = 1/(n_items), fill = backround_fill, alpha = backround_alpha)
+
+  p$layers <- list(p$layers[[3]], p$layers[[1]], p$layers[[2]])
+
   attr(p, which = "stem_plot") <- "stem_plot_multiselect"
 
-  return(plot)
+  return(p)
 }
