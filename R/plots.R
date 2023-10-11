@@ -95,7 +95,7 @@ stem_plot <- function(data,
                       item_reverse = FALSE,
                       group_reverse = FALSE) {
 
-
+  if(rlang::quo_is_null(rlang::enquo(weight))){message("No weights used.")}
   summ <- stem_summarise(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }},
                          return_n = TRUE, collapse_item = collapse_item, collapse_group = collapse_group)
   summ <- dplyr::rename_with(summ, ~gsub(x = ., pattern = "freq|mean", replacement = "estimate"))
@@ -452,8 +452,8 @@ stem_plot_battery <- function(data,
 #' @export
 #'
 #' @examples
-#' stem_plot_multiselection(trust, items = dplyr::starts_with("biggest"))
-stem_plot_multiselection <- function(data,
+#' stem_plot_multiselect(trust, items = dplyr::starts_with("biggest"))
+stem_plot_multiselect <- function(data,
                                   items,
                                   group = NULL,
                                   weight = NULL,
@@ -480,7 +480,7 @@ stem_plot_multiselection <- function(data,
               item_reverse = FALSE,
               ...)
 
-  attr(p, which = "stem_plot") <- "stem_plot_multichoice"
+  attr(p, which = "stem_plot") <- "stem_plot_multiselect"
 
   return(plot)
 }

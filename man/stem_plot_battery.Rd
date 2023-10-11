@@ -17,7 +17,8 @@ stem_plot_battery(
   label_hide = 0.05,
   item_label = TRUE,
   group_size = "none",
-  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1)),
+  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+    suffix = " \%")),
   coord_flip = TRUE,
   ...
 )

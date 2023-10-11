@@ -14,8 +14,8 @@ stem_plot_barstack(
   label_text_color = "black",
   label_args = list(position = ggplot2::position_stack(vjust = 0.5), color =
     label_text_color),
-  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-    limits = c(0, NA)),
+  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+    suffix = " \%"), limits = c(0, NA)),
   label = TRUE,
   label_scale = 100,
   label_hide = 0.05,
