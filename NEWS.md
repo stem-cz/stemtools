@@ -1,3 +1,7 @@
+# stemtools 0.0.3
+
+* Added `stem_plot_multichoice()` for plotting multiple choice items
+
 # stemtools 0.0.2
 
 * Added basic ploting functions: `stem_plot_single`, `stem_plot_multiple`, `stem_plot_bar`, `stem_plot_bartable()`.
