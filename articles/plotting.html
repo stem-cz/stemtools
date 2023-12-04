@@ -8,8 +8,8 @@
 <meta name="description" content="stemtools">
 <title>Plotting with stemtools • stemtools</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Plotting with stemtools">
 <meta property="og:description" content="stemtools">
@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.4</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,7 +122,8 @@ around <code><a href="../reference/stem_summarise.html">stem_summarise()</a></co
 <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> template. The aim of the <code><a href="../reference/stem_plot.html">stem_plot()</a></code>
 is to visualize <em>aggregated</em> data, namely counts and means.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/stem-summarise-show-1.png" width="700"></p>
 <p><code><a href="../reference/stem_plot.html">stem_plot()</a></code> automatically recognizes whether the item
 variable is numerical or categorical. For numerical variables, grouping
@@ -155,7 +156,8 @@ specify additional arguments like <code>vjust</code> or
 <span>          item <span class="op">=</span> <span class="va">government</span>,</span>
 <span>          label_scale <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>          label_suffix <span class="op">=</span> <span class="st">"%"</span>,</span>
-<span>          label_hide <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+<span>          label_hide <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/labels-example-1.png" width="700"></p>
 </div>
 <div class="section level2">
@@ -175,7 +177,8 @@ rid off the caption, set <code>caption = FALSE</code>.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
 <span>          item <span class="op">=</span> <span class="va">government</span>,</span>
 <span>          title_label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>          caption <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>          caption <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/title-example-1.png" width="700"></p>
 <p>You can pass <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a>’s scale functions into arguments
 <code>scale_x</code>, <code>scale_y</code>, <code>scale_fill</code> and
@@ -195,7 +198,8 @@ can control legend using <code>guides</code>.</p>
 <span>          scale_color <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span>,</span>
 <span>          guides <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>                                   color <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>          item_reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span>          item_reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/scales-example-1.png" width="700"></p>
 </div>
 <div class="section level2">
@@ -218,7 +222,8 @@ categories.</p>
 <span>          collapse_group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`Pozitivní vztah` <span class="op">=</span> <span class="st">"Likes EU"</span>,</span>
 <span>                                `Neutrální vztah` <span class="op">=</span> <span class="st">"Neutral"</span>,</span>
 <span>                                `Negativní vztah` <span class="op">=</span> <span class="st">"Dislikes EU"</span>,</span>
-<span>                                `Neví` <span class="op">=</span> <span class="st">"Doesn't Know"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>                                `Neví` <span class="op">=</span> <span class="st">"Doesn't Know"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 </div>
 <div class="section level2">

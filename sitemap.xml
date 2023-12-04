@@ -28,7 +28,7 @@
     <loc>https://stem-cz.github.io/stemtools/news/index.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/desub.html</loc>
+    <loc>https://stem-cz.github.io/stemtools/reference/collapse_cats.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/diverging_color_extractor.html</loc>
@@ -37,13 +37,16 @@
     <loc>https://stem-cz.github.io/stemtools/reference/index.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/prop_se.html</loc>
-  </url>
-  <url>
     <loc>https://stem-cz.github.io/stemtools/reference/scale_colour_stem.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/se_mean.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/se_median.html</loc>
+  </url>
+  <url>
+    <loc>https://stem-cz.github.io/stemtools/reference/se_prop.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/stem_ggsave.html</loc>
@@ -67,7 +70,7 @@
     <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_battery.html</loc>
   </url>
   <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_multichoice.html</loc>
+    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_multiselect.html</loc>
   </url>
   <url>
     <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise.html</loc>
