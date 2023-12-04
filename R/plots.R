@@ -55,7 +55,8 @@
 #'           label_suffix = "",
 #'           item_size = "prop",
 #'           group_size = "n",
-#'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = " %"))) +
+#'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+#'                                                                                 suffix = " %"))) +
 #' theme_stem(legend.position = "bottom")
 stem_plot <- function(data,
                       item,
@@ -226,7 +227,7 @@ stem_plot <- function(data,
 
   attr(p, which = "stem_plot") <- "stem_plot"
 
-  suppressWarnings(print(p))
+  return(p)
 
 }
 
@@ -292,6 +293,11 @@ stem_plot_bar <- function(data,
 #' @param label Should geom labels be printed? Yes by default
 #' @param label_scale Multiplicative scale of geom labels. `100` multiple the values by 100.
 #' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.05.
+#' @param legend_rows Number of rows in legend
+#' @param legend_byrow Shoul legend be filled by rows? (FALSE to fill by columns)
+#' @param palette Stem palette to be used in the plot. See [stemtools::scale_color_stem()] and [stemtools::scale_fill_stem()] for details.
+#' @param coorf_flip Should the x and y axis be flipped? Defaults to `TRUE`
+#' @param item_reverse Should the order of item categories be reversed? Defaults to `TRUE`
 #' @param ... Other arguments passed to [stemtools::stem_plot()]
 #'
 #' @return A ggplot2 object with custom attribute "stem_plot"
@@ -314,6 +320,11 @@ stem_plot_barstack <- function(data,
                                label = TRUE,
                                label_scale = 100,
                                label_hide = 0.05,
+                               coorf_flip = TRUE,
+                               item_reverse = TRUE,
+                               legend_rows = 1,
+                               legend_byrow = TRUE,
+                               palette = "modern",
                                ...) {
 
   group_check <- rlang::enquo(group)
@@ -328,12 +339,20 @@ stem_plot_barstack <- function(data,
                  label = label,
                  label_scale = label_scale,
                  label_hide = label_hide,
+                 scale_color = scale_color_stem(direction = -1, palette = palette),
+                 scale_fill = scale_fill_stem(direction = -1, palette = palette),
+                 coord_flip = coorf_flip,
+                 item_reverse = item_reverse,
                  ...)
 
   # If only item is present, x axis will have dummy value
   if(rlang::quo_is_null(group_check)) {
     p <- p + ggplot2::aes(x = '', fill = {{ item }})
   }
+
+  p <- p + ggplot2::theme(legend.position = "bottom") +
+    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE, nrow = legend_rows, byrow = legend_byrow),
+                    color = ggplot2::guide_legend(reverse = TRUE, nrow = legend_rows, byrow = legend_byrow))
 
   attr(p, which = "stem_plot") <- "stem_plot_barstack"
 
@@ -358,6 +377,11 @@ stem_plot_barstack <- function(data,
 #' @param group_size Should the group size be included in the group legend? Either `n` (absolute frequency), `prop` (proportions) or `none` (nothing).
 #' @param scale_y Format y axis using [ggplot2::scale_y_continuous()]
 #' @param coord_flip If `TRUE`, switches x and y axes.
+#' @param legend_rows Number of rows in legend
+#' @param legend_byrow Shoul legend be filled by rows? (FALSE to fill by columns)
+#' @param palette Stem palette to be used in the plot. See [stemtools::scale_color_stem()] and [stemtools::scale_fill_stem()] for details.
+#' @param item_reverse Should the order of item categories be reversed? Defaults to `TRUE`
+#' @param group_reverse Should the order of group categories be reversed? Defaults to `TRUE`
 #' @param ... Other arguments passed to [stemtools::stem_plot()]
 #'
 #' @return A ggplot2 object with custom attribute "stem_plot"
@@ -381,6 +405,11 @@ stem_plot_battery <- function(data,
                               group_size = "none",
                               scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1, suffix = " %")),
                               coord_flip = TRUE,
+                              palette = "modern",
+                              legend_rows = 1,
+                              legend_byrow = TRUE,
+                              item_reverse = TRUE,
+                              group_reverse = TRUE,
                               ...) {
 
   selected <- dplyr::select(.data = data, {{ items }}, {{ weight }})
@@ -431,7 +460,14 @@ stem_plot_battery <- function(data,
                  caption = FALSE,
                  title = FALSE,
                  coord_flip = coord_flip,
-                 ...)
+                 scale_color = scale_color_stem(direction = -1, palette = palette),
+                 scale_fill = scale_fill_stem(direction = -1, palette = palette),
+                 item_reverse = item_reverse,
+                 group_reverse = group_reverse,
+                 ...) +
+    ggplot2::theme(legend.position = "bottom") +
+    ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE, nrow = legend_rows, byrow = legend_byrow),
+                    color = ggplot2::guide_legend(reverse = TRUE, nrow = legend_rows, byrow = legend_byrow))
 
   attr(p, which = "stem_plot") <- "stem_plot_battery"
 
@@ -486,7 +522,7 @@ stem_plot_multiselect <- function(data,
               ...)
 
   n_cats <- nrow(p$data)
-  p <- p + annotate(geom = "col", x = 1:n_cats, y = 1/(n_items), fill = backround_fill, alpha = backround_alpha)
+  p <- p + ggplot2::annotate(geom = "col", x = 1:n_cats, y = 1/(n_items), fill = backround_fill, alpha = backround_alpha)
 
   p$layers <- list(p$layers[[3]], p$layers[[1]], p$layers[[2]])
 

@@ -20,6 +20,11 @@ stem_plot_battery(
   scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
     suffix = " \%")),
   coord_flip = TRUE,
+  palette = "modern",
+  legend_rows = 1,
+  legend_byrow = TRUE,
+  item_reverse = TRUE,
+  group_reverse = TRUE,
   ...
 )
 }
@@ -49,6 +54,16 @@ stem_plot_battery(
 \item{scale_y}{Format y axis using \code{\link[ggplot2:scale_continuous]{ggplot2::scale_y_continuous()}}}
 
 \item{coord_flip}{If \code{TRUE}, switches x and y axes.}
+
+\item{palette}{Stem palette to be used in the plot. See \code{\link[=scale_color_stem]{scale_color_stem()}} and \code{\link[=scale_fill_stem]{scale_fill_stem()}} for details.}
+
+\item{legend_rows}{Number of rows in legend}
+
+\item{legend_byrow}{Shoul legend be filled by rows? (FALSE to fill by columns)}
+
+\item{item_reverse}{Should the order of item categories be reversed? Defaults to \code{TRUE}}
+
+\item{group_reverse}{Should the order of group categories be reversed? Defaults to \code{TRUE}}
 
 \item{...}{Other arguments passed to \code{\link[=stem_plot]{stem_plot()}}}
 }

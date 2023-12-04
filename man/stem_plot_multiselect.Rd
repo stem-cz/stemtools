@@ -11,6 +11,8 @@ stem_plot_multiselect(
   weight = NULL,
   item_reverse = FALSE,
   infreq_order = TRUE,
+  backround_fill = "grey",
+  backround_alpha = 1,
   ...
 )
 }
@@ -26,6 +28,10 @@ stem_plot_multiselect(
 \item{item_reverse}{Optional; should item order be reversed?}
 
 \item{infreq_order}{Optional; should items be ordered in order of their frequency?}
+
+\item{backround_fill}{Color of backround bars. Default is \code{grey}.}
+
+\item{backround_alpha}{Alpha of backround bars. Default is \code{1}.}
 
 \item{...}{Other arguments passed to \code{\link[=stem_plot]{stem_plot()}}}
 }

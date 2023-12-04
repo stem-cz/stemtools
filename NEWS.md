@@ -1,3 +1,7 @@
+# stemtools 0.0.4
+
+* Adjusted defaults for `stem_plot_barstack()` and `stem_plot_battery()` to be in line with how they are commonly used.
+
 # stemtools 0.0.3
 
 * Added `stem_plot_multichoice()` for plotting multiple choice items
