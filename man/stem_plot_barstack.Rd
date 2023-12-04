@@ -14,11 +14,16 @@ stem_plot_barstack(
   label_text_color = "black",
   label_args = list(position = ggplot2::position_stack(vjust = 0.5), color =
     label_text_color),
-  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1),
-    limits = c(0, NA)),
+  scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+    suffix = " \%"), limits = c(0, NA)),
   label = TRUE,
   label_scale = 100,
   label_hide = 0.05,
+  coorf_flip = TRUE,
+  item_reverse = TRUE,
+  legend_rows = 1,
+  legend_byrow = TRUE,
+  palette = "modern",
   ...
 )
 }
@@ -46,6 +51,16 @@ stem_plot_barstack(
 \item{label_scale}{Multiplicative scale of geom labels. \code{100} multiple the values by 100.}
 
 \item{label_hide}{Hides geom labels with values smaller than this threshold. Defaults to 0.05.}
+
+\item{coorf_flip}{Should the x and y axis be flipped? Defaults to \code{TRUE}}
+
+\item{item_reverse}{Should the order of item categories be reversed? Defaults to \code{TRUE}}
+
+\item{legend_rows}{Number of rows in legend}
+
+\item{legend_byrow}{Shoul legend be filled by rows? (FALSE to fill by columns)}
+
+\item{palette}{Stem palette to be used in the plot. See \code{\link[=scale_color_stem]{scale_color_stem()}} and \code{\link[=scale_fill_stem]{scale_fill_stem()}} for details.}
 
 \item{...}{Other arguments passed to \code{\link[=stem_plot]{stem_plot()}}}
 }

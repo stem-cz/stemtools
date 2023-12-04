@@ -17,7 +17,7 @@ stem_plot(
   title_label = TRUE,
   title_wrap = 50,
   format_axis = TRUE,
-  caption = TRUE,
+  caption = FALSE,
   label = TRUE,
   label_args = list(position = ggplot2::position_dodge(width = 0.95), color = "black",
     vjust = -1),
@@ -135,6 +135,7 @@ stem_plot(data = trust,
           label_suffix = "",
           item_size = "prop",
           group_size = "n",
-          scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1))) +
+          scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
+                                                                                suffix = " \%"))) +
 theme_stem(legend.position = "bottom")
 }

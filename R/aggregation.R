@@ -56,7 +56,7 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
     counts <- dplyr::count(data, {{ group }}, {{ item }}) |>
       dplyr::group_by({{ group }}) |>
       dplyr::mutate(freq = n / sum(n),
-                    se = prop_se(p = freq, n = n),
+                    se = se_prop(p = freq, n = n),
                     freq_low = freq - 1.96 * se,
                     freq_upp = freq + 1.96 * se) |>
       dplyr::group_by({{ group }}) |>
