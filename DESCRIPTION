@@ -23,7 +23,8 @@ Imports:
     forcats,
     utils,
     rstudioapi,
-    ragg
+    ragg,
+    renv
 Suggests: 
     knitr,
     rmarkdown
