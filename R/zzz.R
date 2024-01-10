@@ -1,9 +1,13 @@
 .onAttach <- function(libname, pkgname){
 
-  if(rstudioapi::isAvailable()) {
-    device <- "ragg"
-    rstudioapi::writeRStudioPreference("graphics_backend", device)
-    packageStartupMessage((paste("Rstudio now uses", device, "as graphical backend.")))
-  }
+  setHook("rstudio.sessionInit", function(...) {
+    options(device = "ragg")
+  })
+
+  # if(rstudioapi::isAvailable()) {
+  #   device <- "ragg"
+  #   rstudioapi::writeRStudioPreference("graphics_backend", device)
+  #   packageStartupMessage((paste("Rstudio now uses", device, "as graphical backend.")))
+  # }
 
 }
