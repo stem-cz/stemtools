@@ -1,0 +1,17 @@
+Binding: create_project
+Title: Stem Project
+Subtitle: Create a new Stem Project
+Caption: Create a new Stem Project
+OpenFiles: README.md
+
+Parameter: createGitignore
+Widget: CheckboxInput
+Label: Create a git repository
+Default: On
+Position: right
+
+Parameter: useRenv
+Widget: CheckboxInput
+Label: Use renv with this project
+Default: On
+Position: right
