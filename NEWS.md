@@ -1,3 +1,6 @@
+# stemtools 0.0.5
+* Added Rstudio project template
+
 # stemtools 0.0.4
 
 * Adjusted defaults for `stem_plot_barstack()` and `stem_plot_battery()` to be in line with how they are commonly used.

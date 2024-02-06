@@ -16,7 +16,7 @@ create_project <-
     # setwd(file.path(getwd(), path))
 
     # Baseline folder structure
-    dir_names <- c("01-data-input", "02-data-processed", "03-data-output", "04-scripts", "05-documentation", "06-figures", "07-models")
+    dir_names <- c("01_data-input", "02_data-processed", "03_data-output", "04_scripts", "05_documentation", "06_figures", "07_models")
     dir_names <- file.path(path, dir_names)
     for (dir_name in dir_names) {
       dir.create(dir_name)
