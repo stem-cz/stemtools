@@ -28,7 +28,8 @@ stem_palettes <- function(palette = "modern", n = NA) {
     # Diverging
     gruvbox_div = c("#b9211a", "#cc241d", "#fb4934", "#fac64c", "#83a598", "#649590", "#458588"),
     modern = c("#35978F", "#80CDC1", "#B0C89F" ,"#DFC27D", "#BF812D"),
-    bluered_light = c("#2166AC", "#92C5DE", "#E8DC99", "#F4A582", "#B2182B")
+    bluered_light = c("#2166AC", "#92C5DE", "#E8DC99", "#F4A582", "#B2182B"),
+    greenred = c("#4DA8A0", "#8CD2CC", "#D1C9BC", "#FDA592", "#FC684D")
   )
 
   if (!is.na(n)) {
