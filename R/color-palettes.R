@@ -24,12 +24,21 @@ stem_palettes <- function(palette = "modern", n = NA) {
   palettes <- list(
     # Nominal
     gruvbox = c("#fb4934", "#b8bb26", "#83a598", "#fabd2f", "#d3869b", "#8ec07c", "#fe8019"),
+    nom1    = c("#FFEB38", "#FF9800", "#F44336", "#9B4363", "#996633"),
+    nom2    = c("#8BC34A", "#3D918A", "#6094D5", "#3F51B3", "#BCBCBC", "#3C3C3C"),
+
+    # Sequential
+    seq1 = c("#DBEEEC", "#BEE2DF", "#8CD2CC", "#68C1B9", "#4DA8A0", "#3D918A"),
+    seq2 = c("#DFEAF7", "#C9D9EC", "#BAD1EC", "#80A9DD", "#6094D5", "#487EC1"),
+    seq3 = c("#E6D0D8", "#D4B2BB", "#C5919D", "#9B4363", "#82143C", "#71052D"),
+    seq4 = c("#FCEFE2", "#F9DFC6", "#F7CFA9", "#F4BF8D", "#F1AF70", "#D5904E"),
 
     # Diverging
     gruvbox_div = c("#b9211a", "#cc241d", "#fb4934", "#fac64c", "#83a598", "#649590", "#458588"),
-    modern = c("#35978F", "#80CDC1", "#B0C89F" ,"#DFC27D", "#BF812D"),
-    bluered_light = c("#2166AC", "#92C5DE", "#E8DC99", "#F4A582", "#B2182B"),
-    greenred = c("#4DA8A0", "#8CD2CC", "#D1C9BC", "#FDA592", "#FC684D")
+    modern      = c("#35978F", "#80CDC1", "#B0C89F" ,"#DFC27D", "#BF812D"),
+    div1        = c("#4DA8A0", "#8CD2CC", "#D1C9BC", "#FDA592", "#FC684D"),
+    div2        = c("#6094D5", "#BAD1EC", "#DCBDC7", "#FDA592", "#FC684D"),
+    div3        = c("#82143C", "#C5919D", "#CAB2B9", "#A6A7A6", "#646464")
   )
 
   if (!is.na(n)) {
@@ -55,7 +64,7 @@ stem_palettes <- function(palette = "modern", n = NA) {
 #' }
 stem_palette_generator <- function(palette = "modern", direction = 1) {
 
-  diverging <- c("gruvbox_div", "modern", "bluered_light")
+  diverging <- c("gruvbox_div", "modern", "div1", "div2", "div3")
 
   function(n) {
 
