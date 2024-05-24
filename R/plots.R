@@ -530,3 +530,49 @@ stem_plot_multiselect <- function(data,
 
   return(p)
 }
+
+
+#' Plot a simple line chart
+#'
+#' Wrapper around [stemtools::stem_plot()] to make creating line plots easier.
+#'
+#' @param data Dataframe including item (and group) variables
+#' @param item Plotted item on x-axis
+#' @param group Optional; plotted grouping variable on y-axis
+#' @param weight Optional; survey weights
+#' @param scale_y Format y axis using [ggplot2::scale_y_continuous()]
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_scale Multiplicative scale of geom labels. `100` multiplies the values by 100
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.
+#' @param ... Other arguments passed to [stemtools::stem_plot()]
+#'
+#' @return A ggplot2 object with custom attribute "stem_plot"
+#' @export
+#'
+#' @examples
+#' stem_plot_line(trust, government, weight = W)
+stem_plot_line <- function(data,
+                           item,
+                           group = NULL,
+                           weight = NULL,
+                           scale_y = ggplot2::scale_y_continuous(limits = c(0, NA)),
+                           label = TRUE,
+                           label_scale = 100,
+                           label_hide = 0,
+                           ...) {
+  p <- stem_plot(data = data,
+                 item = {{ item }},
+                 group = {{ group }},
+                 weight = {{weight}},
+                 geom = ggplot2::geom_line,
+                 scale_y = scale_y,
+                 label = label,
+                 label_scale = label_scale,
+                 label_hide = label_hide,
+                 ...)
+
+  attr(p, which = "stem_plot") <- "stem_plot_line"
+
+  return(p)
+}
+
