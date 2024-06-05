@@ -23,7 +23,7 @@ theme_stem <- function(...) {
                  legend.title = ggplot2::element_blank(),
                  plot.title.position = "plot",
                  plot.caption.position = "plot",
-                 text = ggplot2::element_text(family = "Calibri")) +
+                 text = ggplot2::element_text(family = "Calibri", size = 18)) +
     ggplot2::theme(...)
 }
 
