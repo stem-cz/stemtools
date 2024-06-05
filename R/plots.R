@@ -9,7 +9,7 @@
 #' @param collapse_group Optional, a named list to collapse group categories
 #' @param geom Geom that will represent data
 #' @param geom_args Arguments for the geom function like size, color, etc.
-#' @param title Should the name of item be used as plot title? Yes by default
+#' @param title Should the name of item be used as plot title? FALSE by default
 #' @param title_label Should title use item label instead of name? Only if item has attribute "label".
 #' @param title_wrap Length of title in characters before it gets wrapped. Defaults to 50.
 #' @param format_axis If `TRUE`, adds title for x axis and removes titles for other scales.
@@ -66,7 +66,7 @@ stem_plot <- function(data,
                       collapse_group = NULL,
                       geom = ggplot2::geom_col,
                       geom_args = list(position = ggplot2::position_dodge(width = 0.95)),
-                      title = TRUE,
+                      title = FALSE,
                       title_label = TRUE,
                       title_wrap = 50,
                       format_axis = TRUE,
