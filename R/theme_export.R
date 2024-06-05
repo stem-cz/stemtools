@@ -13,6 +13,8 @@ theme_stem <- function(...) {
   ggplot2::theme(rect = ggplot2::element_rect(fil = NA, color = NA),
                  panel.background = ggplot2::element_rect(fill = NA),
                  strip.background = ggplot2::element_rect(fill = NA),
+                 legend.position = "top",
+                 legend.background = ggplot2::element_rect(linewidth = 0.2, colour = "grey"),
                  legend.key = ggplot2::element_rect(fill = NA),
                  panel.grid.minor = ggplot2::element_blank(),
                  axis.ticks.y = ggplot2::element_blank(),
