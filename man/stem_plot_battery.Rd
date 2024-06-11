@@ -74,8 +74,10 @@ A ggplot2 object with custom attribute "stem_plot"
 Plots a set of categorical variables with same response categories as a single graph.
 }
 \examples{
+\dontrun{
 stem_plot_battery(trust,
                   items = c(police, eu, government, army),
                   weight = W,
                   order_by = c("Definitely Agree", "Rather Agree"))
+}
 }

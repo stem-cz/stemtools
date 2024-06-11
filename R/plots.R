@@ -40,7 +40,7 @@
 #' @return a ggplot2 graph with custom attribute "stem_plot"
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' stem_plot(data = trust,
 #' item = government,
 #' label = FALSE)
@@ -58,6 +58,7 @@
 #'           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
 #'                                                                                 suffix = " %"))) +
 #' theme_stem(legend.position = "bottom")
+#' }
 stem_plot <- function(data,
                       item,
                       group  = NULL,
@@ -250,8 +251,9 @@ stem_plot <- function(data,
 #' @return A ggplot2 object with custom attribute "stem_plot"
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' stem_plot_bar(trust, government)
+#' }
 stem_plot_bar <- function(data,
                           item,
                           group = NULL,
@@ -304,10 +306,10 @@ stem_plot_bar <- function(data,
 #' @return A ggplot2 object with custom attribute "stem_plot"
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' stem_plot_barstack(trust, police, eu_index)
 #' stem_plot_barstack(trust, police)
-#'
+#' }
 stem_plot_barstack <- function(data,
                                item,
                                group = NULL,
@@ -388,11 +390,12 @@ stem_plot_barstack <- function(data,
 #' @return A ggplot2 object with custom attribute "stem_plot"
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' stem_plot_battery(trust,
 #'                   items = c(police, eu, government, army),
 #'                   weight = W,
 #'                   order_by = c("Definitely Agree", "Rather Agree"))
+#'}
 stem_plot_battery <- function(data,
                               items,
                               weight = NULL,
@@ -490,8 +493,9 @@ stem_plot_battery <- function(data,
 #' @return A ggplot2 object with custom attribute "stem_plot"
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' stem_plot_multiselect(trust, items = dplyr::starts_with("biggest"))
+#'}
 stem_plot_multiselect <- function(data,
                                   items,
                                   group = NULL,

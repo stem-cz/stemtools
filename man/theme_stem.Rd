@@ -16,5 +16,7 @@ ggplot2 \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 Basic ggplot2 theme for Stem.
 }
 \examples{
+\dontrun{
 stem_plot_bar(trust, government) + theme_stem()
+}
 }

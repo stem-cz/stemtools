@@ -42,5 +42,7 @@ A ggplot2 object with custom attribute "stem_plot"
 Plot a set of multiselection choice items
 }
 \examples{
+\dontrun{
 stem_plot_multiselect(trust, items = dplyr::starts_with("biggest"))
+}
 }

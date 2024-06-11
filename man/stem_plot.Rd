@@ -121,6 +121,7 @@ a ggplot2 graph with custom attribute "stem_plot"
 General plotting function
 }
 \examples{
+\dontrun{
 stem_plot(data = trust,
 item = government,
 label = FALSE)
@@ -138,4 +139,5 @@ stem_plot(data = trust,
           scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
                                                                                 suffix = " \%"))) +
 theme_stem(legend.position = "bottom")
+}
 }

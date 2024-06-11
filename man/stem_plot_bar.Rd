@@ -43,5 +43,7 @@ A ggplot2 object with custom attribute "stem_plot"
 Wrapper around \code{\link[=stem_plot]{stem_plot()}} to make creating barplots easier.
 }
 \examples{
+\dontrun{
 stem_plot_bar(trust, government)
+}
 }

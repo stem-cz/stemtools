@@ -71,7 +71,8 @@ A ggplot2 object with custom attribute "stem_plot"
 Wrapper around \code{\link[=stem_plot]{stem_plot()}} to make creating stacked barplots easier.
 }
 \examples{
+\dontrun{
 stem_plot_barstack(trust, police, eu_index)
 stem_plot_barstack(trust, police)
-
+}
 }

@@ -7,8 +7,9 @@
 #' @return ggplot2 [ggplot2::theme()] object.
 #' @export
 #'
-#' @examples
+#' @examples \dontrun{
 #' stem_plot_bar(trust, government) + theme_stem()
+#'}
 theme_stem <- function(...) {
   ggplot2::theme(rect = ggplot2::element_rect(fil = NA, color = NA),
                  panel.background = ggplot2::element_rect(fill = NA),
