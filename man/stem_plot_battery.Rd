@@ -20,7 +20,7 @@ stem_plot_battery(
   scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
     suffix = " \%")),
   coord_flip = TRUE,
-  palette = "modern",
+  palette = "div1",
   legend_rows = 1,
   legend_byrow = TRUE,
   item_reverse = TRUE,

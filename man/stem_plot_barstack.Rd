@@ -13,7 +13,7 @@ stem_plot_barstack(
   geom_args = list(position = "stack"),
   label_text_color = "black",
   label_args = list(position = ggplot2::position_stack(vjust = 0.5), color =
-    label_text_color),
+    label_text_color, size = ggplot2::rel(5)),
   scale_y = ggplot2::scale_y_continuous(labels = scales::percent_format(accuracy = 1,
     suffix = " \%"), limits = c(0, NA)),
   label = TRUE,
@@ -23,7 +23,7 @@ stem_plot_barstack(
   item_reverse = TRUE,
   legend_rows = 1,
   legend_byrow = TRUE,
-  palette = "modern",
+  palette = "div1",
   ...
 )
 }

@@ -13,14 +13,14 @@ stem_plot(
   collapse_group = NULL,
   geom = ggplot2::geom_col,
   geom_args = list(position = ggplot2::position_dodge(width = 0.95)),
-  title = TRUE,
+  title = FALSE,
   title_label = TRUE,
   title_wrap = 50,
   format_axis = TRUE,
   caption = FALSE,
   label = TRUE,
-  label_args = list(position = ggplot2::position_dodge(width = 0.95), color = "black",
-    vjust = -1),
+  label_args = list(position = ggplot2::position_dodge(width = 0.95), color = "black", ,
+    size = ggplot2::rel(5), vjust = -1),
   label_hide = 0.05,
   label_accuracy = 1,
   label_scale = 1,
@@ -34,8 +34,8 @@ stem_plot(
   item_wrap = NULL,
   scale_x = ggplot2::scale_x_discrete(),
   scale_y = ggplot2::scale_y_continuous(limits = c(0, NA)),
-  scale_fill = scale_fill_stem(palette = "modern"),
-  scale_color = scale_color_stem(palette = "modern"),
+  scale_fill = scale_fill_stem(palette = "div1"),
+  scale_color = scale_color_stem(palette = "div1"),
   facet = FALSE,
   guides = ggplot2::guides(),
   coord_flip = FALSE,
@@ -60,7 +60,7 @@ stem_plot(
 
 \item{geom_args}{Arguments for the geom function like size, color, etc.}
 
-\item{title}{Should the name of item be used as plot title? Yes by default}
+\item{title}{Should the name of item be used as plot title? FALSE by default}
 
 \item{title_label}{Should title use item label instead of name? Only if item has attribute "label".}
 
