@@ -3,7 +3,7 @@ title: "Plotting with stemtools"
 output: rmarkdown::html_vignette
 dpit: 300
 vignette: >
-  %\VignetteIndexEntry{plotting}
+  %\VignetteIndexEntry{Plotting with stemtools}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
