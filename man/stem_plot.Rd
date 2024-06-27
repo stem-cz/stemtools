@@ -19,7 +19,7 @@ stem_plot(
   format_axis = TRUE,
   caption = FALSE,
   label = TRUE,
-  label_args = list(position = ggplot2::position_dodge(width = 0.95), color = "black", ,
+  label_args = list(position = ggplot2::position_dodge(width = 0.95), color = "black",
     size = ggplot2::rel(5), vjust = -1),
   label_hide = 0.05,
   label_accuracy = 1,

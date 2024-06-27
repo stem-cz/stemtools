@@ -75,7 +75,7 @@ stem_plot <- function(data,
                       label = TRUE,
                       label_args = list(position = ggplot2::position_dodge(width = 0.95),
                                         color = "black",
-                                        , size = ggplot2::rel(5),
+                                         size = ggplot2::rel(5),
                                         vjust = -1),
                       label_hide = 0.05,
                       label_accuracy = 1,
@@ -532,6 +532,121 @@ stem_plot_multiselect <- function(data,
   p$layers <- list(p$layers[[3]], p$layers[[1]], p$layers[[2]])
 
   attr(p, which = "stem_plot") <- "stem_plot_multiselect"
+
+  return(p)
+}
+
+
+
+
+#' Plot a simple line chart
+#'
+#' Wrapper around [stemtools::stem_plot()] to make creating line plots easier.
+#'
+#' @param data Dataframe including item (and group) variables
+#' @param item Plotted item on x-axis
+#' @param group Optional; plotted grouping variable on y-axis
+#' @param weight Optional; survey weights
+#' @param scale_y Format y axis using [ggplot2::scale_y_continuous()]
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_scale Multiplicative scale of geom labels. `100` multiplies the values by 100
+#' @param label_hide Hides geom labels with values smaller than this threshold. Defaults to 0.
+#' @param ... Other arguments passed to [stemtools::stem_plot()]
+#'
+#' @return A ggplot2 object with custom attribute "stem_plot"
+#' @export
+#'
+#' @examples
+#' stem_plot_line(trust, government, weight = W)
+stem_plot_line <- function(data,
+                           item,
+                           group = NULL,
+                           weight = NULL,
+                           scale_y = ggplot2::scale_y_continuous(limits = c(0, NA)),
+                           label = TRUE,
+                           label_scale = 100,
+                           label_hide = 0,
+                           ...) {
+  p <- stem_plot(data = data,
+                 item = {{ item }},
+                 group = {{ group }},
+                 weight = {{weight}},
+                 geom = ggplot2::geom_line,
+                 scale_y = scale_y,
+                 label = label,
+                 label_scale = label_scale,
+                 label_hide = label_hide,
+                 ...)
+
+  attr(p, which = "stem_plot") <- "stem_plot_line"
+
+  return(p)
+}
+
+#' Plot a simple scatter chart
+#'
+#' This function creates a scatter plot directly using ggplot2. It allows for customization of plot aesthetics and includes options for weighting and grouping data.
+#'
+#' @param data Dataframe including items for x and y axes
+#' @param x Plotted item on the x-axis
+#' @param y Plotted item on the y-axis
+#' @param group Optional; plotted grouping variable
+#' @param weight Optional; survey weights
+#' @param scale_x Optional; scaling for the x-axis
+#' @param scale_y Optional; scaling for the y-axis
+#' @param label Should geom labels be printed? Yes by default
+#' @param label_scale Multiplicative scale of geom labels
+#' @param label_hide Threshold below which labels are hidden
+#' @return A ggplot2 object
+#' @export
+#' @import ggplot2
+#' @import scales
+#'
+#' @examples
+#' stem_plot_scatter(data = trust,x = age,y = W)
+
+stem_plot_scatter <- function(data,
+                              x,
+                              y,
+                              group = NULL,
+                              weight = NULL,
+                              scale_x = ggplot2::scale_x_continuous(),
+                              scale_y = ggplot2::scale_y_continuous(),
+                              label = TRUE,
+                              label_scale = 1,
+                              label_hide = 0.05) {
+
+  # Check if group is specified
+  group_check <- rlang::enquo(group)
+
+  # Construct the base ggplot object
+  p <- ggplot2::ggplot(data = data, mapping = ggplot2::aes(x = {{ x }}, y = {{ y }}))
+
+  # Add points with optional grouping
+  if (!rlang::quo_is_null(group_check)) {
+    p <- p + ggplot2::geom_point(ggplot2::aes(color = {{ group }}))
+  } else {
+    p <- p + ggplot2::geom_point()
+  }
+
+  # Add scales if specified
+  p <- p + scale_x + scale_y
+
+  # Add labels if specified
+  if (label) {
+    p <- p + ggplot2::geom_text(ggplot2::aes(label = ifelse(is.numeric({{ y }}), scales::number({{ y }}, scale = label_scale), "")),
+                                hjust = -0.2,
+                                vjust = 1,
+                                check_overlap = TRUE)
+  }
+
+  # Optionally hide labels below threshold
+  if (label && label_hide > 0) {
+    p <- p + ggplot2::geom_text(ggplot2::aes(label = ifelse({{ y }} < label_hide, "", scales::number({{ y }}, scale = label_scale))),
+                                hjust = -0.2,
+                                vjust = 1,
+                                check_overlap = TRUE)
+  }
 
   return(p)
 }
