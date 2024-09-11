@@ -1,93 +1,33 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/404.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/articles/color-palettes.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/articles/plotting.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/index.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/collapse_cats.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/create_project.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/diverging_color_extractor.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/scale_colour_stem.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/se_mean.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/se_median.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/se_prop.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_ggsave.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_palette_generator.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_palettes.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_bar.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_barstack.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_battery.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_plot_multiselect.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise_cat.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/stem_summarise_num.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/theme_stem.html</loc>
-  </url>
-  <url>
-    <loc>https://stem-cz.github.io/stemtools/reference/trust.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://stem-cz.github.io/stemtools/404.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/LICENSE-text.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/LICENSE.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/articles/color-palettes.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/articles/index.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/articles/plotting.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/authors.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/index.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/news/index.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/collapse_cats.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/create_project.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/diverging_color_extractor.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/index.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/scale_colour_stem.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/se_mean.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/se_median.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/se_prop.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_ggsave.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_palette_generator.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_palettes.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot_bar.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot_barstack.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot_battery.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot_multiselect.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_summarise.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_summarise_cat.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_summarise_num.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/theme_stem.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/trust.html</loc></url>
 </urlset>
+
