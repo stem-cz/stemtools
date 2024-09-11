@@ -75,7 +75,7 @@ stem_plot <- function(data,
                       label = TRUE,
                       label_args = list(position = ggplot2::position_dodge(width = 0.95),
                                         color = "black",
-                                        , size = ggplot2::rel(5),
+                                        size = ggplot2::rel(5),
                                         vjust = -1),
                       label_hide = 0.05,
                       label_accuracy = 1,
@@ -469,7 +469,7 @@ stem_plot_battery <- function(data,
                  item_reverse = item_reverse,
                  group_reverse = group_reverse,
                  ...) +
-    ggplot2::theme(legend.position = "bottom") +
+    ggplot2::theme(legend.position = "top") +
     ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE, nrow = legend_rows, byrow = legend_byrow),
                     color = ggplot2::guide_legend(reverse = TRUE, nrow = legend_rows, byrow = legend_byrow))
 
