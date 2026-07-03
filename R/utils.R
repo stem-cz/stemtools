@@ -1,6 +1,6 @@
 #' Computes parametric standard error for proportions
 #'
-#' Computes SE for proportions using the old-school \eqn{\sqrt{\frac{p - (1 - p)}{n}}} formula.
+#' Computes SE for proportions using the old-school \eqn{\sqrt{\frac{p (1 - p)}{n}}} formula.
 #'
 #' @param p proportion
 #' @param n sample size
@@ -13,7 +13,7 @@
 #' n = 200
 #' se_prop(p = p, n = n)
 se_prop <- function(p, n) {
-  se <- sqrt( (p * (1-p)) / n )
+  sqrt((p * (1 - p)) / n)
 }
 
 #' Computes parametric standard error for mean
@@ -58,7 +58,7 @@ se_median <- function(x) {
 #'
 #' @param data dataset
 #' @param item factor variable
-#' @param collaps_cats list of factor levels to collapse in shape of \code{list(new_level = old_level)}
+#' @param collapse_cats list of factor levels to collapse in shape of \code{list(new_level = old_level)}
 #'
 #' @return new data frame with collapsed factor levels
 #' @export
@@ -66,9 +66,9 @@ se_median <- function(x) {
 #' @examples
 #' collapse_cats(trust, police, list(Agree = c("Definitely Agree", "Rather Agree")))
 #' @importFrom rlang :=
-collapse_cats <- function(data, item, collaps_cats) {
+collapse_cats <- function(data, item, collapse_cats) {
   group_var <- dplyr::select(data, {{ item }}) |> dplyr::pull()
-  collapse_args <- c(list(group_var), collaps_cats)
+  collapse_args <- c(list(group_var), collapse_cats)
   data <- data |> dplyr::mutate({{ item }} := do.call(forcats::fct_collapse, collapse_args))
 
   return(data)

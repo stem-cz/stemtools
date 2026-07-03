@@ -1,3 +1,14 @@
+# stemtools (development version)
+
+* Added a `testthat` test suite covering aggregation, palettes, scales, theme, plotting and utility helpers, plus an `R-CMD-check` GitHub Actions workflow.
+* `theme_stem()` gains a `family` argument to control (or disable) the font family; pass `family = ""` on machines without Calibri.
+* `stem_summarise_cat()` and `stem_summarise_num()` now always return a tibble, so the weighted and unweighted paths share the same output type.
+* Updated `scale_colour_stem()`/`scale_fill_stem()` for ggplot2 (>= 3.5.0), removing the deprecated `scale_name` argument.
+* Renamed the misspelled `collaps_cats` argument of `collapse_cats()` to `collapse_cats`.
+* Fixed the standard-error formula shown in `?se_prop`.
+* `create_project()` no longer errors when called directly without the wizard arguments, writes a starter `README.md`, and drops the `renv` integration. Fixed a no-op `paste()` in the `.gitignore` writer.
+* Dropped the unused `rstudioapi`, `stringr`, `ragg` and `renv` dependencies.
+
 # stemtools 0.0.5
 * Added Rstudio project template
 

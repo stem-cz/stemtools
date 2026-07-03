@@ -4,14 +4,14 @@
 \alias{collapse_cats}
 \title{Collapses factor levels and returns a new data frame}
 \usage{
-collapse_cats(data, item, collaps_cats)
+collapse_cats(data, item, collapse_cats)
 }
 \arguments{
 \item{data}{dataset}
 
 \item{item}{factor variable}
 
-\item{collaps_cats}{list of factor levels to collapse in shape of \code{list(new_level = old_level)}}
+\item{collapse_cats}{list of factor levels to collapse in shape of \code{list(new_level = old_level)}}
 }
 \value{
 new data frame with collapsed factor levels

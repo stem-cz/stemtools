@@ -1,42 +1,19 @@
 #' @import utils
-utils::globalVariables(c("n",
-                         "freq",
-                         "freq_low",
-                         "freq_upp",
-                         "pct",
-                         "ci_low",
-                         "ci_high",
-                         "stem_label",
-                         ".response",
-                         ".battery_item",
-                         ".item",
-                         "score",
-                         "x",
-                         "palette",
-                         "color",
-                         "type",
-                         "freq_label",
-                         "item",
-                         "response",
-                         "label",
-                         "ordering",
-                         "value",
-                         "W",
-                         "group_freq",
-                         "se",
-                         "group_n",
-                         "item_n",
-                         "group_cat",
-                         "item_cat",
-                         "item_prop",
-                         "group_prop",
-                         "estimate",
-                         "geom_label",
-                         "estimate_low",
-                         "estimate_upp",
-                         "name",
-                         "trust"))
+#' @importFrom rlang .data
+NULL
 
-ignore_unused_imports <- function() {
-  ragg::agg_png
-}
+# Bare data-variable symbols referenced via non-standard evaluation (dplyr /
+# ggplot2). Declared here so `R CMD check` does not flag them as undefined
+# globals. Grouped by where they originate; keep in sync with the code.
+utils::globalVariables(c(
+  # surveycore::get_freqs()/get_means() output, renamed in R/aggregation.R
+  "pct", "ci_low", "ci_high",
+  # shared aggregation output columns
+  "n", "freq", "freq_low", "freq_upp", "group_n", "item_n", ".se",
+  # long-format helper columns (R/aggregation.R)
+  "item", "item_cat", "group", "group_cat",
+  # plotting helpers (R/plots.R)
+  "stem_label", ".response", ".battery_item", "score",
+  # palette overview plot (R/color-palettes.R)
+  "x", "palette", "color", "type"
+))

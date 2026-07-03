@@ -88,7 +88,8 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
         freq_low = freq - z * se_prop(freq, sum(n)),
         freq_upp = freq + z * se_prop(freq, sum(n)),
         .by      = {{ group }}
-      )
+      ) |>
+      tibble::as_tibble()
   }
 
   # Absolute sizes, shared by both branches.
@@ -180,7 +181,8 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
         mean_low = mean - z * .se,
         mean_upp = mean + z * .se
       ) |>
-      dplyr::select(-".se")
+      dplyr::select(-".se") |>
+      tibble::as_tibble()
   }
 
   # For a numeric summary every size is the group size.

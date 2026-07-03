@@ -309,9 +309,8 @@ select_diverging <- function(palette, n) {
 #'   scale_colour_stem()
 scale_colour_stem <- function(palette = "modern", direction = 1, ...) {
   ggplot2::discrete_scale(
-    "colour",
-    "stem",
-    stem_palette_gen(palette, direction),
+    aesthetics = "colour",
+    palette = stem_palette_gen(palette, direction),
     ...
   )
 }
@@ -321,9 +320,8 @@ scale_colour_stem <- function(palette = "modern", direction = 1, ...) {
 #' @order 2
 scale_fill_stem <- function(palette = "modern", direction = 1, ...) {
   ggplot2::discrete_scale(
-    "fill",
-    "stem",
-    stem_palette_gen(palette, direction),
+    aesthetics = "fill",
+    palette = stem_palette_gen(palette, direction),
     ...
   )
 }

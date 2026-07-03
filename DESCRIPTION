@@ -11,11 +11,10 @@ Roxygen: list(markdown = TRUE)
 URL: https://github.com/stem-cz/stemtools,
     https://stem-cz.github.io/stemtools/
 BugReports: https://github.com/stem-cz/stemtools/issues
-Imports: 
+Imports:
     ggplot2,
     dplyr,
     tidyr,
-    stringr,
     rlang,
     surveycore,
     surveytidy,
@@ -23,15 +22,14 @@ Imports:
     scales,
     forcats,
     utils,
-    rstudioapi,
-    ragg,
-    renv,
     S7
-Suggests: 
+Suggests:
     knitr,
-    rmarkdown
-Depends: 
+    rmarkdown,
+    testthat (>= 3.0.0)
+Depends:
     R (>= 4.1.0)
 LazyData: true
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0
+Config/testthat/edition: 3

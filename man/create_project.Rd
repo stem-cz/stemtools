@@ -2,15 +2,32 @@
 % Please edit documentation in R/create-project.R
 \name{create_project}
 \alias{create_project}
-\title{This package will create a function called create_project()}
+\title{Scaffold a new Stem analysis project}
 \usage{
-create_project(path, ...)
+create_project(path, createGitignore = TRUE, ...)
 }
 \arguments{
-\item{path}{Path to the project}
+\item{path}{Path to the project directory to create.}
 
-\item{...}{Additional arguments, used to collect user input}
+\item{createGitignore}{If \code{TRUE} (default), writes a \code{.gitignore} with sensible
+defaults for R projects. Also supplied by the RStudio template wizard.}
+
+\item{...}{Additional named arguments collected from the RStudio template
+wizard. Currently ignored.}
+}
+\value{
+Invisibly returns \code{path}. Called for its side effect of creating the
+project directory structure on disk.
 }
 \description{
-It's callback is at: inst/rstudio/templates/project/create_project.dcf
+Creates a standard Stem project directory structure, a minimal \code{README.md}
+and, optionally, a \code{.gitignore} file. This function backs the RStudio
+"New Project" template defined in
+\code{inst/rstudio/templates/project/create_project.dcf}, but can also be called
+directly.
+}
+\examples{
+\dontrun{
+create_project(file.path(tempdir(), "my-analysis"))
+}
 }

@@ -9,9 +9,3 @@ Widget: CheckboxInput
 Label: Create a git repository
 Default: On
 Position: right
-
-Parameter: useRenv
-Widget: CheckboxInput
-Label: Use renv with this project
-Default: On
-Position: right

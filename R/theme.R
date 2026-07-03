@@ -11,6 +11,9 @@
 #' @param accent Accent colour passed to [ggplot2::element_geom()] as the
 #'   default geom accent colour (e.g. the fill of [ggplot2::geom_smooth()]).
 #'   Defaults to the primary Stem brand colour.
+#' @param family Font family for all text. Defaults to `"Calibri"`, the Stem
+#'   house font. Pass `""` to use the graphics device's default family (useful
+#'   on machines where Calibri is not installed).
 #' @param ... Arguments to be passed to [ggplot2::theme()].
 #'
 #' @return ggplot2 [ggplot2::theme()] object.
@@ -23,12 +26,13 @@ theme_stem <- function(
   ink = "black",
   paper = "white",
   accent = "#35978F",
+  family = "Calibri",
   ...
 ) {
   ggplot2::theme(
     geom = ggplot2::element_geom(ink = ink, paper = paper, accent = accent),
     rect = ggplot2::element_rect(fill = paper, colour = NA),
-    text = ggplot2::element_text(family = "Calibri", size = 18, colour = ink),
+    text = ggplot2::element_text(family = family, size = 18, colour = ink),
     panel.background = ggplot2::element_rect(fill = paper),
     strip.background = ggplot2::element_rect(fill = paper),
     legend.position = "top",

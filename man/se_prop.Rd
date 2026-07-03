@@ -15,7 +15,7 @@ se_prop(p, n)
 numeric value representing SE for proportions
 }
 \description{
-Computes SE for proportions using the old-school \eqn{\sqrt{\frac{p - (1 - p)}{n}}} formula.
+Computes SE for proportions using the old-school \eqn{\sqrt{\frac{p (1 - p)}{n}}} formula.
 }
 \examples{
 p = 0.3
