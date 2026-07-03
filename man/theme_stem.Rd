@@ -4,9 +4,21 @@
 \alias{theme_stem}
 \title{Basic ggplot2 theme for Stem.}
 \usage{
-theme_stem(...)
+theme_stem(ink = "black", paper = "white", accent = "#35978F", ...)
 }
 \arguments{
+\item{ink}{Foreground colour used for text, titles and axis lines. Also
+passed to \code{\link[ggplot2:element_geom]{ggplot2::element_geom()}} as the default geom foreground colour.}
+
+\item{paper}{Background colour used behind the panel, plot, strips and
+legend keys. Also passed to \code{\link[ggplot2:element_geom]{ggplot2::element_geom()}} as the default geom
+background colour. Use \code{NA} for a transparent background (useful when
+exporting plots to be placed on a coloured surface).}
+
+\item{accent}{Accent colour passed to \code{\link[ggplot2:element_geom]{ggplot2::element_geom()}} as the
+default geom accent colour (e.g. the fill of \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}).
+Defaults to the primary Stem brand colour.}
+
 \item{...}{Arguments to be passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
 }
 \value{
@@ -17,6 +29,6 @@ Basic ggplot2 theme for Stem.
 }
 \examples{
 \dontrun{
-stem_plot_bar(trust, government) + theme_stem()
+stem_barplot(trust, government) + theme_stem()
 }
 }

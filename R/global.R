@@ -1,6 +1,9 @@
 #' @import utils
 utils::globalVariables(c("n",
                          "freq",
+                         "freq_low",
+                         "freq_upp",
+                         "stem_label",
                          "freq_label",
                          "item",
                          "response",

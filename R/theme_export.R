@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples \dontrun{
-#' stem_plot_bar(trust, government) + theme_stem()
+#' stem_barplot(trust, government) + theme_stem()
 #'}
 theme_stem <- function(
   ink = "black",
