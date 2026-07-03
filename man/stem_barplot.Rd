@@ -36,7 +36,7 @@ collapse (or rename) item categories.}
 \item{collapse_group}{Optional named list to collapse (or rename) group
 categories.}
 
-\item{palette}{Name of a Stem palette. See \code{\link[=stem_palettes]{stem_palettes()}}.}
+\item{palette}{Name of a Stem palette. See \code{\link[=stem_palette]{stem_palette()}}.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 

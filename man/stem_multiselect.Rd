@@ -32,7 +32,7 @@ coloured by group and proportions are computed within each group.}
 
 \item{weight}{Optional survey weights.}
 
-\item{palette}{Name of a Stem palette. See \code{\link[=stem_palettes]{stem_palettes()}}.}
+\item{palette}{Name of a Stem palette. See \code{\link[=stem_palette]{stem_palette()}}.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 

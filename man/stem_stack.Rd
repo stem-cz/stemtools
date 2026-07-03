@@ -22,7 +22,7 @@ stem_stack(
 \item{y_name}{Name of the group column mapped to the y axis, or \code{NULL} for a
 single (inline) bar.}
 
-\item{palette}{Name of a Stem palette. See \code{\link[=stem_palettes]{stem_palettes()}}.}
+\item{palette}{Name of a Stem palette. See \code{\link[=stem_palette]{stem_palette()}}.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 

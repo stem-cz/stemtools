@@ -129,7 +129,7 @@ stem_stack <- function(
 #'   collapse (or rename) item categories.
 #' @param collapse_group Optional named list to collapse (or rename) group
 #'   categories.
-#' @param palette Name of a Stem palette. See [stem_palettes()].
+#' @param palette Name of a Stem palette. See [stem_palette()].
 #' @param direction Palette direction. Use `-1` to reverse the colours.
 #' @param labels If `TRUE`, prints a percentage label at the end of each bar.
 #' @param label_accuracy Rounding accuracy of labels. `1` gives whole numbers,
@@ -194,7 +194,7 @@ stem_barplot <- function(
       plot_data,
       ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
     ) +
-      ggplot2::geom_col(fill = stem_palettes(palette = palette, n = 1))
+      ggplot2::geom_col(fill = stem_palette(palette)[1])
   }
 
   p <- p +
@@ -566,7 +566,7 @@ stem_multiselect <- function(
       )
     }
 
-    p <- p + ggplot2::geom_col(fill = stem_palettes(palette = palette, n = 1))
+    p <- p + ggplot2::geom_col(fill = stem_palette(palette)[1])
   }
 
   p <- p +

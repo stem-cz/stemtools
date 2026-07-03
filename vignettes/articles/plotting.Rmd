@@ -37,7 +37,7 @@ Every plotting function accepts the same core arguments:
 * `item` -- the categorical variable to plot,
 * `group` -- an optional grouping variable,
 * `weight` -- optional survey weights (passed to `{srvyr}`/`{survey}`),
-* `palette` and `direction` -- the [Stem colour palette][stem_palettes] to use,
+* `palette` and `direction` -- the [Stem colour palette][stem_palette] to use,
 * `label_*` -- controls for the percentage labels.
 
 ## Simple bar plot
@@ -113,7 +113,7 @@ stem_barstack(trust,
 
 ## Colours
 
-Use `palette` to pick one of the [Stem palettes][stem_palettes] and `direction = -1` to reverse it.
+Use `palette` to pick one of the [Stem palettes][stem_palette] and `direction = -1` to reverse it.
 
 ```{r palette}
 stem_barstack(trust, item = police, group = eu_index, palette = "div2")
@@ -152,4 +152,4 @@ stem_barplot(trust, item = government) +
   theme_stem()
 ```
 
-[stem_palettes]: ../reference/stem_palettes.html
+[stem_palette]: ../reference/stem_palette.html

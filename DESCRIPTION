@@ -23,7 +23,8 @@ Imports:
     utils,
     rstudioapi,
     ragg,
-    renv
+    renv,
+    S7
 Suggests: 
     knitr,
     rmarkdown

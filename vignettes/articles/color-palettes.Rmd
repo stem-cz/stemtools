@@ -15,27 +15,40 @@ library(ggplot2)
 library(scales)
 ```
 
-`stemtool` provides a set of color palettes for plotting. There are three types of palettes:
+`stemtool` provides a set of color palettes for plotting. Every palette lives in a single registry (`.stem_palettes`), and each one is tagged with a *type* that all the other palette functions read from. There are three types of palettes:
 
 -   **Diverging** - used for variables where low values are the opposite of high values. Typically likert items, where low values signify agreement and high values signify disagreement.
 
-    -   Available diverging palettes: `modern`, `gruvbox_div`.
+    -   Available diverging palettes: `modern`, `gruvbox_div`, `div1`, `div2`, `div3`.
 
 -   **Nominal** - used for variables where categories have no set order. Typically gender, countries of origin or occupation.
 
-    -   Available nominal palettes: `gruvbox`.
+    -   Available nominal palettes: `gruvbox`, `nom1`, `nom2`.
 
 -   **Sequential** - used for variables where higher values indicate higher frequency/concentration of something. Typically level of unemployment, number of people with tertiary education or socioeconomic class.
 
-    -   Available sequential palettes: none (for now).
+    -   Available sequential palettes: `seq1`, `seq2`, `seq3`, `seq4`.
+
+You can see every palette at a glance with `stem_palettes_all()`:
+
+```{r stem-palettes-all}
+stem_palettes_all()
+```
 
 ## Accesing `stemtool` palettes
 
-Color codes from palettes can accessed using `stem_palettes()` function. The function expects palette name (see above) and optionally the number of colors to extract. By default, all colors are extracted. Palettes can be visually inspected with `show_col()` function from `scales` package:
+Color codes from a palette are accessed with the `stem_palette()` function, which expects a palette name (see above) and returns all of its colors. The returned vector carries a `type` attribute. Palettes can be visually inspected with `show_col()` from the `scales` package:
 
 ```{r stem-palettes-codes}
-stem_palettes(palette = "modern", n = 5)
-show_col(stem_palettes(palette = "modern"))
+stem_palette("modern")
+attr(stem_palette("modern"), "type")
+show_col(stem_palette("modern"))
+```
+
+To pull a specific number of colors (for diverging palettes, sampled symmetrically around the midpoint), use the generator returned by `stem_palette_gen()`:
+
+```{r stem-palette-gen}
+stem_palette_gen("modern")(3)
 ```
 
 ## Using palettes in `ggplot2`
