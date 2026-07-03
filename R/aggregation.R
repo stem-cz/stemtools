@@ -1,3 +1,18 @@
+# stemtools aggregation ---------------------------------------------------
+#
+# Weighted or unweighted summaries of categorical and numeric variables.
+# All three exported functions share the same output contract so their
+# results can be consumed interchangeably (e.g. by the plotting functions in
+# R/plots.R):
+#
+#   * `freq`/`mean` .............. point estimate
+#   * `freq_low`/`freq_upp` ...... 95% confidence interval (proportions)
+#   * `mean_low`/`mean_upp` ...... 95% confidence interval (means)
+#   * `n`, `group_n`, `item_n` ... absolute sizes (only when `return_n = TRUE`)
+#
+# Unweighted intervals use the parametric formulas in R/utils.R; weighted
+# intervals come from srvyr/survey.
+
 #' Summarise categorical variable (possibly segmented)
 #'
 #' Takes one categorical variable and returns a tidy dataframe, including relative frequencies and
@@ -22,96 +37,61 @@
 #'                             group = eu,
 #'                             weight = W,
 #'                             collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
-#' @importFrom rlang :=
 stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = FALSE,
                                collapse_item = NULL, collapse_group = NULL,
-                               return_n  = FALSE) {
+                               return_n = FALSE) {
 
-  weight <- rlang::enquo(weight)
+  has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
+  has_group  <- !rlang::quo_is_null(rlang::enquo(group))
 
-  if(!is.null(collapse_item)) {
-    item_var <- dplyr::select(data, {{ item }}) |> dplyr::pull()
-    collapse_args <- c(list(item_var), collapse_item)
+  if (!is.null(collapse_item))  data <- collapse_cats(data, {{ item }},  collapse_item)
+  if (!is.null(collapse_group)) data <- collapse_cats(data, {{ group }}, collapse_group)
 
-    data <- data |> dplyr::mutate({{ item }} := do.call(forcats::fct_collapse, collapse_args))
-  }
-
-  if(!is.null(collapse_group)) {
-    group_var <- dplyr::select(data, {{ group }}) |> dplyr::pull()
-    collapse_args <- c(list(group_var), collapse_group)
-
-    data <- data |> dplyr::mutate({{ group }} := do.call(forcats::fct_collapse, collapse_args))
-  }
-
-  # Parses weighting variables to be passed in as_survey_design
-  # (doesn't support tidy evaluation)
-  #weight <- pull(data, {{ weight }})
-
-  # Computes absolute and relative frequencies for (grouped) data and 95% CI.
-  # CIs for unweighted data are based on the sqrt( (p - (1 - p)) / n) formula.
-
-  weight_check <- rlang::enquo(weight)
-
-  if(rlang::quo_is_null(weight_check)) {
-    counts <- dplyr::count(data, {{ group }}, {{ item }}) |>
-      dplyr::group_by({{ group }}) |>
-      dplyr::mutate(freq = n / sum(n),
-                    se = se_prop(p = freq, n = n),
-                    freq_low = freq - 1.96 * se,
-                    freq_upp = freq + 1.96 * se) |>
-      dplyr::group_by({{ group }}) |>
-      dplyr::mutate(group_n = sum(n)) |>
-      dplyr::group_by({{ item }}) |>
-      dplyr::mutate(item_n = sum(n)) |>
-      dplyr::ungroup() |>
-      dplyr::relocate(n, group_n, item_n, .after = tidyr::last_col()) |>
-      dplyr::select(-se)
-
-  } else {
-
-    weight_name <- names(dplyr::select(data,  !!weight))
-
-    counts <- srvyr::as_survey_design(data, weights = weight_name) |>
+  # Point estimates and 95% CI (within group, if a group is supplied).
+  if (has_weight) {
+    counts <- data |>
+      srvyr::as_survey_design(weights = {{ weight }}) |>
       srvyr::group_by({{ group }}, {{ item }}) |>
-      srvyr::summarise(freq = srvyr::survey_prop(vartype = "ci", proportion = TRUE),
-                       n = dplyr::n()) |>
-      dplyr::group_by({{ group }}) |>
-      dplyr::mutate(group_n = sum(n)) |>
-      dplyr::group_by({{ item }}) |>
-      dplyr::mutate(item_n = sum(n)) |>
-      dplyr::ungroup() |>
-      dplyr::relocate(n, group_n, item_n, .after = tidyr::last_col())
+      srvyr::summarise(
+        freq = srvyr::survey_prop(vartype = "ci", proportion = TRUE),
+        n    = dplyr::n()
+      ) |>
+      dplyr::ungroup()
+  } else {
+    z <- stats::qnorm(0.975)
+    counts <- data |>
+      dplyr::count({{ group }}, {{ item }}) |>
+      dplyr::mutate(
+        freq     = n / sum(n),
+        freq_low = freq - z * se_prop(freq, sum(n)),
+        freq_upp = freq + z * se_prop(freq, sum(n)),
+        .by      = {{ group }}
+      )
   }
 
-  if(!return_n) {
-    counts <- dplyr::select(counts, -c(n, item_n, group_n))
-  }
+  # Absolute sizes, shared by both branches.
+  counts <- counts |>
+    dplyr::mutate(group_n = sum(n), .by = {{ group }}) |>
+    dplyr::mutate(item_n  = sum(n), .by = {{ item }}) |>
+    dplyr::relocate(n, group_n, item_n, .after = tidyr::last_col())
 
+  if (!return_n) counts <- dplyr::select(counts, -c(n, group_n, item_n))
 
-  # Creates columns containing item (and group) variable name and gives all columns generic names.
-  # Useful when the function is called in a loop on multiple variables and the result should be a single data frame.
-
-  group_check <- rlang::enquo(group)
-
-  if(long) {
+  # Optionally reshape to long format so several items can be row-bound together.
+  # The item (and group) variable name is moved into a dedicated column.
+  if (long) {
     counts <- counts |>
-      tidyr::pivot_longer(cols = {{ item }},
-                          names_to = "item",
-                          values_to = "item_cat") |>
+      tidyr::pivot_longer({{ item }}, names_to = "item", values_to = "item_cat") |>
       dplyr::relocate(item, item_cat)
 
-    if(!rlang::quo_is_null(group_check)) {
+    if (has_group) {
       counts <- counts |>
-        tidyr::pivot_longer(cols = {{ group }},
-                     names_to = "group",
-                     values_to = "group_cat") |>
-        dplyr::relocate(group, .before = item) |>
-        dplyr::relocate(group_cat, .before = item_cat)
+        tidyr::pivot_longer({{ group }}, names_to = "group", values_to = "group_cat") |>
+        dplyr::relocate(group, group_cat, .before = item)
     }
-
   }
 
-  return(counts)
+  counts
 }
 
 #' Summarise numeric variable using arithmetic mean (possibly segmented)
@@ -136,81 +116,61 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 #'                             group = eu_index,
 #'                             weight = W,
 #'          collapse_group = list(`Neutral or no opinion` = c("Neutral", "Doesn't Know")))
-#'
-#' @importFrom rlang :=
-stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = FALSE, collapse_group = NULL, return_n = FALSE) {
+stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = FALSE,
+                               collapse_group = NULL, return_n = FALSE) {
 
-  # Optionally collapse factor levels in both item and group variables.
-  # Because col names are passed unquoted (tidyverse non-standard evaluation),
-  # they have to be deparse-substited (Is there a better way?).
-  # Because fct_collapse specifies collapsing using dynamic dots, we need to
-  # use do.call to allow passing arguments from outside of the function.
-  weight <- rlang::enquo(weight)
-  group_check <- rlang::enquo(group)
+  has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
+  has_group  <- !rlang::quo_is_null(rlang::enquo(group))
 
-  if(!rlang::quo_is_null(group_check)) {
-    group_var <- dplyr::select(data, {{ group }}) |> dplyr::pull()
-    collapse_args <- c(list(group_var), collapse_group)
-
-    data <- data |> dplyr::mutate({{ group }} := do.call(forcats::fct_collapse, collapse_args))
+  if (has_group && !is.null(collapse_group)) {
+    data <- collapse_cats(data, {{ group }}, collapse_group)
   }
 
-  weight_check <- rlang::enquo(weight)
-
-  if(rlang::quo_is_null(weight_check)) {
+  if (has_weight) {
     means <- data |>
-      dplyr::group_by({{ group }}) |>
-      dplyr::summarise(group_n = dplyr::n(),
-                       item_n = dplyr::n(),
-                       n = group_n,
-                se = se_mean({{ item }}),
-                mean = mean({{ item }}, na.rm = TRUE)) |>
-      dplyr::group_by({{ group }}) |>
-      dplyr::mutate(mean_low = mean - 1.96 * se,
-             mean_upp = mean + 1.96 * se) |>
-      dplyr::select(-se) |>
+      srvyr::as_survey_design(weights = {{ weight }}) |>
+      srvyr::group_by({{ group }}) |>
+      srvyr::summarise(
+        n    = dplyr::n(),
+        mean = srvyr::survey_mean({{ item }}, vartype = "ci")
+      ) |>
       dplyr::ungroup()
   } else {
-    weight_name <- names(dplyr::select(data,  !!weight ))
-
+    z <- stats::qnorm(0.975)
     means <- data |>
-      srvyr::as_survey_design(weights = weight_name) |>
-      srvyr::group_by({{ group }}) |>
-      srvyr::summarise(group_n = dplyr::n(),
-                       item_n = dplyr::n(),
-                       n = group_n,
-                mean = srvyr::survey_mean({{ item }}, vartype = "ci"))
+      dplyr::summarise(
+        n    = dplyr::n(),
+        mean = mean({{ item }}, na.rm = TRUE),
+        .se  = se_mean({{ item }}),
+        .by  = {{ group }}
+      ) |>
+      dplyr::mutate(
+        mean_low = mean - z * .se,
+        mean_upp = mean + z * .se
+      ) |>
+      dplyr::select(-".se")
   }
 
-  if(!return_n) {
-    means <- dplyr::select(means, -n)
-  }
+  # For a numeric summary every size is the group size.
+  means <- means |>
+    dplyr::mutate(group_n = n, item_n = n) |>
+    dplyr::relocate(n, group_n, item_n, .after = tidyr::last_col())
 
+  if (!return_n) means <- dplyr::select(means, -c(n, group_n, item_n))
 
-  # Creates columns containing item (and group) variable name and gives all columns generic names.
-  # Useful when the function is called in a loop on multiple variables and the result should be a single data frame.
-
-  group_check <- rlang::enquo(group)
-
-  if(long) {
-
-    item_name <- dplyr::select(data, {{ item }}) |> names()
-
+  if (long) {
     means <- means |>
-      dplyr::mutate(item = item_name) |>
+      dplyr::mutate(item = names(dplyr::select(data, {{ item }}))) |>
       dplyr::relocate(item)
 
-    if(!rlang::quo_is_null(group_check)) {
+    if (has_group) {
       means <- means |>
-        tidyr::pivot_longer(cols = {{ group }},
-                     names_to = "group",
-                     values_to = "group_cat") |>
-        dplyr::relocate(group, group_cat) |>
-        dplyr::relocate(item, .after = group)
+        tidyr::pivot_longer({{ group }}, names_to = "group", values_to = "group_cat") |>
+        dplyr::relocate(group, group_cat, .before = item)
     }
   }
 
-  return(means)
+  means
 }
 
 #' Summarise numeric or categorical variable (possibly segmented)
@@ -229,9 +189,10 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 #'
 #'@details
 #'Apart from either point estimates (proportions or means), the function also returns 95% confidence interval bounds.
-#'If unweighted, the intervals are computed using the basic `sqrt((p * (1-p)) / n)` formula. If the estimated proportions
-#'are very high/low, this may lead to interval estimates outsides of the (0;1) bounds. If weights are used, the confidence
-#'intervals are based on weighted logistic regression. Neither of the approaches will work if the proportions are exactly zero or one.
+#'If unweighted, the intervals are computed using the basic `sqrt((p * (1-p)) / n)` formula, where `n` is the size of the
+#'(possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
+#'of the (0;1) bounds. If weights are used, the confidence intervals are based on weighted logistic regression. Neither of
+#'the approaches will work if the proportions are exactly zero or one.
 #'
 #'If `long = TRUE`, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 #'multiple variables and bind the results into a single data frame. See online vignettes for details.
@@ -241,7 +202,7 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 #'You can also use the arguments to rename categories (`list(Yes = "Agree")`) or pass other arguments from the [forcats::fct_collapse()] function.
 #'
 #'If `return_n = TRUE`, columns holding the absolute frequencies will be added. Column `n` is the number of observations for the specific combination of
-#'item and grouping variable, `n_item` is the frequency of the item categories and `n_group` is the frequency of the group categories.
+#'item and grouping variable, `item_n` is the frequency of the item categories and `group_n` is the frequency of the group categories.
 #'
 #' @return An aggregated data frame with point estimates (either proportions or means) and 95% confidence intervals.
 #' @export
@@ -253,25 +214,21 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 #'
 #' stem_summarise(data = trust, item = government,
 #'                collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
-#'
-#' @importFrom rlang :=
 stem_summarise <- function(data, item, group = NULL, weight = NULL, long = FALSE,
                            collapse_item = NULL, collapse_group = NULL,
-                           return_n  = FALSE) {
-  #weight <- rlang::enquo(weight) # evaluating of weight has to wait until the specific stem_summarise_* function.
-  item_class <- dplyr::select(data, {{ item}})
-  item_class <- names(item_class)
-  item_class <- class(data[[item_class]])
+                           return_n = FALSE) {
 
-  # Right now supports either character/factor or numeric item classes.
-  if(item_class %in% c("character", "factor")) {
-    summ <- stem_summarise_cat(data = data, item = {{ item }}, group = {{ group }} , weight = {{ weight }}, long = long,
-                               collapse_item = collapse_item, collapse_group = collapse_group,
-                               return_n  = return_n)
-  } else if(item_class == "numeric") {
-    summ <- stem_summarise_num(data = data, item = {{ item }}, group = {{ group }}, weight = {{ weight }}, long = long,
-                               collapse_group = collapse_group, return_n = return_n)
-  } else stop(paste0("Item has to be character/factor or numeric, not ", item_class))
+  item_vec <- data[[names(dplyr::select(data, {{ item }}))]]
 
-  return(summ)
+  if (inherits(item_vec, c("factor", "character"))) {
+    stem_summarise_cat(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }}, long = long,
+                       collapse_item = collapse_item, collapse_group = collapse_group,
+                       return_n = return_n)
+  } else if (is.numeric(item_vec)) {
+    stem_summarise_num(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }}, long = long,
+                       collapse_group = collapse_group, return_n = return_n)
+  } else {
+    stop("`item` must be a factor, character or numeric variable, not ",
+         paste(class(item_vec), collapse = "/"), ".", call. = FALSE)
+  }
 }

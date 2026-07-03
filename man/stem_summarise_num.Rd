@@ -42,5 +42,4 @@ trust |> stem_summarise_num(age,
                             group = eu_index,
                             weight = W,
          collapse_group = list(`Neutral or no opinion` = c("Neutral", "Doesn't Know")))
-
 }

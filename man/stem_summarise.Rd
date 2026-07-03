@@ -41,9 +41,10 @@ Actually a wrapper for \code{\link[=stem_summarise_cat]{stem_summarise_cat()}} a
 }
 \details{
 Apart from either point estimates (proportions or means), the function also returns 95\% confidence interval bounds.
-If unweighted, the intervals are computed using the basic \code{sqrt((p * (1-p)) / n)} formula. If the estimated proportions
-are very high/low, this may lead to interval estimates outsides of the (0;1) bounds. If weights are used, the confidence
-intervals are based on weighted logistic regression. Neither of the approaches will work if the proportions are exactly zero or one.
+If unweighted, the intervals are computed using the basic \code{sqrt((p * (1-p)) / n)} formula, where \code{n} is the size of the
+(possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
+of the (0;1) bounds. If weights are used, the confidence intervals are based on weighted logistic regression. Neither of
+the approaches will work if the proportions are exactly zero or one.
 
 If \code{long = TRUE}, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 multiple variables and bind the results into a single data frame. See online vignettes for details.
@@ -53,7 +54,7 @@ vector of old category names with corresponding to the new category name, e.g. \
 You can also use the arguments to rename categories (\code{list(Yes = "Agree")}) or pass other arguments from the \code{\link[forcats:fct_collapse]{forcats::fct_collapse()}} function.
 
 If \code{return_n = TRUE}, columns holding the absolute frequencies will be added. Column \code{n} is the number of observations for the specific combination of
-item and grouping variable, \code{n_item} is the frequency of the item categories and \code{n_group} is the frequency of the group categories.
+item and grouping variable, \code{item_n} is the frequency of the item categories and \code{group_n} is the frequency of the group categories.
 }
 \examples{
 stem_summarise(data = trust, item = government)
@@ -62,5 +63,4 @@ stem_summarise(data = trust, item = age, group = eu_index)
 
 stem_summarise(data = trust, item = government,
                collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
-
 }

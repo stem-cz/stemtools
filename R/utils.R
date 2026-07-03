@@ -65,6 +65,7 @@ se_median <- function(x) {
 #'
 #' @examples
 #' collapse_cats(trust, police, list(Agree = c("Definitely Agree", "Rather Agree")))
+#' @importFrom rlang :=
 collapse_cats <- function(data, item, collaps_cats) {
   group_var <- dplyr::select(data, {{ item }}) |> dplyr::pull()
   collapse_args <- c(list(group_var), collaps_cats)
