@@ -76,6 +76,29 @@ stem_barstack(trust, item = police, group = eu_index, weight = W)
 stem_inline(trust, item = police, weight = W)
 ```
 
+## Battery of like items
+
+`stem_battery()` plots several variables that share the same response categories (a Likert battery, say) as one chart with a stacked bar per item. Pass the items with tidyselect helpers and, optionally, `order_by` to sort the items by their combined share of one or more categories.
+
+```{r battery}
+stem_battery(trust,
+             items = c(police, eu, government, army, scientists),
+             weight = W,
+             order_by = c("Definitely Agree", "Rather Agree"))
+```
+
+Item labels (the `"label"` attribute) are used automatically when present; set `item_label = FALSE` to use the bare variable names.
+
+## Multiple-choice items
+
+`stem_multiselect()` summarises a set of "select all that apply" items, rescaling the frequencies so the bars show the share of *respondents* who picked each option (rather than the share of responses).
+
+```{r multiselect}
+stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"), weight = W)
+```
+
+Supplying a `group` variable draws dodged bars for a within-group comparison.
+
 ## Customizing labels
 
 By default the plots print a percentage label on each bar (set `labels = FALSE` to hide them). `label_accuracy` controls rounding (`1` for whole numbers, `0.1` for one decimal place), `label_suffix` sets the text appended to each label and `label_hide` suppresses labels for proportions below a threshold.
