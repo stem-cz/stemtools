@@ -11,7 +11,19 @@
 #   * `n`, `group_n`, `item_n` ... absolute sizes (only when `return_n = TRUE`)
 #
 # Unweighted intervals use the parametric formulas in R/utils.R; weighted
-# intervals come from srvyr/survey.
+# intervals come from surveycore (Taylor-series linearization). surveytidy
+# provides the dplyr-compatible verbs (e.g. `group_by()`) used on the survey
+# design, so the weighted and unweighted code paths read almost identically.
+
+# Silence surveycore's small-cell (AAPOR) advisory: `stem_summarise_*()` are
+# used to build plots, where cells below the reporting threshold are common and
+# the warning would just be noise. Other surveycore conditions still surface.
+mute_small_cell <- function(expr) {
+  withCallingHandlers(
+    expr,
+    surveycore_warning_small_cell = function(w) invokeRestart("muffleWarning")
+  )
+}
 
 #' Summarise categorical variable (possibly segmented)
 #'
@@ -27,6 +39,9 @@
 #' @param long Returns data in long format. Useful if multiple dataframes are to be merged
 #' @param collapse_item Named list. Optionally collapes (or renames) categories of the item variable
 #' @param collapse_group Named list. Optionally collapes (or renames) categories of the group variable
+#' @param na.rm If `TRUE` (default), `NA` values in the item are dropped and observations with an
+#'   `NA` group are excluded. If `FALSE`, `NA` is kept as its own item category (inflating the
+#'   denominator so proportions still sum to 1) and `NA` group values form their own group.
 #' @param return_n If `TRUE`, returns absolute group sizes.
 #'
 #' @return Tidy dataframe
@@ -39,7 +54,7 @@
 #'                             collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
 stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = FALSE,
                                collapse_item = NULL, collapse_group = NULL,
-                               return_n = FALSE) {
+                               na.rm = TRUE, return_n = FALSE) {
 
   has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
   has_group  <- !rlang::quo_is_null(rlang::enquo(group))
@@ -49,15 +64,22 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 
   # Point estimates and 95% CI (within group, if a group is supplied).
   if (has_weight) {
-    counts <- data |>
-      srvyr::as_survey_design(weights = {{ weight }}) |>
-      srvyr::group_by({{ group }}, {{ item }}) |>
-      srvyr::summarise(
-        freq = srvyr::survey_prop(vartype = "ci", proportion = TRUE),
-        n    = dplyr::n()
-      ) |>
-      dplyr::ungroup()
+    design <- surveycore::as_survey(data, weights = {{ weight }})
+    if (has_group) design <- surveytidy::group_by(design, {{ group }})
+
+    counts <- mute_small_cell(
+      surveycore::get_freqs(design, {{ item }}, variance = "ci", na.rm = na.rm)
+    ) |>
+      dplyr::rename(freq = pct, freq_low = ci_low, freq_upp = ci_high) |>
+      tibble::as_tibble()
   } else {
+    # Match get_freqs()'s NA handling: drop NA item (and NA group) when na.rm,
+    # otherwise dplyr::count() keeps NA as its own category / group.
+    if (na.rm) {
+      data <- dplyr::filter(data, !is.na({{ item }}))
+      if (has_group) data <- dplyr::filter(data, !is.na({{ group }}))
+    }
+
     z <- stats::qnorm(0.975)
     counts <- data |>
       dplyr::count({{ group }}, {{ item }}) |>
@@ -106,6 +128,9 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 #' @param weight Optional survey weights
 #' @param long Returns data in long format. Useful if multiple dataframes are to be merged
 #' @param collapse_group Named list. Optionally collapses (or renames) categories of the group variable
+#' @param na.rm If `TRUE` (default), `NA` values in the item are dropped from the calculations and
+#'   observations with an `NA` group are excluded. If `FALSE`, `NA` item values are kept (so the
+#'   mean is `NA`) and `NA` group values form their own group.
 #' @param return_n If `TRUE`, returns absolute group sizes.
 #'
 #' @return Tidy dataframe
@@ -117,7 +142,7 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 #'                             weight = W,
 #'          collapse_group = list(`Neutral or no opinion` = c("Neutral", "Doesn't Know")))
 stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = FALSE,
-                               collapse_group = NULL, return_n = FALSE) {
+                               collapse_group = NULL, na.rm = TRUE, return_n = FALSE) {
 
   has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
   has_group  <- !rlang::quo_is_null(rlang::enquo(group))
@@ -127,20 +152,27 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
   }
 
   if (has_weight) {
-    means <- data |>
-      srvyr::as_survey_design(weights = {{ weight }}) |>
-      srvyr::group_by({{ group }}) |>
-      srvyr::summarise(
-        n    = dplyr::n(),
-        mean = srvyr::survey_mean({{ item }}, vartype = "ci")
-      ) |>
-      dplyr::ungroup()
+    design <- surveycore::as_survey(data, weights = {{ weight }})
+    if (has_group) design <- surveytidy::group_by(design, {{ group }})
+
+    means <- mute_small_cell(
+      surveycore::get_means(design, {{ item }}, variance = "ci", na.rm = na.rm)
+    ) |>
+      dplyr::rename(mean_low = ci_low, mean_upp = ci_high) |>
+      tibble::as_tibble()
   } else {
+    # Match get_means()'s NA handling: when na.rm, drop NA item observations (so
+    # `n` reflects the non-NA basis) and exclude NA groups; otherwise keep them.
+    if (na.rm) {
+      data <- dplyr::filter(data, !is.na({{ item }}))
+      if (has_group) data <- dplyr::filter(data, !is.na({{ group }}))
+    }
+
     z <- stats::qnorm(0.975)
     means <- data |>
       dplyr::summarise(
         n    = dplyr::n(),
-        mean = mean({{ item }}, na.rm = TRUE),
+        mean = mean({{ item }}, na.rm = na.rm),
         .se  = se_mean({{ item }}),
         .by  = {{ group }}
       ) |>
@@ -185,14 +217,16 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 #' @param long Returns data in long format. Useful if multiple dataframes are to be merged
 #' @param collapse_item Named list. Optionally collapes (or renames) categories of the item variable (Only if item is categorical).
 #' @param collapse_group Named list. Optionally collapes (or renames) categories of the group variable
+#' @param na.rm If `TRUE` (default), `NA` values in the item are dropped and observations with an
+#'   `NA` group are excluded. If `FALSE`, `NA` is kept (as its own category for categorical items,
+#'   or yielding an `NA` mean for numeric items) and `NA` group values form their own group.
 #' @param return_n If `TRUE`, returns absolute group sizes.
 #'
 #'@details
 #'Apart from either point estimates (proportions or means), the function also returns 95% confidence interval bounds.
 #'If unweighted, the intervals are computed using the basic `sqrt((p * (1-p)) / n)` formula, where `n` is the size of the
 #'(possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
-#'of the (0;1) bounds. If weights are used, the confidence intervals are based on weighted logistic regression. Neither of
-#'the approaches will work if the proportions are exactly zero or one.
+#'of the (0;1) bounds. If weights are used, the confidence intervals come from `surveycore` (Taylor-series linearization).
 #'
 #'If `long = TRUE`, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 #'multiple variables and bind the results into a single data frame. See online vignettes for details.
@@ -216,17 +250,17 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 #'                collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
 stem_summarise <- function(data, item, group = NULL, weight = NULL, long = FALSE,
                            collapse_item = NULL, collapse_group = NULL,
-                           return_n = FALSE) {
+                           na.rm = TRUE, return_n = FALSE) {
 
   item_vec <- data[[names(dplyr::select(data, {{ item }}))]]
 
   if (inherits(item_vec, c("factor", "character"))) {
     stem_summarise_cat(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }}, long = long,
                        collapse_item = collapse_item, collapse_group = collapse_group,
-                       return_n = return_n)
+                       na.rm = na.rm, return_n = return_n)
   } else if (is.numeric(item_vec)) {
     stem_summarise_num(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }}, long = long,
-                       collapse_group = collapse_group, return_n = return_n)
+                       collapse_group = collapse_group, na.rm = na.rm, return_n = return_n)
   } else {
     stop("`item` must be a factor, character or numeric variable, not ",
          paste(class(item_vec), collapse = "/"), ".", call. = FALSE)

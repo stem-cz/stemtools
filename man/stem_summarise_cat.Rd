@@ -12,6 +12,7 @@ stem_summarise_cat(
   long = FALSE,
   collapse_item = NULL,
   collapse_group = NULL,
+  na.rm = TRUE,
   return_n = FALSE
 )
 }
@@ -29,6 +30,10 @@ stem_summarise_cat(
 \item{collapse_item}{Named list. Optionally collapes (or renames) categories of the item variable}
 
 \item{collapse_group}{Named list. Optionally collapes (or renames) categories of the group variable}
+
+\item{na.rm}{If \code{TRUE} (default), \code{NA} values in the item are dropped and observations with an
+\code{NA} group are excluded. If \code{FALSE}, \code{NA} is kept as its own item category (inflating the
+denominator so proportions still sum to 1) and \code{NA} group values form their own group.}
 
 \item{return_n}{If \code{TRUE}, returns absolute group sizes.}
 }

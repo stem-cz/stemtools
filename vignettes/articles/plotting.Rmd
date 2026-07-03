@@ -36,7 +36,7 @@ Every plotting function accepts the same core arguments:
 
 * `item` -- the categorical variable to plot,
 * `group` -- an optional grouping variable,
-* `weight` -- optional survey weights (passed to `{srvyr}`/`{survey}`),
+* `weight` -- optional survey weights (passed to `{surveycore}`),
 * `palette` and `direction` -- the [Stem colour palette][stem_palette] to use,
 * `label_*` -- controls for the percentage labels.
 
@@ -134,9 +134,9 @@ stem_barstack(trust,
 
 ## Weights
 
-If a `weight` variable is specified, weights are treated as survey weights and passed into `{srvyr}` (which in turn passes them into `{survey}`).
+If a `weight` variable is specified, weights are treated as survey weights and passed into `{surveycore}`, which builds a Taylor-series survey design. Manipulating that design uses `{surveytidy}`, whose verbs mirror `{dplyr}`, so weighted and unweighted code read the same way.
 
-With unweighted data, the confidence intervals are computed using the basic $\sqrt{\frac{p \cdot (1-p)}{n}}$ formula. With very small proportions and small samples this can lead to bounds outside of the `(0, 1)` range. With weighted data, the confidence intervals are based on logistic regression and are always properly bounded.
+With unweighted data, the confidence intervals are computed using the basic $\sqrt{\frac{p \cdot (1-p)}{n}}$ formula. With very small proportions and small samples this can lead to bounds outside of the `(0, 1)` range. With weighted data, the confidence intervals come from `{surveycore}` using Taylor-series linearization.
 
 ```{r weights}
 stem_barplot(trust, item = government, weight = W)

@@ -11,6 +11,7 @@ stem_summarise_num(
   weight = NULL,
   long = FALSE,
   collapse_group = NULL,
+  na.rm = TRUE,
   return_n = FALSE
 )
 }
@@ -26,6 +27,10 @@ stem_summarise_num(
 \item{long}{Returns data in long format. Useful if multiple dataframes are to be merged}
 
 \item{collapse_group}{Named list. Optionally collapses (or renames) categories of the group variable}
+
+\item{na.rm}{If \code{TRUE} (default), \code{NA} values in the item are dropped from the calculations and
+observations with an \code{NA} group are excluded. If \code{FALSE}, \code{NA} item values are kept (so the
+mean is \code{NA}) and \code{NA} group values form their own group.}
 
 \item{return_n}{If \code{TRUE}, returns absolute group sizes.}
 }

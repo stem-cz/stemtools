@@ -12,6 +12,7 @@ stem_summarise(
   long = FALSE,
   collapse_item = NULL,
   collapse_group = NULL,
+  na.rm = TRUE,
   return_n = FALSE
 )
 }
@@ -30,6 +31,10 @@ stem_summarise(
 
 \item{collapse_group}{Named list. Optionally collapes (or renames) categories of the group variable}
 
+\item{na.rm}{If \code{TRUE} (default), \code{NA} values in the item are dropped and observations with an
+\code{NA} group are excluded. If \code{FALSE}, \code{NA} is kept (as its own category for categorical items,
+or yielding an \code{NA} mean for numeric items) and \code{NA} group values form their own group.}
+
 \item{return_n}{If \code{TRUE}, returns absolute group sizes.}
 }
 \value{
@@ -43,8 +48,7 @@ Actually a wrapper for \code{\link[=stem_summarise_cat]{stem_summarise_cat()}} a
 Apart from either point estimates (proportions or means), the function also returns 95\% confidence interval bounds.
 If unweighted, the intervals are computed using the basic \code{sqrt((p * (1-p)) / n)} formula, where \code{n} is the size of the
 (possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
-of the (0;1) bounds. If weights are used, the confidence intervals are based on weighted logistic regression. Neither of
-the approaches will work if the proportions are exactly zero or one.
+of the (0;1) bounds. If weights are used, the confidence intervals come from \code{surveycore} (Taylor-series linearization).
 
 If \code{long = TRUE}, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 multiple variables and bind the results into a single data frame. See online vignettes for details.
