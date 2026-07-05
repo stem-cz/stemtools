@@ -2,7 +2,7 @@
 % Please edit documentation in R/theme.R
 \name{theme_stem}
 \alias{theme_stem}
-\title{Basic ggplot2 theme for Stem.}
+\title{Complete ggplot2 theme for Stem.}
 \usage{
 theme_stem(
   ink = "black",
@@ -29,16 +29,32 @@ Defaults to the primary Stem brand colour.}
 house font. Pass \code{""} to use the graphics device's default family (useful
 on machines where Calibri is not installed).}
 
-\item{...}{Arguments to be passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}.}
+\item{...}{Arguments to be passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}, overriding the Stem
+defaults.}
 }
 \value{
-ggplot2 \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
+A complete ggplot2 \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-Basic ggplot2 theme for Stem.
+A \emph{complete} ggplot2 theme carrying the Stem look. Because it is complete,
+the Stem plotting functions do not apply it themselves; instead activate it
+globally with \code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} so every plot picks it up:
+}
+\details{
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{ggplot2::theme_set(theme_stem())
+}\if{html}{\out{</div>}}
+
+It can still be added to an individual plot with \code{+ theme_stem()} in the
+usual way. The theme is built on \code{\link[ggplot2:theme_grey]{ggplot2::theme_grey()}} with the Stem
+overrides layered on top.
 }
 \examples{
 \dontrun{
+# Activate globally for the whole session.
+ggplot2::theme_set(theme_stem())
+stem_barplot(trust, government)
+
+# Or add it to a single plot.
 stem_barplot(trust, government) + theme_stem()
 }
 }

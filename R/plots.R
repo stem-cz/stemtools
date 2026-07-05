@@ -85,9 +85,19 @@ stem_stack <- function(
   label_color = "black"
 ) {
   mapping <- if (is.null(y_name)) {
-    ggplot2::aes(x = freq, y = "", fill = .data[[fill_name]], label = stem_label)
+    ggplot2::aes(
+      x = freq,
+      y = "",
+      fill = .data[[fill_name]],
+      label = stem_label
+    )
   } else {
-    ggplot2::aes(x = freq, y = .data[[y_name]], fill = .data[[fill_name]], label = stem_label)
+    ggplot2::aes(
+      x = freq,
+      y = .data[[y_name]],
+      fill = .data[[fill_name]],
+      label = stem_label
+    )
   }
 
   p <- ggplot2::ggplot(plot_data, mapping) +
@@ -98,15 +108,14 @@ stem_stack <- function(
     ) +
     ggplot2::scale_y_discrete(limits = rev) +
     scale_fill_stem(palette = palette, direction = direction) +
-    ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1)) +
-    theme_stem(legend.position = "bottom") +
-    ggplot2::theme(axis.title = ggplot2::element_blank())
+    ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1))
 
   if (labels) {
-    p <- p + ggplot2::geom_text(
-      position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE),
-      colour = label_color
-    )
+    p <- p +
+      ggplot2::geom_text(
+        position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE),
+        colour = label_color
+      )
   }
 
   p
@@ -202,27 +211,31 @@ stem_barplot <- function(
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),
       expand = ggplot2::expansion(mult = c(0, 0.1))
-    ) +
-    theme_stem() +
-    ggplot2::theme(axis.title = ggplot2::element_blank())
+    )
 
   if (errorbar) {
-    p <- p + ggplot2::geom_errorbar(
-      ggplot2::aes(xmin = freq_low, xmax = freq_upp),
-      width = 0.2,
-      position = if (has_group) ggplot2::position_dodge2(padding = 0.5) else "identity"
-    )
+    p <- p +
+      ggplot2::geom_errorbar(
+        ggplot2::aes(xmin = freq_low, xmax = freq_upp),
+        width = 0.2,
+        position = if (has_group) {
+          ggplot2::position_dodge2(padding = 0.5)
+        } else {
+          "identity"
+        }
+      )
   }
 
   if (labels) {
-    p <- p + ggplot2::geom_text(
-      hjust = -0.2,
-      position = if (has_group) {
-        ggplot2::position_dodge2(width = 0.9, reverse = TRUE)
-      } else {
-        ggplot2::position_identity()
-      }
-    )
+    p <- p +
+      ggplot2::geom_text(
+        hjust = -0.2,
+        position = if (has_group) {
+          ggplot2::position_dodge2(width = 0.9, reverse = TRUE)
+        } else {
+          ggplot2::position_identity()
+        }
+      )
   }
 
   p
@@ -422,22 +435,34 @@ stem_battery <- function(
   if (item_label) {
     labels_lookup <- column_labels(item_data)
     if (anyNA(labels_lookup)) {
-      warning("At least one item has no `label` attribute; using variable names instead.")
+      warning(
+        "At least one item has no `label` attribute; using variable names instead."
+      )
     } else {
       item_labels <- unname(labels_lookup[item_names])
     }
   }
-  long$.battery_item <- factor(long$.battery_item, levels = item_levels, labels = item_labels)
+  long$.battery_item <- factor(
+    long$.battery_item,
+    levels = item_levels,
+    labels = item_labels
+  )
 
   # Optionally order items by their combined share of `order_by` categories.
   if (!is.null(order_by)) {
     order_levels <- long |>
       dplyr::count(.battery_item, .response, wt = {{ weight }}) |>
       dplyr::mutate(freq = n / sum(n), .by = .battery_item) |>
-      dplyr::summarise(score = sum(freq[.response %in% order_by]), .by = .battery_item) |>
+      dplyr::summarise(
+        score = sum(freq[.response %in% order_by]),
+        .by = .battery_item
+      ) |>
       dplyr::arrange(dplyr::desc(score)) |>
       dplyr::pull(.battery_item)
-    long$.battery_item <- factor(long$.battery_item, levels = as.character(order_levels))
+    long$.battery_item <- factor(
+      long$.battery_item,
+      levels = as.character(order_levels)
+    )
   }
 
   plot_data <- stem_plot_data(
@@ -543,7 +568,12 @@ stem_multiselect <- function(
     group_name <- rlang::as_name(group_quo)
     p <- ggplot2::ggplot(
       plot_data,
-      ggplot2::aes(x = freq, y = .response, fill = .data[[group_name]], label = stem_label)
+      ggplot2::aes(
+        x = freq,
+        y = .response,
+        fill = .data[[group_name]],
+        label = stem_label
+      )
     ) +
       ggplot2::geom_col(position = ggplot2::position_dodge2(reverse = TRUE)) +
       scale_fill_stem(palette = palette, direction = direction)
@@ -555,15 +585,19 @@ stem_multiselect <- function(
 
     if (background) {
       background_data <- data.frame(
-        .response = factor(levels(plot_data$.response), levels = levels(plot_data$.response))
+        .response = factor(
+          levels(plot_data$.response),
+          levels = levels(plot_data$.response)
+        )
       )
-      p <- p + ggplot2::geom_col(
-        data = background_data,
-        mapping = ggplot2::aes(x = 1, y = .response),
-        inherit.aes = FALSE,
-        fill = background_fill,
-        alpha = background_alpha
-      )
+      p <- p +
+        ggplot2::geom_col(
+          data = background_data,
+          mapping = ggplot2::aes(x = 1, y = .response),
+          inherit.aes = FALSE,
+          fill = background_fill,
+          alpha = background_alpha
+        )
     }
 
     p <- p + ggplot2::geom_col(fill = stem_palette(palette)[1])
@@ -574,19 +608,18 @@ stem_multiselect <- function(
       labels = scales::label_percent(suffix = " %"),
       limits = c(0, NA),
       expand = ggplot2::expansion(mult = c(0, 0.1))
-    ) +
-    theme_stem() +
-    ggplot2::theme(axis.title = ggplot2::element_blank())
+    )
 
   if (labels) {
-    p <- p + ggplot2::geom_text(
-      hjust = -0.2,
-      position = if (has_group) {
-        ggplot2::position_dodge2(width = 0.9, reverse = TRUE)
-      } else {
-        ggplot2::position_identity()
-      }
-    )
+    p <- p +
+      ggplot2::geom_text(
+        hjust = -0.2,
+        position = if (has_group) {
+          ggplot2::position_dodge2(width = 0.9, reverse = TRUE)
+        } else {
+          ggplot2::position_identity()
+        }
+      )
   }
 
   p
