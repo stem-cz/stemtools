@@ -1,7 +1,6 @@
 ---
 title: "Plotting with stemtools"
 output: rmarkdown::html_vignette
-dpit: 300
 vignette: >
   %\VignetteIndexEntry{Plotting with stemtools}
   %\VignetteEngine{knitr::rmarkdown}
@@ -11,22 +10,36 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 4.5,
+  dpi = 150
 )
 ```
 
-This vignette shows how to use `{stemtools}` for creating a set of standardized survey plots. We'll use a simulated dataset `trust`, included with the package itself.
+This vignette showcases every plotting function in `{stemtools}`: `stem_barplot()`, `stem_barstack()`, `stem_inline()`, `stem_battery()` and `stem_multiselect()`. We'll use the simulated `trust` dataset that ships with the package.
 
 ```{r setup}
 library(stemtools)
+library(ggplot2)
 
 data(trust, package = "stemtools")
 head(trust)
 ```
 
+## Setting the Stem theme
+
+`theme_stem()` is a *complete* theme carrying the Stem look. Because it is complete, the plotting functions do not apply it themselves -- instead we switch it on once with `theme_set()` and every plot from here on picks it up automatically:
+
+```{r theme}
+theme_set(theme_stem(family = ""))
+```
+
+We pass `family = ""` so the plots fall back to the graphics device's default font (the Stem house font, Calibri, may not be installed on every machine). In normal use you would just call `theme_set(theme_stem())`.
+
 ## How the plotting functions are built
 
-The plotting functions are composed from a shared frequency core. All of them call `stem_summarise_cat()` to compute (possibly weighted) proportions and their 95% confidence intervals, and then hand the aggregated data to a `{ggplot2}` template. You can call the frequency function directly if you need the numbers themselves:
+All the plotting functions are composed from a shared frequency core. Each one calls `stem_summarise_cat()` to compute (possibly weighted) proportions with 95% confidence intervals, then hands the aggregated data to a `{ggplot2}` template. You can call the frequency function directly whenever you need the numbers themselves:
 
 ```{r summarise}
 stem_summarise_cat(trust, item = police, group = eu_index, weight = W)
@@ -48,7 +61,7 @@ Every plotting function accepts the same core arguments:
 stem_barplot(trust, item = government)
 ```
 
-Supplying a `group` variable draws dodged bars so the categories can be compared across groups. Proportions are then computed *within* each group.
+Supplying a `group` variable draws dodged bars so categories can be compared across groups. Proportions are then computed *within* each group.
 
 ```{r barplot-group}
 stem_barplot(trust, item = police, group = eu_index, weight = W)
@@ -72,13 +85,13 @@ stem_barstack(trust, item = police, group = eu_index, weight = W)
 
 `stem_inline()` is a compact summary of a single variable as one stacked horizontal bar.
 
-```{r inline}
+```{r inline, fig.height = 2}
 stem_inline(trust, item = police, weight = W)
 ```
 
 ## Battery of like items
 
-`stem_battery()` plots several variables that share the same response categories (a Likert battery, say) as one chart with a stacked bar per item. Pass the items with tidyselect helpers and, optionally, `order_by` to sort the items by their combined share of one or more categories.
+`stem_battery()` plots several variables that share the same response categories (a Likert battery, say) as one chart, with a stacked bar per item. Pass the items with tidyselect helpers and, optionally, `order_by` to sort the items by their combined share of one or more categories.
 
 ```{r battery}
 stem_battery(trust,
@@ -144,12 +157,11 @@ stem_barplot(trust, item = government, weight = W)
 
 ## Further customization
 
-Every function returns a standard `{ggplot2}` object, so you can keep adding layers, scales and theme tweaks:
+Every function returns a standard `{ggplot2}` object, so you can keep adding layers, scales and theme tweaks. The global `theme_stem()` is already applied, so this just layers a title on top:
 
 ```{r customize}
 stem_barplot(trust, item = government) +
-  ggplot2::labs(title = "Trust in the government") +
-  theme_stem()
+  labs(title = "Trust in the government")
 ```
 
 [stem_palette]: ../reference/stem_palette.html
