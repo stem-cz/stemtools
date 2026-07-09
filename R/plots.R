@@ -82,8 +82,23 @@ stem_stack <- function(
   palette = "div1",
   direction = 1,
   labels = TRUE,
-  label_color = "black"
+  label_color = "black",
+  label_bicolor = TRUE
 ) {
+  # Colour the labels of the two side (extreme) fill categories white, all
+  # others with `label_color`.
+  if (label_bicolor) {
+    fill_levels <- levels(as.factor(plot_data[[fill_name]]))
+    side_levels <- fill_levels[c(1, length(fill_levels))]
+    plot_data$.label_color <- ifelse(
+      as.character(plot_data[[fill_name]]) %in% side_levels,
+      "white",
+      label_color
+    )
+  } else {
+    plot_data$.label_color <- label_color
+  }
+
   mapping <- if (is.null(y_name)) {
     ggplot2::aes(
       x = freq,
@@ -101,7 +116,7 @@ stem_stack <- function(
   }
 
   p <- ggplot2::ggplot(plot_data, mapping) +
-    ggplot2::geom_col(position = ggplot2::position_stack(reverse = TRUE)) +
+    ggplot2::geom_col(color = "white", position = ggplot2::position_stack(reverse = TRUE)) +
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),
       expand = ggplot2::expansion(mult = c(0, 0))
@@ -113,9 +128,13 @@ stem_stack <- function(
   if (labels) {
     p <- p +
       ggplot2::geom_text(
-        position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE),
-        colour = label_color
-      )
+        ggplot2::aes(
+          colour = .data[[".label_color"]],
+          group = .data[[fill_name]]
+        ),
+        position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE)
+      ) +
+      ggplot2::scale_colour_identity()
   }
 
   p
@@ -196,14 +215,14 @@ stem_barplot <- function(
         label = stem_label
       )
     ) +
-      ggplot2::geom_col(position = ggplot2::position_dodge2(reverse = TRUE)) +
+      ggplot2::geom_col(color = "white", position = ggplot2::position_dodge2(reverse = TRUE)) +
       scale_fill_stem(palette = palette, direction = direction)
   } else {
     p <- ggplot2::ggplot(
       plot_data,
       ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
     ) +
-      ggplot2::geom_col(fill = stem_palette(palette)[1])
+      ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1])
   }
 
   p <- p +
@@ -250,6 +269,9 @@ stem_barplot <- function(
 #' @inheritParams stem_barplot
 #' @param group Grouping variable. One stacked bar is drawn per group category.
 #' @param label_color Colour of the segment labels. Defaults to `"black"`.
+#' @param label_bicolor If `TRUE` (default), the labels of the two side
+#'   (extreme) response categories are drawn in white, while all other labels
+#'   use `label_color`. Set to `FALSE` to colour every label with `label_color`.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -271,7 +293,8 @@ stem_barstack <- function(
   label_accuracy = 1,
   label_suffix = "",
   label_hide = 0.05,
-  label_color = "black"
+  label_color = "black",
+  label_bicolor = TRUE
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_name <- rlang::as_name(rlang::enquo(group))
@@ -295,7 +318,8 @@ stem_barstack <- function(
     palette = palette,
     direction = direction,
     labels = labels,
-    label_color = label_color
+    label_color = label_color,
+    label_bicolor = label_bicolor
   )
 }
 
@@ -325,7 +349,8 @@ stem_inline <- function(
   label_accuracy = 1,
   label_suffix = "",
   label_hide = 0.05,
-  label_color = "black"
+  label_color = "black",
+  label_bicolor = TRUE
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
 
@@ -346,7 +371,8 @@ stem_inline <- function(
     palette = palette,
     direction = direction,
     labels = labels,
-    label_color = label_color
+    label_color = label_color,
+    label_bicolor = label_bicolor
   )
 }
 
@@ -411,7 +437,8 @@ stem_battery <- function(
   label_accuracy = 1,
   label_suffix = "",
   label_hide = 0.05,
-  label_color = "black"
+  label_color = "black",
+  label_bicolor = TRUE
 ) {
   item_data <- dplyr::select(data, {{ items }})
   item_names <- names(item_data)
@@ -482,7 +509,8 @@ stem_battery <- function(
     palette = palette,
     direction = direction,
     labels = labels,
-    label_color = label_color
+    label_color = label_color,
+    label_bicolor = label_bicolor
   )
 }
 
@@ -575,7 +603,7 @@ stem_multiselect <- function(
         label = stem_label
       )
     ) +
-      ggplot2::geom_col(position = ggplot2::position_dodge2(reverse = TRUE)) +
+      ggplot2::geom_col(color = "white", position = ggplot2::position_dodge2(reverse = TRUE)) +
       scale_fill_stem(palette = palette, direction = direction)
   } else {
     p <- ggplot2::ggplot(
@@ -600,7 +628,7 @@ stem_multiselect <- function(
         )
     }
 
-    p <- p + ggplot2::geom_col(fill = stem_palette(palette)[1])
+    p <- p + ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1])
   }
 
   p <- p +

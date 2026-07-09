@@ -11,7 +11,8 @@ stem_stack(
   palette = "div1",
   direction = 1,
   labels = TRUE,
-  label_color = "black"
+  label_color = "black",
+  label_bicolor = TRUE
 )
 }
 \arguments{
@@ -29,6 +30,10 @@ single (inline) bar.}
 \item{labels}{If \code{TRUE}, prints a percentage label at the end of each bar.}
 
 \item{label_color}{Colour of the segment labels. Defaults to \code{"black"}.}
+
+\item{label_bicolor}{If \code{TRUE} (default), the labels of the two side
+(extreme) response categories are drawn in white, while all other labels
+use \code{label_color}. Set to \code{FALSE} to colour every label with \code{label_color}.}
 }
 \value{
 A ggplot2 object.

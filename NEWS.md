@@ -1,4 +1,4 @@
-# stemtools (development version)
+# stemtools 0.1.0
 
 * Added a `testthat` test suite covering aggregation, palettes, scales, theme, plotting and utility helpers, plus an `R-CMD-check` GitHub Actions workflow.
 * `theme_stem()` gains a `family` argument to control (or disable) the font family; pass `family = ""` on machines without Calibri.

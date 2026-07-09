@@ -17,7 +17,8 @@ stem_barstack(
   label_accuracy = 1,
   label_suffix = "",
   label_hide = 0.05,
-  label_color = "black"
+  label_color = "black",
+  label_bicolor = TRUE
 )
 }
 \arguments{
@@ -49,6 +50,10 @@ categories.}
 \item{label_hide}{Proportions below this threshold are left unlabelled.}
 
 \item{label_color}{Colour of the segment labels. Defaults to \code{"black"}.}
+
+\item{label_bicolor}{If \code{TRUE} (default), the labels of the two side
+(extreme) response categories are drawn in white, while all other labels
+use \code{label_color}. Set to \code{FALSE} to colour every label with \code{label_color}.}
 }
 \value{
 A ggplot2 object.
