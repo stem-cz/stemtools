@@ -9,7 +9,7 @@ stem_multiselect(
   items,
   group = NULL,
   weight = NULL,
-  palette = "modern",
+  palette = "div1",
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,

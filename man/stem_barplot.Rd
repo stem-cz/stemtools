@@ -11,7 +11,7 @@ stem_barplot(
   weight = NULL,
   collapse_item = NULL,
   collapse_group = NULL,
-  palette = "modern",
+  palette = "div1",
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,

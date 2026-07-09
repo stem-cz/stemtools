@@ -4,7 +4,7 @@
 \alias{stem_palette_gen}
 \title{Colour palette generator factory}
 \usage{
-stem_palette_gen(palette = "modern", direction = 1)
+stem_palette_gen(palette = "div1", direction = 1)
 }
 \arguments{
 \item{palette}{Name of the palette. See \code{\link[=stem_palette]{stem_palette()}} for the full list of valid names.}

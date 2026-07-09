@@ -6,15 +6,15 @@
 \alias{scale_color_stem}
 \title{stem discrete colour and fill scales for ggplot2}
 \usage{
-scale_fill_stem(palette = "modern", direction = 1, ...)
+scale_fill_stem(palette = "div1", direction = 1, ...)
 
-scale_colour_stem(palette = "modern", direction = 1, ...)
+scale_colour_stem(palette = "div1", direction = 1, ...)
 
-scale_color_stem(palette = "modern", direction = 1, ...)
+scale_color_stem(palette = "div1", direction = 1, ...)
 }
 \arguments{
 \item{palette}{Name of the palette. See \code{\link[=stem_palette]{stem_palette()}} for the full list of valid names.
-Defaults to \code{"modern"}.}
+Defaults to \code{"div1"}.}
 
 \item{direction}{\code{1} (default) uses colours in their natural order; \code{-1} reverses the order.}
 

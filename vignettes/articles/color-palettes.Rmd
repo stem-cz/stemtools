@@ -19,11 +19,11 @@ library(scales)
 
 -   **Diverging** - used for variables where low values are the opposite of high values. Typically likert items, where low values signify agreement and high values signify disagreement.
 
-    -   Available diverging palettes: `modern`, `gruvbox_div`, `div1`, `div2`, `div3`.
+    -   Available diverging palettes: `modern`, `div1`, `div2`, `div3`.
 
 -   **Nominal** - used for variables where categories have no set order. Typically gender, countries of origin or occupation.
 
-    -   Available nominal palettes: `gruvbox`, `nom1`, `nom2`.
+    -   Available nominal palettes: `nom1`, `nom2`.
 
 -   **Sequential** - used for variables where higher values indicate higher frequency/concentration of something. Typically level of unemployment, number of people with tertiary education or socioeconomic class.
 

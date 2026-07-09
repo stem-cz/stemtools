@@ -4,16 +4,16 @@
 \alias{stem_palette}
 \title{Retrieve a stem colour palette}
 \usage{
-stem_palette(palette = "modern")
+stem_palette(palette = "div1")
 }
 \arguments{
 \item{palette}{Name of the palette. One of:
 
-\strong{Nominal} (categorical, unordered data): \code{"gruvbox"}, \code{"nom1"}, \code{"nom2"}.
+\strong{Nominal} (categorical, unordered data): \code{"nom1"}, \code{"nom2"}.
 
 \strong{Sequential} (ordered data from low to high): \code{"seq1"}, \code{"seq2"}, \code{"seq3"}, \code{"seq4"}.
 
-\strong{Diverging} (data with a meaningful midpoint): \code{"gruvbox_div"}, \code{"modern"},
+\strong{Diverging} (data with a meaningful midpoint): \code{"modern"},
 \code{"div1"}, \code{"div2"}, \code{"div3"}.}
 }
 \value{
@@ -33,7 +33,7 @@ stem_palette("modern")
 attr(stem_palette("modern"), "type")
 
 # Use with scales package for inspection
-scales::show_col(stem_palette("gruvbox"))
+scales::show_col(stem_palette("nom1"))
 }
 \seealso{
 \code{\link[=stem_palette_gen]{stem_palette_gen()}}, \code{\link[=scale_colour_stem]{scale_colour_stem()}}, \code{\link[=scale_fill_stem]{scale_fill_stem()}}

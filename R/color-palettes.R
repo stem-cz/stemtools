@@ -48,11 +48,6 @@ stem_colors <- S7::new_class(
 #' @keywords internal
 .stem_palettes <- list(
   # Nominal palettes
-  gruvbox = stem_colors(
-    name = "gruvbox",
-    type = "nominal",
-    colors = c("#fb4934", "#b8bb26", "#83a598", "#fabd2f", "#d3869b", "#8ec07c", "#fe8019")
-  ),
   nom1 = stem_colors(
     name = "nom1",
     type = "nominal",
@@ -87,11 +82,6 @@ stem_colors <- S7::new_class(
   ),
 
   # Diverging palettes
-  gruvbox_div = stem_colors(
-    name = "gruvbox_div",
-    type = "diverging",
-    colors = c("#b9211a", "#cc241d", "#fb4934", "#fac64c", "#83a598", "#649590", "#458588")
-  ),
   modern = stem_colors(
     name = "modern",
     type = "diverging",
@@ -125,11 +115,11 @@ stem_colors <- S7::new_class(
 #'
 #' @param palette Name of the palette. One of:
 #'
-#' **Nominal** (categorical, unordered data): `"gruvbox"`, `"nom1"`, `"nom2"`.
+#' **Nominal** (categorical, unordered data): `"nom1"`, `"nom2"`.
 #'
 #' **Sequential** (ordered data from low to high): `"seq1"`, `"seq2"`, `"seq3"`, `"seq4"`.
 #'
-#' **Diverging** (data with a meaningful midpoint): `"gruvbox_div"`, `"modern"`,
+#' **Diverging** (data with a meaningful midpoint): `"modern"`,
 #' `"div1"`, `"div2"`, `"div3"`.
 #'
 #' @return Character vector of hex colour codes with a `type` attribute
@@ -146,8 +136,8 @@ stem_colors <- S7::new_class(
 #' attr(stem_palette("modern"), "type")
 #'
 #' # Use with scales package for inspection
-#' scales::show_col(stem_palette("gruvbox"))
-stem_palette <- function(palette = "modern") {
+#' scales::show_col(stem_palette("nom1"))
+stem_palette <- function(palette = "div1") {
   pal <- .stem_palettes[[palette]]
 
   if (is.null(pal)) {
@@ -186,7 +176,7 @@ stem_palette <- function(palette = "modern") {
 #'
 #' # Reversed order
 #' stem_palette_gen("div1", direction = -1)(5)
-stem_palette_gen <- function(palette = "modern", direction = 1) {
+stem_palette_gen <- function(palette = "div1", direction = 1) {
   function(n) {
     all_colors <- stem_palette(palette)
 
@@ -293,7 +283,7 @@ select_diverging <- function(palette, n) {
 #' be passed through `...`.
 #'
 #' @param palette Name of the palette. See [stem_palette()] for the full list of valid names.
-#'   Defaults to `"modern"`.
+#'   Defaults to `"div1"`.
 #' @param direction `1` (default) uses colours in their natural order; `-1` reverses the order.
 #' @param ... Additional arguments passed to [ggplot2::discrete_scale()].
 #'
@@ -307,7 +297,7 @@ select_diverging <- function(palette, n) {
 #'                 mapping = ggplot2::aes(x = mpg, y = hp, color = as.factor(am))) +
 #'   ggplot2::geom_point() +
 #'   scale_colour_stem()
-scale_colour_stem <- function(palette = "modern", direction = 1, ...) {
+scale_colour_stem <- function(palette = "div1", direction = 1, ...) {
   ggplot2::discrete_scale(
     aesthetics = "colour",
     palette = stem_palette_gen(palette, direction),
@@ -318,7 +308,7 @@ scale_colour_stem <- function(palette = "modern", direction = 1, ...) {
 #' @rdname scale_colour_stem
 #' @export
 #' @order 2
-scale_fill_stem <- function(palette = "modern", direction = 1, ...) {
+scale_fill_stem <- function(palette = "div1", direction = 1, ...) {
   ggplot2::discrete_scale(
     aesthetics = "fill",
     palette = stem_palette_gen(palette, direction),
