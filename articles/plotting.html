@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Plotting with stemtools • stemtools</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Plotting with stemtools">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
     
     
 <p>This vignette shows how to use <a href="https://github.com/stem-cz/stemtools" class="external-link">stemtools</a> for creating
-a variety of standardized plots. We’ll use a simuated dataset
+a set of standardized survey plots. We’ll use a simulated dataset
 <code>trust</code>, included with the package itself.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stem-cz/stemtools" class="external-link">stemtools</a></span><span class="op">)</span></span>
@@ -102,154 +102,196 @@ a variety of standardized plots. We’ll use a simuated dataset
 <span><span class="co">#&gt; 4       Corruption</span></span>
 <span><span class="co">#&gt; 5      Immigration</span></span>
 <span><span class="co">#&gt; 6       Corruption</span></span></code></pre></div>
-<p>The core function is <code><a href="../reference/stem_plot.html">stem_plot()</a></code>, a convinient wrapper
-around <code><a href="../reference/stem_summarise.html">stem_summarise()</a></code>, followed by a flexible
-<a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> template. The aim of the <code><a href="../reference/stem_plot.html">stem_plot()</a></code>
-is to visualize <em>aggregated</em> data, namely counts and means.</p>
+<div class="section level2">
+<h2 id="how-the-plotting-functions-are-built">How the plotting functions are built<a class="anchor" aria-label="anchor" href="#how-the-plotting-functions-are-built"></a>
+</h2>
+<p>The plotting functions are composed from a shared frequency core. All
+of them call <code><a href="../reference/stem_summarise_cat.html">stem_summarise_cat()</a></code> to compute (possibly
+weighted) proportions and their 95% confidence intervals, and then hand
+the aggregated data to a <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> template. You can call
+the frequency function directly if you need the numbers themselves:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/stem-summarise-show-1.png" width="700"></p>
-<p><code><a href="../reference/stem_plot.html">stem_plot()</a></code> automatically recognizes whether the item
-variable is numerical or categorical. For numerical variables, grouping
-variable should also be included using <code>group</code> argument.
-Survey weights can be used by calling the <code>weight</code>
-argument.</p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_summarise_cat.html">stem_summarise_cat</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span>, group <span class="op">=</span> <span class="va">eu_index</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 20 × 5</span></span></span>
+<span><span class="co">#&gt;    eu_index     police                       freq freq_low freq_upp</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Likes EU     Definitely Agree           0.395   0.327     0.463 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> Likes EU     Rather Agree               0.318   0.251     0.384 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Likes EU     Neither Agree nor Disagree 0.149   0.104     0.194 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Likes EU     Rather Disagree            0.064<span style="text-decoration: underline;">3</span>  0.026<span style="text-decoration: underline;">4</span>    0.102 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Likes EU     Definitely Disagree        0.073<span style="text-decoration: underline;">4</span>  0.034<span style="text-decoration: underline;">6</span>    0.112 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Neutral      Definitely Agree           0.405   0.330     0.480 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Neutral      Rather Agree               0.312   0.242     0.383 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Neutral      Neither Agree nor Disagree 0.178   0.117     0.239 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Neutral      Rather Disagree            0.063<span style="text-decoration: underline;">7</span>  0.029<span style="text-decoration: underline;">7</span>    0.097<span style="text-decoration: underline;">8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Neutral      Definitely Disagree        0.040<span style="text-decoration: underline;">6</span>  0.008<span style="text-decoration: underline;">41</span>   0.072<span style="text-decoration: underline;">8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> Dislikes EU  Definitely Agree           0.400   0.305     0.495 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> Dislikes EU  Rather Agree               0.326   0.234     0.418 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> Dislikes EU  Neither Agree nor Disagree 0.155   0.077<span style="text-decoration: underline;">8</span>    0.233 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> Dislikes EU  Rather Disagree            0.036<span style="text-decoration: underline;">8</span>  0.009<span style="text-decoration: underline;">56</span>   0.064<span style="text-decoration: underline;">0</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> Dislikes EU  Definitely Disagree        0.081<span style="text-decoration: underline;">9</span>  0.019<span style="text-decoration: underline;">0</span>    0.145 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> Doesn't Know Definitely Agree           0.308   0.191     0.424 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> Doesn't Know Rather Agree               0.453   0.315     0.591 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> Doesn't Know Neither Agree nor Disagree 0.180   0.087<span style="text-decoration: underline;">1</span>    0.272 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> Doesn't Know Rather Disagree            0.013<span style="text-decoration: underline;">9</span> -<span style="color: #BB0000;">0.002</span><span style="color: #BB0000; text-decoration: underline;">15</span>   0.030<span style="text-decoration: underline;">0</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> Doesn't Know Definitely Disagree        0.045<span style="text-decoration: underline;">5</span> -<span style="color: #BB0000;">0.001</span><span style="color: #BB0000; text-decoration: underline;">60</span>   0.092<span style="text-decoration: underline;">6</span></span></span></code></pre></div>
+<p>Every plotting function accepts the same core arguments:</p>
+<ul>
+<li>
+<code>item</code> – the categorical variable to plot,</li>
+<li>
+<code>group</code> – an optional grouping variable,</li>
+<li>
+<code>weight</code> – optional survey weights (passed to
+<a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a>),</li>
+<li>
+<code>palette</code> and <code>direction</code> – the <a href="../reference/stem_palette.html">Stem colour palette</a> to
+use,</li>
+<li>
+<code>label_*</code> – controls for the percentage labels.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="simple-bar-plot">Simple bar plot<a class="anchor" aria-label="anchor" href="#simple-bar-plot"></a>
+</h2>
+<p><code><a href="../reference/stem_barplot.html">stem_barplot()</a></code> draws the distribution of a single
+categorical variable as horizontal bars, one bar per category.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>, item <span class="op">=</span> <span class="va">age</span>, group <span class="op">=</span> <span class="va">eu_index</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/stem-summarise-show-num-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barplot.html">stem_barplot</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">government</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/barplot-1.png" class="r-plt" alt="" width="700"></p>
+<p>Supplying a <code>group</code> variable draws dodged bars so the
+categories can be compared across groups. Proportions are then computed
+<em>within</em> each group.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barplot.html">stem_barplot</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span>, group <span class="op">=</span> <span class="va">eu_index</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/barplot-group-1.png" class="r-plt" alt="" width="700"></p>
+<p>Confidence intervals are always computed and can be shown with
+<code>errorbar = TRUE</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barplot.html">stem_barplot</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">government</span>, errorbar <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/barplot-errorbar-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="stacked-bar-plot">Stacked bar plot<a class="anchor" aria-label="anchor" href="#stacked-bar-plot"></a>
+</h2>
+<p><code><a href="../reference/stem_barstack.html">stem_barstack()</a></code> draws one stacked horizontal bar per
+category of the <code>group</code> variable. Each bar sums to 100%,
+which makes it easy to compare the composition of the item across
+groups.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barstack.html">stem_barstack</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span>, group <span class="op">=</span> <span class="va">eu_index</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/barstack-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="inline-bar-plot">Inline bar plot<a class="anchor" aria-label="anchor" href="#inline-bar-plot"></a>
+</h2>
+<p><code><a href="../reference/stem_inline.html">stem_inline()</a></code> is a compact summary of a single variable
+as one stacked horizontal bar.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_inline.html">stem_inline</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/inline-1.png" class="r-plt" alt="" width="700"></p>
+</div>
+<div class="section level2">
+<h2 id="battery-of-like-items">Battery of like items<a class="anchor" aria-label="anchor" href="#battery-of-like-items"></a>
+</h2>
+<p><code><a href="../reference/stem_battery.html">stem_battery()</a></code> plots several variables that share the
+same response categories (a Likert battery, say) as one chart with a
+stacked bar per item. Pass the items with tidyselect helpers and,
+optionally, <code>order_by</code> to sort the items by their combined
+share of one or more categories.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_battery.html">stem_battery</a></span><span class="op">(</span><span class="va">trust</span>,</span>
+<span>             items <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">police</span>, <span class="va">eu</span>, <span class="va">government</span>, <span class="va">army</span>, <span class="va">scientists</span><span class="op">)</span>,</span>
+<span>             weight <span class="op">=</span> <span class="va">W</span>,</span>
+<span>             order_by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Definitely Agree"</span>, <span class="st">"Rather Agree"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/battery-1.png" class="r-plt" alt="" width="700"></p>
+<p>Item labels (the <code>"label"</code> attribute) are used
+automatically when present; set <code>item_label = FALSE</code> to use
+the bare variable names.</p>
+</div>
+<div class="section level2">
+<h2 id="multiple-choice-items">Multiple-choice items<a class="anchor" aria-label="anchor" href="#multiple-choice-items"></a>
+</h2>
+<p><code><a href="../reference/stem_multiselect.html">stem_multiselect()</a></code> summarises a set of “select all that
+apply” items, rescaling the frequencies so the bars show the share of
+<em>respondents</em> who picked each option (rather than the share of
+responses).</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_multiselect.html">stem_multiselect</a></span><span class="op">(</span><span class="va">trust</span>, items <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"biggest_concern"</span><span class="op">)</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/multiselect-1.png" class="r-plt" alt="" width="700"></p>
+<p>Supplying a <code>group</code> variable draws dodged bars for a
+within-group comparison.</p>
+</div>
 <div class="section level2">
 <h2 id="customizing-labels">Customizing labels<a class="anchor" aria-label="anchor" href="#customizing-labels"></a>
 </h2>
-<p>By default, <code><a href="../reference/stem_plot.html">stem_plot()</a></code> shows labels for each geom (set
-<code>labels = FALSE</code> to hide them). Looks of the labels can be
-customized using several arguments. <code>label_scale</code> multiples
-labels by specified amount (e.g. <code>100</code>).
-<code>label_accuracy</code> rounds labels - <code>1</code> for no
-decimal places, <code>0.1</code> for one decimal place,
-<code>0.01</code> for two, and so on. <code>label_suffix</code> and
-<code>label_prefix</code> allow to add suffix and prefix respectively.
-<code>label_big</code> controls thousands separator and
-<code>label_decimal</code> control which character is used to separate
-decimal digits. You can also hide labels lower than a certain threshold
-with <code>label_hide</code> (with <code>0.05</code> being the default).
-Additionally, you can pass a list into <code>label_args</code> to
-specify additional arguments like <code>vjust</code> or
-<code>position</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
-<span>          item <span class="op">=</span> <span class="va">government</span>,</span>
-<span>          label_scale <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>          label_suffix <span class="op">=</span> <span class="st">"%"</span>,</span>
-<span>          label_hide <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/labels-example-1.png" width="700"></p>
+<p>By default the plots print a percentage label on each bar (set
+<code>labels = FALSE</code> to hide them). <code>label_accuracy</code>
+controls rounding (<code>1</code> for whole numbers, <code>0.1</code>
+for one decimal place), <code>label_suffix</code> sets the text appended
+to each label and <code>label_hide</code> suppresses labels for
+proportions below a threshold.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barstack.html">stem_barstack</a></span><span class="op">(</span><span class="va">trust</span>,</span>
+<span>              item <span class="op">=</span> <span class="va">police</span>,</span>
+<span>              group <span class="op">=</span> <span class="va">eu_index</span>,</span>
+<span>              label_accuracy <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>              label_hide <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/labels-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
-<h2 id="customizing-title-caption-and-axes">Customizing title, caption and axes<a class="anchor" aria-label="anchor" href="#customizing-title-caption-and-axes"></a>
+<h2 id="colours">Colours<a class="anchor" aria-label="anchor" href="#colours"></a>
 </h2>
-<p>By default, plots include title. If the item has an attribute
-<code>label</code> (such as one created using the
-<a href="https://larmarange.github.io/labelled/" class="external-link">labelled</a> package) and <code>title_label = TRUE</code>,
-the label will be used instead of variable name. You can use
-<code>title_wrap</code> to set how many characters before the title is
-wrapped on the next line. If you don’t want to use title, set
-<code>title = FALSE</code>. If you want to use your own title, use
-<code>stem_plot(..., title = FALSE) + ggplot::labs(title = "My title")</code>.</p>
-<p>By default, the plot also includes a caption with sample size. To get
-rid off the caption, set <code>caption = FALSE</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
-<span>          item <span class="op">=</span> <span class="va">government</span>,</span>
-<span>          title_label <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>          caption <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/title-example-1.png" width="700"></p>
-<p>You can pass <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a>’s scale functions into arguments
-<code>scale_x</code>, <code>scale_y</code>, <code>scale_fill</code> and
-<code>scale_color</code>. Note that you may need to set limits by hand
-when using grouping variable and setting your own scale. Similarly, you
-can control legend using <code>guides</code>.</p>
-<p>Lastly, you can reverse the order of item and group variable using
-<code>item_reverse</code> and <code>group_reverse</code>.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
-<span>          item <span class="op">=</span> <span class="va">police</span>,</span>
-<span>          group <span class="op">=</span> <span class="va">eu_index</span>,</span>
-<span>          label <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>          scale_y <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>labels <span class="op">=</span> <span class="fu">scales</span><span class="fu">::</span><span class="fu"><a href="https://scales.r-lib.org/reference/percent_format.html" class="external-link">percent_format</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                                                limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>          scale_fill <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_fill_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span>,</span>
-<span>          scale_color <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html" class="external-link">scale_color_brewer</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"Set1"</span><span class="op">)</span>,</span>
-<span>          guides <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>                                   color <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>          item_reverse <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/scales-example-1.png" width="700"></p>
+<p>Use <code>palette</code> to pick one of the <a href="../reference/stem_palette.html">Stem palettes</a> and
+<code>direction = -1</code> to reverse it.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barstack.html">stem_barstack</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">police</span>, group <span class="op">=</span> <span class="va">eu_index</span>, palette <span class="op">=</span> <span class="st">"div2"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/palette-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="collapsing-categories">Collapsing categories<a class="anchor" aria-label="anchor" href="#collapsing-categories"></a>
 </h2>
-<p>You can use <code>collapse_item</code> and
-<code>collapse_group</code> to collapse variable categories by passing a
-named list. The same arguments can also be used to rename
-categories.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
-<span>          item <span class="op">=</span> <span class="va">police</span>,</span>
-<span>          group <span class="op">=</span> <span class="va">eu_index</span>,</span>
-<span>          label <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>          collapse_item <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`Ano` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Definitely Agree"</span>,</span>
-<span>                                         <span class="st">"Rather Agree"</span><span class="op">)</span>,</span>
-<span>                               `Ani ano, ani ne` <span class="op">=</span> <span class="st">"Neither Agree nor Disagree"</span>,</span>
-<span>                               `Ne` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Rather Disagree"</span>,</span>
-<span>                                        <span class="st">"Definitely Disagree"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>          collapse_group <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`Pozitivní vztah` <span class="op">=</span> <span class="st">"Likes EU"</span>,</span>
-<span>                                `Neutrální vztah` <span class="op">=</span> <span class="st">"Neutral"</span>,</span>
-<span>                                `Negativní vztah` <span class="op">=</span> <span class="st">"Dislikes EU"</span>,</span>
-<span>                                `Neví` <span class="op">=</span> <span class="st">"Doesn't Know"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; No weights used.</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<p><code>collapse_item</code> and <code>collapse_group</code> collapse
+(or rename) categories by passing a named list, exactly as in
+<code><a href="../reference/stem_summarise_cat.html">stem_summarise_cat()</a></code>.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barstack.html">stem_barstack</a></span><span class="op">(</span><span class="va">trust</span>,</span>
+<span>              item <span class="op">=</span> <span class="va">police</span>,</span>
+<span>              group <span class="op">=</span> <span class="va">eu_index</span>,</span>
+<span>              collapse_item <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`Ano` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Definitely Agree"</span>, <span class="st">"Rather Agree"</span><span class="op">)</span>,</span>
+<span>                                   `Ani ano, ani ne` <span class="op">=</span> <span class="st">"Neither Agree nor Disagree"</span>,</span>
+<span>                                   `Ne` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Rather Disagree"</span>, <span class="st">"Definitely Disagree"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/collapse-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="weights">Weights<a class="anchor" aria-label="anchor" href="#weights"></a>
 </h2>
-<p>If weights variable is specified, weights are treated as survey
-weights passed into <code>{svryr}</code> (which in turn passes it into
-<a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a>).</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
-<span>          item <span class="op">=</span> <span class="va">government</span>,</span>
-<span>          label_scale <span class="op">=</span> <span class="fl">100</span>,</span>
-<span>          weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/stem-plot-weight-1.png" width="700"></p>
+<p>If a <code>weight</code> variable is specified, weights are treated
+as survey weights and passed into <a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a>, which
+builds a Taylor-series survey design. Manipulating that design uses
+<a href="https://jdenn0514.github.io/surveytidy/" class="external-link">surveytidy</a>, whose verbs mirror <a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a>, so
+weighted and unweighted code read the same way.</p>
+<p>With unweighted data, the confidence intervals are computed using the
+basic
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mfrac><mrow><mi>p</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac></msqrt><annotation encoding="application/x-tex">\sqrt{\frac{p \cdot (1-p)}{n}}</annotation></semantics></math>
+formula. With very small proportions and small samples this can lead to
+bounds outside of the <code>(0, 1)</code> range. With weighted data, the
+confidence intervals come from <a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a> using
+Taylor-series linearization.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barplot.html">stem_barplot</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">government</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/weights-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
-<h2 id="choosing-geoms">Choosing geoms<a class="anchor" aria-label="anchor" href="#choosing-geoms"></a>
+<h2 id="further-customization">Further customization<a class="anchor" aria-label="anchor" href="#further-customization"></a>
 </h2>
-<p>You can choose other geoms to represent the data. For all estimates,
-95% confidence intervals are also computed and can be plotted using an
-appropriate geom. You can also set additional arguments for your geom by
-passing a named list into <code>geom_args</code>.</p>
-<p>Note that with unweighted data, the confidence intervals are computed
-using the basic
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mfrac><mrow><mi>p</mi><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mi>n</mi></mfrac></msqrt><annotation encoding="application/x-tex">\sqrt{\frac{p \cdot (1-p)}{n}}</annotation></semantics></math>
-formula. With very small proportions and small sample sizes, this can
-lead to the confidence intervals’ bounds being outside of realistic
-values (i.e. proportions lower than 0 or higher than 1). If the data are
-weighted, the confidence intervals are based on logistic regression and
-will always be properly bounded.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_plot.html">stem_plot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">trust</span>,</span>
-<span>          item <span class="op">=</span> <span class="va">police</span>,</span>
-<span>          group <span class="op">=</span> <span class="va">eu_index</span>,</span>
-<span>          weight <span class="op">=</span> <span class="va">W</span>,</span>
-<span>          label <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>          geom <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="va"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_pointrange</a></span><span class="op">)</span></span></code></pre></div>
-<p><img src="plotting_files/figure-html/geom-example-1.png" width="700"></p>
-</div>
-<div class="section level2">
-<h2 id="section"></h2>
+<p>Every function returns a standard <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> object, so
+you can keep adding layers, scales and theme tweaks:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barplot.html">stem_barplot</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">government</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Trust in the government"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/theme_stem.html">theme_stem</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="plotting_files/figure-html/customize-1.png" class="r-plt" alt="" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -262,7 +304,7 @@ will always be properly bounded.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

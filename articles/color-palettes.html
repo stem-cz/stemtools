@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Color Palettes in stemtool • stemtools</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Color Palettes in stemtool">
 </head>
 <body>
@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,9 @@
     
     
 <p><code>stemtool</code> provides a set of color palettes for plotting.
-There are three types of palettes:</p>
+Every palette lives in a single registry (<code>.stem_palettes</code>),
+and each one is tagged with a <em>type</em> that all the other palette
+functions read from. There are three types of palettes:</p>
 <ul>
 <li>
 <p><strong>Diverging</strong> - used for variables where low values
@@ -75,7 +77,7 @@ are the opposite of high values. Typically likert items, where low
 values signify agreement and high values signify disagreement.</p>
 <ul>
 <li>Available diverging palettes: <code>modern</code>,
-<code>gruvbox_div</code>.</li>
+<code>div1</code>, <code>div2</code>, <code>div3</code>.</li>
 </ul>
 </li>
 <li>
@@ -83,7 +85,8 @@ values signify agreement and high values signify disagreement.</p>
 have no set order. Typically gender, countries of origin or
 occupation.</p>
 <ul>
-<li>Available nominal palettes: <code>gruvbox</code>.</li>
+<li>Available nominal palettes: <code>nom1</code>,
+<code>nom2</code>.</li>
 </ul>
 </li>
 <li>
@@ -92,23 +95,39 @@ values indicate higher frequency/concentration of something. Typically
 level of unemployment, number of people with tertiary education or
 socioeconomic class.</p>
 <ul>
-<li>Available sequential palettes: none (for now).</li>
+<li>Available sequential palettes: <code>seq1</code>, <code>seq2</code>,
+<code>seq3</code>, <code>seq4</code>.</li>
 </ul>
 </li>
 </ul>
+<p>You can see every palette at a glance with
+<code><a href="../reference/stem_palettes_all.html">stem_palettes_all()</a></code>:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palettes_all.html">stem_palettes_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/stem-palettes-all-1.png" class="r-plt" alt="" width="700"></p>
 <div class="section level2">
 <h2 id="accesing-stemtool-palettes">Accesing <code>stemtool</code> palettes<a class="anchor" aria-label="anchor" href="#accesing-stemtool-palettes"></a>
 </h2>
-<p>Color codes from palettes can accessed using
-<code><a href="../reference/stem_palettes.html">stem_palettes()</a></code> function. The function expects palette name
-(see above) and optionally the number of colors to extract. By default,
-all colors are extracted. Palettes can be visually inspected with
-<code>show_col()</code> function from <code>scales</code> package:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palettes.html">stem_palettes</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"modern"</span>, n <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<p>Color codes from a palette are accessed with the
+<code><a href="../reference/stem_palette.html">stem_palette()</a></code> function, which expects a palette name (see
+above) and returns all of its colors. The returned vector carries a
+<code>type</code> attribute. Palettes can be visually inspected with
+<code>show_col()</code> from the <code>scales</code> package:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "#35978F" "#80CDC1" "#B0C89F" "#DFC27D" "#BF812D"</span></span>
-<span><span class="fu">show_col</span><span class="op">(</span><span class="fu"><a href="../reference/stem_palettes.html">stem_palettes</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"modern"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="color-palettes_files/figure-html/stem-palettes-codes-1.png" width="700"></p>
+<span><span class="co">#&gt; attr(,"type")</span></span>
+<span><span class="co">#&gt; [1] "diverging"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span>, <span class="st">"type"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "diverging"</span></span>
+<span><span class="fu">show_col</span><span class="op">(</span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/stem-palettes-codes-1.png" class="r-plt" alt="" width="700"></p>
+<p>To pull a specific number of colors (for diverging palettes, sampled
+symmetrically around the midpoint), use the generator returned by
+<code><a href="../reference/stem_palette_gen.html">stem_palette_gen()</a></code>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palette_gen.html">stem_palette_gen</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "#35978F" "#B0C89F" "#BF812D"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="using-palettes-in-ggplot2">Using palettes in <code>ggplot2</code><a class="anchor" aria-label="anchor" href="#using-palettes-in-ggplot2"></a>
@@ -120,7 +139,7 @@ functions <code><a href="../reference/scale_colour_stem.html">scale_color_stem()
 used to reverse the order of colors. Note that for diverging palettes,
 colors are used from both ends of the palette in an alternating
 pattern.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">within</a></span><span class="op">(</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mpg</span>,</span>
@@ -128,7 +147,7 @@ pattern.</p>
 <span>             color <span class="op">=</span> <span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/scale_colour_stem.html">scale_color_stem</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"modern"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="color-palettes_files/figure-html/ggplot-example-1.png" width="700"></p>
+<p><img src="color-palettes_files/figure-html/ggplot-example-1.png" class="r-plt" alt="" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -141,7 +160,7 @@ pattern.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>
