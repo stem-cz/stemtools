@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Color Palettes in stemtool • stemtools</title>
+<title>Colour palettes and the Stem theme • stemtools</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Color Palettes in stemtool">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Colour palettes and the Stem theme">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -33,7 +33,7 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/color-palettes.html">Color Palettes in stemtool</a></li>
+<li><a class="dropdown-item" href="../articles/color-palettes.html">Colour palettes and the Stem theme</a></li>
     <li><a class="dropdown-item" href="../articles/plotting.html">Plotting with stemtools</a></li>
   </ul>
 </li>
@@ -57,97 +57,163 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Color Palettes in stemtool</h1>
+      <h1>Colour palettes and the Stem theme</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/stem-cz/stemtools/blob/v0.1.0/vignettes/articles/color-palettes.Rmd" class="external-link"><code>vignettes/articles/color-palettes.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/stem-cz/stemtools/blob/master/vignettes/articles/color-palettes.Rmd" class="external-link"><code>vignettes/articles/color-palettes.Rmd</code></a></small>
       <div class="d-none name"><code>color-palettes.Rmd</code></div>
     </div>
 
     
     
-<p><code>stemtool</code> provides a set of color palettes for plotting.
-Every palette lives in a single registry (<code>.stem_palettes</code>),
-and each one is tagged with a <em>type</em> that all the other palette
-functions read from. There are three types of palettes:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stem-cz/stemtools" class="external-link">stemtools</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scales.r-lib.org" class="external-link">scales</a></span><span class="op">)</span></span></code></pre></div>
+<p><a href="https://github.com/stem-cz/stemtools" class="external-link">stemtools</a> ships a set of colour palettes and a
+complete <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> theme that together give plots the Stem
+look. This vignette shows how to browse the palettes, use them the same
+way you would any other palette in <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a>, and how to
+switch on <code><a href="../reference/theme_stem.html">theme_stem()</a></code>.</p>
+<div class="section level2">
+<h2 id="available-palettes">Available palettes<a class="anchor" aria-label="anchor" href="#available-palettes"></a>
+</h2>
+<p>Every palette lives in a single registry, and each one is tagged with
+a <em>type</em> that all the other palette functions read from. There
+are three types:</p>
 <ul>
 <li>
-<p><strong>Diverging</strong> - used for variables where low values
-are the opposite of high values. Typically likert items, where low
-values signify agreement and high values signify disagreement.</p>
-<ul>
-<li>Available diverging palettes: <code>modern</code>,
-<code>div1</code>, <code>div2</code>, <code>div3</code>.</li>
-</ul>
-</li>
-<li>
-<p><strong>Nominal</strong> - used for variables where categories
-have no set order. Typically gender, countries of origin or
-occupation.</p>
+<p><strong>Nominal</strong> – for variables whose categories have no
+inherent order (gender, country of origin, occupation).</p>
 <ul>
 <li>Available nominal palettes: <code>nom1</code>,
 <code>nom2</code>.</li>
 </ul>
 </li>
 <li>
-<p><strong>Sequential</strong> - used for variables where higher
-values indicate higher frequency/concentration of something. Typically
-level of unemployment, number of people with tertiary education or
-socioeconomic class.</p>
+<p><strong>Sequential</strong> – for ordered variables where higher
+values mean <em>more</em> of something (level of unemployment, share
+with tertiary education, socioeconomic class).</p>
 <ul>
 <li>Available sequential palettes: <code>seq1</code>, <code>seq2</code>,
 <code>seq3</code>, <code>seq4</code>.</li>
 </ul>
 </li>
+<li>
+<p><strong>Diverging</strong> – for variables with a meaningful
+midpoint, where low values are the opposite of high values (typically
+Likert items running from agreement to disagreement).</p>
+<ul>
+<li>Available diverging palettes: <code>modern</code>,
+<code>div1</code>, <code>div2</code>, <code>div3</code>.</li>
 </ul>
-<p>You can see every palette at a glance with
-<code><a href="../reference/stem_palettes_all.html">stem_palettes_all()</a></code>:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palettes_all.html">stem_palettes_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="color-palettes_files/figure-html/stem-palettes-all-1.png" class="r-plt" alt="" width="700"></p>
-<div class="section level2">
-<h2 id="accesing-stemtool-palettes">Accesing <code>stemtool</code> palettes<a class="anchor" aria-label="anchor" href="#accesing-stemtool-palettes"></a>
-</h2>
-<p>Color codes from a palette are accessed with the
-<code><a href="../reference/stem_palette.html">stem_palette()</a></code> function, which expects a palette name (see
-above) and returns all of its colors. The returned vector carries a
-<code>type</code> attribute. Palettes can be visually inspected with
-<code>show_col()</code> from the <code>scales</code> package:</p>
+</li>
+</ul>
+<p>The quickest way to see everything at a glance is
+<code><a href="../reference/stem_palettes_all.html">stem_palettes_all()</a></code>, which draws every palette as a row of
+colour tiles, grouped by type (much like
+<code><a href="https://rdrr.io/pkg/RColorBrewer/man/ColorBrewer.html" class="external-link">RColorBrewer::display.brewer.all()</a></code>):</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palettes_all.html">stem_palettes_all</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/stem-palettes-all-1.png" class="r-plt" alt="" width="1050"></p>
+</div>
+<div class="section level2">
+<h2 id="accessing-palette-colours">Accessing palette colours<a class="anchor" aria-label="anchor" href="#accessing-palette-colours"></a>
+</h2>
+<p>The hex codes for a single palette are returned by
+<code><a href="../reference/stem_palette.html">stem_palette()</a></code>, which takes a palette name and returns all
+of its colours. The returned vector carries a <code>type</code>
+attribute, and can be inspected visually with <code><a href="https://scales.r-lib.org/reference/show_col.html" class="external-link">show_col()</a></code>
+from <a href="https://scales.r-lib.org" class="external-link">scales</a>:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "#35978F" "#80CDC1" "#B0C89F" "#DFC27D" "#BF812D"</span></span>
 <span><span class="co">#&gt; attr(,"type")</span></span>
 <span><span class="co">#&gt; [1] "diverging"</span></span>
+<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span>, <span class="st">"type"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "diverging"</span></span>
-<span><span class="fu">show_col</span><span class="op">(</span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="color-palettes_files/figure-html/stem-palettes-codes-1.png" class="r-plt" alt="" width="700"></p>
-<p>To pull a specific number of colors (for diverging palettes, sampled
-symmetrically around the midpoint), use the generator returned by
-<code><a href="../reference/stem_palette_gen.html">stem_palette_gen()</a></code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<span></span>
+<span><span class="fu"><a href="https://scales.r-lib.org/reference/show_col.html" class="external-link">show_col</a></span><span class="op">(</span><span class="fu"><a href="../reference/stem_palette.html">stem_palette</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/stem-palettes-codes-1.png" class="r-plt" alt="" width="1050"></p>
+<p>To pull a specific number of colours, use the generator returned by
+<code><a href="../reference/stem_palette_gen.html">stem_palette_gen()</a></code>. For diverging palettes the colours are
+sampled symmetrically around the midpoint rather than simply taken from
+the front of the palette:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_palette_gen.html">stem_palette_gen</a></span><span class="op">(</span><span class="st">"modern"</span><span class="op">)</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "#35978F" "#B0C89F" "#BF812D"</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="using-palettes-in-ggplot2">Using palettes in <code>ggplot2</code><a class="anchor" aria-label="anchor" href="#using-palettes-in-ggplot2"></a>
+<h2 id="using-palettes-in-ggplot2">Using palettes in <code>{ggplot2}</code><a class="anchor" aria-label="anchor" href="#using-palettes-in-ggplot2"></a>
 </h2>
-<p>Palettes can be used in <code>ggplot2</code> figures by using
-functions <code><a href="../reference/scale_colour_stem.html">scale_color_stem()</a></code> and
-<code><a href="../reference/scale_colour_stem.html">scale_fill_stem()</a></code>. Specific palette can be chosen by
-<code>palette</code> argument, using <code>direction = -1</code> can be
-used to reverse the order of colors. Note that for diverging palettes,
-colors are used from both ends of the palette in an alternating
-pattern.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mtcars</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">within</a></span><span class="op">(</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
-<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">mpg</span>,</span>
-<span>             y <span class="op">=</span> <span class="va">hp</span>,</span>
-<span>             color <span class="op">=</span> <span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="../reference/scale_colour_stem.html">scale_color_stem</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"modern"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="color-palettes_files/figure-html/ggplot-example-1.png" class="r-plt" alt="" width="700"></p>
+<p>Stem palettes plug into <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> exactly like the
+built-in <code>scale_*_brewer()</code> or
+<code>scale_*_viridis_d()</code> scales. Reach for
+<code><a href="../reference/scale_colour_stem.html">scale_colour_stem()</a></code> (or its American alias
+<code><a href="../reference/scale_colour_stem.html">scale_color_stem()</a></code>) for the <code>colour</code> aesthetic
+and <code><a href="../reference/scale_colour_stem.html">scale_fill_stem()</a></code> for <code>fill</code>. Pick a palette
+with the <code>palette</code> argument and, if needed, flip its order
+with <code>direction = -1</code>:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mtcars</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">within</a></span><span class="op">(</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mpg</span>, y <span class="op">=</span> <span class="va">hp</span>, colour <span class="op">=</span> <span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/scale_colour_stem.html">scale_colour_stem</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"modern"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/ggplot-colour-1.png" class="r-plt" alt="" width="1050"></p>
+<p>Because these are ordinary discrete scales, any argument accepted by
+<code><a href="https://ggplot2.tidyverse.org/reference/discrete_scale.html" class="external-link">ggplot2::discrete_scale()</a></code> – <code>name</code>,
+<code>breaks</code>, <code>labels</code>, and so on – can be passed
+straight through. Here is a <code>fill</code> scale using a nominal
+palette:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">drv</span>, fill <span class="op">=</span> <span class="va">drv</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/scale_colour_stem.html">scale_fill_stem</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"nom2"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/ggplot-fill-1.png" class="r-plt" alt="" width="1050"></p>
+</div>
+<div class="section level2">
+<h2 id="the-stem-theme">The Stem theme<a class="anchor" aria-label="anchor" href="#the-stem-theme"></a>
+</h2>
+<p><code><a href="../reference/theme_stem.html">theme_stem()</a></code> is a <em>complete</em>
+<a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> theme carrying the Stem look: no gridlines, a top
+legend, bold titles and the Stem house font. Because it is complete, you
+activate it once with <code><a href="https://ggplot2.tidyverse.org/reference/get_theme.html" class="external-link">ggplot2::theme_set()</a></code> and every
+subsequent plot picks it up:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/get_theme.html" class="external-link">theme_set</a></span><span class="op">(</span><span class="fu"><a href="../reference/theme_stem.html">theme_stem</a></span><span class="op">(</span>family <span class="op">=</span> <span class="st">""</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>Here <code>family = ""</code> falls back to the graphics device’s
+default font, which is handy on machines where the Stem house font
+(Calibri) is not installed. In day-to-day use you can simply call
+<code><a href="../reference/theme_stem.html">theme_stem()</a></code> with no arguments.</p>
+<p>With the theme active, the same plot as above now carries the Stem
+styling automatically:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mtcars</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">within</a></span><span class="op">(</span><span class="va">gear</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mpg</span>, y <span class="op">=</span> <span class="va">hp</span>, colour <span class="op">=</span> <span class="va">gear</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Horsepower against fuel economy"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/scale_colour_stem.html">scale_colour_stem</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"modern"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/theme-applied-1.png" class="r-plt" alt="" width="1050"></p>
+<p>You can also add the theme to a single plot with
+<code>+ theme_stem()</code>, and override individual settings through
+its arguments – <code>ink</code> (foreground), <code>paper</code>
+(background), and <code>accent</code> – or via <code>...</code>, which
+is forwarded to <code><a href="https://ggplot2.tidyverse.org/reference/theme.html" class="external-link">ggplot2::theme()</a></code>:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">mpg</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">drv</span>, fill <span class="op">=</span> <span class="va">drv</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_bar</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/scale_colour_stem.html">scale_fill_stem</a></span><span class="op">(</span>palette <span class="op">=</span> <span class="st">"nom2"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Vehicles by drivetrain"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/theme_stem.html">theme_stem</a></span><span class="op">(</span>family <span class="op">=</span> <span class="st">""</span>, legend.position <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="color-palettes_files/figure-html/theme-custom-1.png" class="r-plt" alt="" width="1050"></p>
+<p>Palettes and the theme are designed to be used together: the
+<code>stem_*</code> plotting functions rely on the same palettes, and
+pair naturally with <code><a href="../reference/theme_stem.html">theme_stem()</a></code> set for the whole
+session.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

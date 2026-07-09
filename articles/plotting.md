@@ -1,13 +1,19 @@
 # Plotting with stemtools
 
-This vignette shows how to use
-[stemtools](https://github.com/stem-cz/stemtools) for creating a set of
-standardized survey plots. We’ll use a simulated dataset `trust`,
-included with the package itself.
+This vignette showcases every plotting function in
+[stemtools](https://github.com/stem-cz/stemtools):
+[`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md),
+[`stem_barstack()`](https://stem-cz.github.io/stemtools/reference/stem_barstack.md),
+[`stem_inline()`](https://stem-cz.github.io/stemtools/reference/stem_inline.md),
+[`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
+and
+[`stem_multiselect()`](https://stem-cz.github.io/stemtools/reference/stem_multiselect.md).
+We’ll use the simulated `trust` dataset that ships with the package.
 
 ``` r
 
 library(stemtools)
+library(ggplot2)
 
 data(trust, package = "stemtools")
 head(trust)
@@ -41,15 +47,34 @@ head(trust)
 #> 6       Corruption
 ```
 
+## Setting the Stem theme
+
+[`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)
+is a *complete* theme carrying the Stem look. Because it is complete,
+the plotting functions do not apply it themselves – instead we switch it
+on once with
+[`theme_set()`](https://ggplot2.tidyverse.org/reference/get_theme.html)
+and every plot from here on picks it up automatically:
+
+``` r
+
+theme_set(theme_stem(family = ""))
+```
+
+We pass `family = ""` so the plots fall back to the graphics device’s
+default font (the Stem house font, Calibri, may not be installed on
+every machine). In normal use you would just call
+`theme_set(theme_stem())`.
+
 ## How the plotting functions are built
 
-The plotting functions are composed from a shared frequency core. All of
-them call
+All the plotting functions are composed from a shared frequency core.
+Each one calls
 [`stem_summarise_cat()`](https://stem-cz.github.io/stemtools/reference/stem_summarise_cat.md)
-to compute (possibly weighted) proportions and their 95% confidence
-intervals, and then hand the aggregated data to a
+to compute (possibly weighted) proportions with 95% confidence
+intervals, then hands the aggregated data to a
 [ggplot2](https://ggplot2.tidyverse.org) template. You can call the
-frequency function directly if you need the numbers themselves:
+frequency function directly whenever you need the numbers themselves:
 
 ``` r
 
@@ -103,7 +128,7 @@ stem_barplot(trust, item = government)
 
 ![](plotting_files/figure-html/barplot-1.png)
 
-Supplying a `group` variable draws dodged bars so the categories can be
+Supplying a `group` variable draws dodged bars so categories can be
 compared across groups. Proportions are then computed *within* each
 group.
 
@@ -154,7 +179,7 @@ stem_inline(trust, item = police, weight = W)
 
 [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
 plots several variables that share the same response categories (a
-Likert battery, say) as one chart with a stacked bar per item. Pass the
+Likert battery, say) as one chart, with a stacked bar per item. Pass the
 items with tidyselect helpers and, optionally, `order_by` to sort the
 items by their combined share of one or more categories.
 
@@ -266,13 +291,14 @@ stem_barplot(trust, item = government, weight = W)
 
 Every function returns a standard
 [ggplot2](https://ggplot2.tidyverse.org) object, so you can keep adding
-layers, scales and theme tweaks:
+layers, scales and theme tweaks. The global
+[`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)
+is already applied, so this just layers a title on top:
 
 ``` r
 
 stem_barplot(trust, item = government) +
-  ggplot2::labs(title = "Trust in the government") +
-  theme_stem()
+  labs(title = "Trust in the government")
 ```
 
 ![](plotting_files/figure-html/customize-1.png)
