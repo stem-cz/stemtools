@@ -39,7 +39,7 @@ stem_plot_data <- function(
   collapse_item = NULL,
   collapse_group = NULL,
   label_accuracy = 1,
-  label_suffix = " %",
+  label_suffix = "",
   label_hide = 0
 ) {
   plot_data <- stem_summarise_cat(
@@ -143,7 +143,7 @@ stem_stack <- function(
 #' @param labels If `TRUE`, prints a percentage label at the end of each bar.
 #' @param label_accuracy Rounding accuracy of labels. `1` gives whole numbers,
 #'   `0.1` one decimal place.
-#' @param label_suffix Suffix appended to labels. Defaults to `" %"`.
+#' @param label_suffix Suffix appended to labels. Defaults to `""`.
 #' @param label_hide Proportions below this threshold are left unlabelled.
 #' @param errorbar If `TRUE`, adds 95% confidence interval error bars.
 #'
@@ -165,7 +165,7 @@ stem_barplot <- function(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " %",
+  label_suffix = "",
   label_hide = 0,
   errorbar = FALSE
 ) {
@@ -269,7 +269,7 @@ stem_barstack <- function(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " %",
+  label_suffix = "",
   label_hide = 0.05,
   label_color = "black"
 ) {
@@ -323,7 +323,7 @@ stem_inline <- function(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " %",
+  label_suffix = "",
   label_hide = 0.05,
   label_color = "black"
 ) {
@@ -409,7 +409,7 @@ stem_battery <- function(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " %",
+  label_suffix = "",
   label_hide = 0.05,
   label_color = "black"
 ) {
@@ -518,7 +518,7 @@ stem_multiselect <- function(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " %",
+  label_suffix = "",
   label_hide = 0,
   infreq_order = TRUE,
   background = TRUE,

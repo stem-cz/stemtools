@@ -13,7 +13,7 @@ stem_multiselect(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " \%",
+  label_suffix = "",
   label_hide = 0,
   infreq_order = TRUE,
   background = TRUE,
@@ -41,7 +41,7 @@ coloured by group and proportions are computed within each group.}
 \item{label_accuracy}{Rounding accuracy of labels. \code{1} gives whole numbers,
 \code{0.1} one decimal place.}
 
-\item{label_suffix}{Suffix appended to labels. Defaults to \code{" \%"}.}
+\item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
 \item{label_hide}{Proportions below this threshold are left unlabelled.}
 

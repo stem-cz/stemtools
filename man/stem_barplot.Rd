@@ -15,7 +15,7 @@ stem_barplot(
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
-  label_suffix = " \%",
+  label_suffix = "",
   label_hide = 0,
   errorbar = FALSE
 )
@@ -45,7 +45,7 @@ categories.}
 \item{label_accuracy}{Rounding accuracy of labels. \code{1} gives whole numbers,
 \code{0.1} one decimal place.}
 
-\item{label_suffix}{Suffix appended to labels. Defaults to \code{" \%"}.}
+\item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
 \item{label_hide}{Proportions below this threshold are left unlabelled.}
 
