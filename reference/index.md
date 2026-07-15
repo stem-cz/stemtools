@@ -19,9 +19,7 @@
 - [`select_diverging()`](https://stem-cz.github.io/stemtools/reference/select_diverging.md)
   : Select n colours from a diverging palette
 - [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
-  : Simple horizontal bar plot
-- [`stem_barstack()`](https://stem-cz.github.io/stemtools/reference/stem_barstack.md)
-  : Stacked horizontal bar plot
+  : Horizontal bar plot
 - [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
   : Stacked bar plot for a battery of like items
 - [`stem_inline()`](https://stem-cz.github.io/stemtools/reference/stem_inline.md)

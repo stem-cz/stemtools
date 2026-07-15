@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,12 @@
       <small>Source: <a href="https://github.com/stem-cz/stemtools/blob/master/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.1" id="stemtools-011">stemtools 0.1.1<a class="anchor" aria-label="anchor" href="#stemtools-011"></a></h2>
+<ul><li>
+<code><a href="../reference/stem_barplot.html">stem_barplot()</a></code> now draws a stacked horizontal bar per group category (with the item mapped to fill, each bar summing to 100%) when a <code>group</code> variable is supplied, replacing the previous dodged-bars layout. <code>label_hide</code> defaults to <code>0.05</code> in this grouped mode to keep small segments unlabelled.</li>
+<li>Removed <code>stem_barstack()</code>, whose behaviour is now covered by grouped <code><a href="../reference/stem_barplot.html">stem_barplot()</a></code>.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="stemtools-010">stemtools 0.1.0<a class="anchor" aria-label="anchor" href="#stemtools-010"></a></h2>
 <ul><li>Added a <code>testthat</code> test suite covering aggregation, palettes, scales, theme, plotting and utility helpers, plus an <code>R-CMD-check</code> GitHub Actions workflow.</li>

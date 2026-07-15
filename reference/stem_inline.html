@@ -11,7 +11,7 @@ single item."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,7 +96,7 @@ collapse (or rename) item categories.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
-<dd><p>If <code>TRUE</code>, prints a percentage label at the end of each bar.</p></dd>
+<dd><p>If <code>TRUE</code>, prints a percentage label on each bar.</p></dd>
 
 
 <dt id="arg-label-accuracy">label_accuracy<a class="anchor" aria-label="anchor" href="#arg-label-accuracy"></a></dt>
@@ -109,17 +109,21 @@ collapse (or rename) item categories.</p></dd>
 
 
 <dt id="arg-label-hide">label_hide<a class="anchor" aria-label="anchor" href="#arg-label-hide"></a></dt>
-<dd><p>Proportions below this threshold are left unlabelled.</p></dd>
+<dd><p>Proportions below this threshold are left unlabelled.
+Defaults to <code>0.05</code> when a <code>group</code> is supplied (to keep small stacked
+segments unlabelled) and <code>0</code> otherwise.</p></dd>
 
 
 <dt id="arg-label-color">label_color<a class="anchor" aria-label="anchor" href="#arg-label-color"></a></dt>
-<dd><p>Colour of the segment labels. Defaults to <code>"black"</code>.</p></dd>
+<dd><p>Colour of the segment labels in grouped (stacked) plots.
+Defaults to <code>"black"</code>.</p></dd>
 
 
 <dt id="arg-label-bicolor">label_bicolor<a class="anchor" aria-label="anchor" href="#arg-label-bicolor"></a></dt>
-<dd><p>If <code>TRUE</code> (default), the labels of the two side
-(extreme) response categories are drawn in white, while all other labels
-use <code>label_color</code>. Set to <code>FALSE</code> to colour every label with <code>label_color</code>.</p></dd>
+<dd><p>If <code>TRUE</code> (default), in grouped (stacked) plots the
+labels of the two side (extreme) item categories are drawn in white, while
+all other labels use <code>label_color</code>. Set to <code>FALSE</code> to colour every label
+with <code>label_color</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

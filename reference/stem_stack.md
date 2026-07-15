@@ -1,7 +1,7 @@
 # Build a stacked horizontal bar plot
 
 Internal renderer shared by
-[`stem_barstack()`](https://stem-cz.github.io/stemtools/reference/stem_barstack.md)
+[`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
 and
 [`stem_inline()`](https://stem-cz.github.io/stemtools/reference/stem_inline.md).
 Draws a single stacked horizontal bar per `y_name` category (or one bar
@@ -49,17 +49,18 @@ stem_stack(
 
 - labels:
 
-  If `TRUE`, prints a percentage label at the end of each bar.
+  If `TRUE`, prints a percentage label on each bar.
 
 - label_color:
 
-  Colour of the segment labels. Defaults to `"black"`.
+  Colour of the segment labels in grouped (stacked) plots. Defaults to
+  `"black"`.
 
 - label_bicolor:
 
-  If `TRUE` (default), the labels of the two side (extreme) response
-  categories are drawn in white, while all other labels use
-  `label_color`. Set to `FALSE` to colour every label with
+  If `TRUE` (default), in grouped (stacked) plots the labels of the two
+  side (extreme) item categories are drawn in white, while all other
+  labels use `label_color`. Set to `FALSE` to colour every label with
   `label_color`.
 
 ## Value

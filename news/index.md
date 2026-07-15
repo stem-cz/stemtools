@@ -1,5 +1,16 @@
 # Changelog
 
+## stemtools 0.1.1
+
+- [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
+  now draws a stacked horizontal bar per group category (with the item
+  mapped to fill, each bar summing to 100%) when a `group` variable is
+  supplied, replacing the previous dodged-bars layout. `label_hide`
+  defaults to `0.05` in this grouped mode to keep small segments
+  unlabelled.
+- Removed `stem_barstack()`, whose behaviour is now covered by grouped
+  [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md).
+
 ## stemtools 0.1.0
 
 - Added a `testthat` test suite covering aggregation, palettes, scales,

@@ -35,8 +35,9 @@ stem_plot_data(
 
 - group:
 
-  Optional grouping variable. When supplied, bars are dodged and
-  coloured by group and proportions are computed within each group.
+  Optional grouping variable. When supplied, one stacked horizontal bar
+  is drawn per group category (with the item mapped to fill) and
+  proportions are computed within each group.
 
 - weight:
 
@@ -63,7 +64,9 @@ stem_plot_data(
 
 - label_hide:
 
-  Proportions below this threshold are left unlabelled.
+  Proportions below this threshold are left unlabelled. Defaults to
+  `0.05` when a `group` is supplied (to keep small stacked segments
+  unlabelled) and `0` otherwise.
 
 ## Value
 

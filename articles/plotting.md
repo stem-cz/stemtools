@@ -3,7 +3,7 @@
 This vignette showcases every plotting function in
 [stemtools](https://github.com/stem-cz/stemtools):
 [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md),
-[`stem_barstack()`](https://stem-cz.github.io/stemtools/reference/stem_barstack.md),
+`stem_barstack()`,
 [`stem_inline()`](https://stem-cz.github.io/stemtools/reference/stem_inline.md),
 [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
 and
@@ -128,17 +128,6 @@ stem_barplot(trust, item = government)
 
 ![](plotting_files/figure-html/barplot-1.png)
 
-Supplying a `group` variable draws dodged bars so categories can be
-compared across groups. Proportions are then computed *within* each
-group.
-
-``` r
-
-stem_barplot(trust, item = police, group = eu_index, weight = W)
-```
-
-![](plotting_files/figure-html/barplot-group-1.png)
-
 Confidence intervals are always computed and can be shown with
 `errorbar = TRUE`.
 
@@ -149,19 +138,17 @@ stem_barplot(trust, item = government, errorbar = TRUE)
 
 ![](plotting_files/figure-html/barplot-errorbar-1.png)
 
-## Stacked bar plot
-
-[`stem_barstack()`](https://stem-cz.github.io/stemtools/reference/stem_barstack.md)
-draws one stacked horizontal bar per category of the `group` variable.
-Each bar sums to 100%, which makes it easy to compare the composition of
-the item across groups.
+Supplying a `group` variable instead draws one stacked horizontal bar
+per category of the group, with the item mapped to fill. Proportions are
+computed *within* each group, so every bar sums to 100%, which makes it
+easy to compare the composition of the item across groups.
 
 ``` r
 
-stem_barstack(trust, item = police, group = eu_index, weight = W)
+stem_barplot(trust, item = police, group = eu_index, weight = W)
 ```
 
-![](plotting_files/figure-html/barstack-1.png)
+![](plotting_files/figure-html/barplot-group-1.png)
 
 ## Inline bar plot
 
@@ -223,11 +210,11 @@ proportions below a threshold.
 
 ``` r
 
-stem_barstack(trust,
-              item = police,
-              group = eu_index,
-              label_accuracy = 0.1,
-              label_hide = 0.1)
+stem_barplot(trust,
+             item = police,
+             group = eu_index,
+             label_accuracy = 0.1,
+             label_hide = 0.1)
 ```
 
 ![](plotting_files/figure-html/labels-1.png)
@@ -240,7 +227,7 @@ and `direction = -1` to reverse it.
 
 ``` r
 
-stem_barstack(trust, item = police, group = eu_index, palette = "div2")
+stem_barplot(trust, item = police, group = eu_index, palette = "div2")
 ```
 
 ![](plotting_files/figure-html/palette-1.png)
@@ -253,12 +240,12 @@ passing a named list, exactly as in
 
 ``` r
 
-stem_barstack(trust,
-              item = police,
-              group = eu_index,
-              collapse_item = list(`Ano` = c("Definitely Agree", "Rather Agree"),
-                                   `Ani ano, ani ne` = "Neither Agree nor Disagree",
-                                   `Ne` = c("Rather Disagree", "Definitely Disagree")))
+stem_barplot(trust,
+             item = police,
+             group = eu_index,
+             collapse_item = list(`Ano` = c("Definitely Agree", "Rather Agree"),
+                                  `Ani ano, ani ne` = "Neither Agree nor Disagree",
+                                  `Ne` = c("Rather Disagree", "Definitely Disagree")))
 ```
 
 ![](plotting_files/figure-html/collapse-1.png)

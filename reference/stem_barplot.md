@@ -1,8 +1,10 @@
-# Simple horizontal bar plot
+# Horizontal bar plot
 
-Plots the (possibly weighted) distribution of a single categorical
-variable as horizontal bars, one bar per category. Supplying a `group`
-variable draws dodged bars so categories can be compared across groups.
+Plots the (possibly weighted) distribution of a categorical variable as
+horizontal bars. Without a `group`, one bar is drawn per item category.
+Supplying a `group` variable instead draws one stacked horizontal bar
+per group category, with the item mapped to fill; proportions are then
+computed within each group, so every bar sums to 100%.
 
 ## Usage
 
@@ -19,7 +21,9 @@ stem_barplot(
   labels = TRUE,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0,
+  label_hide = NULL,
+  label_color = "black",
+  label_bicolor = TRUE,
   errorbar = FALSE
 )
 ```
@@ -36,8 +40,9 @@ stem_barplot(
 
 - group:
 
-  Optional grouping variable. When supplied, bars are dodged and
-  coloured by group and proportions are computed within each group.
+  Optional grouping variable. When supplied, one stacked horizontal bar
+  is drawn per group category (with the item mapped to fill) and
+  proportions are computed within each group.
 
 - weight:
 
@@ -64,7 +69,7 @@ stem_barplot(
 
 - labels:
 
-  If `TRUE`, prints a percentage label at the end of each bar.
+  If `TRUE`, prints a percentage label on each bar.
 
 - label_accuracy:
 
@@ -77,11 +82,26 @@ stem_barplot(
 
 - label_hide:
 
-  Proportions below this threshold are left unlabelled.
+  Proportions below this threshold are left unlabelled. Defaults to
+  `0.05` when a `group` is supplied (to keep small stacked segments
+  unlabelled) and `0` otherwise.
+
+- label_color:
+
+  Colour of the segment labels in grouped (stacked) plots. Defaults to
+  `"black"`.
+
+- label_bicolor:
+
+  If `TRUE` (default), in grouped (stacked) plots the labels of the two
+  side (extreme) item categories are drawn in white, while all other
+  labels use `label_color`. Set to `FALSE` to colour every label with
+  `label_color`.
 
 - errorbar:
 
-  If `TRUE`, adds 95% confidence interval error bars.
+  If `TRUE`, adds 95% confidence interval error bars (ungrouped plots
+  only).
 
 ## Value
 

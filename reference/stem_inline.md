@@ -54,7 +54,7 @@ stem_inline(
 
 - labels:
 
-  If `TRUE`, prints a percentage label at the end of each bar.
+  If `TRUE`, prints a percentage label on each bar.
 
 - label_accuracy:
 
@@ -67,17 +67,20 @@ stem_inline(
 
 - label_hide:
 
-  Proportions below this threshold are left unlabelled.
+  Proportions below this threshold are left unlabelled. Defaults to
+  `0.05` when a `group` is supplied (to keep small stacked segments
+  unlabelled) and `0` otherwise.
 
 - label_color:
 
-  Colour of the segment labels. Defaults to `"black"`.
+  Colour of the segment labels in grouped (stacked) plots. Defaults to
+  `"black"`.
 
 - label_bicolor:
 
-  If `TRUE` (default), the labels of the two side (extreme) response
-  categories are drawn in white, while all other labels use
-  `label_color`. Set to `FALSE` to colour every label with
+  If `TRUE` (default), in grouped (stacked) plots the labels of the two
+  side (extreme) item categories are drawn in white, while all other
+  labels use `label_color`. Set to `FALSE` to colour every label with
   `label_color`.
 
 ## Value

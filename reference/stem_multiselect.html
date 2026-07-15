@@ -13,7 +13,7 @@ so that the bars express percentages of respondents rather than of responses.'><
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -85,8 +85,9 @@ so that the bars express percentages of respondents rather than of responses.</p
 
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
-<dd><p>Optional grouping variable. When supplied, bars are dodged and
-coloured by group and proportions are computed within each group.</p></dd>
+<dd><p>Optional grouping variable. When supplied, one stacked
+horizontal bar is drawn per group category (with the item mapped to fill)
+and proportions are computed within each group.</p></dd>
 
 
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
@@ -102,7 +103,7 @@ coloured by group and proportions are computed within each group.</p></dd>
 
 
 <dt id="arg-labels">labels<a class="anchor" aria-label="anchor" href="#arg-labels"></a></dt>
-<dd><p>If <code>TRUE</code>, prints a percentage label at the end of each bar.</p></dd>
+<dd><p>If <code>TRUE</code>, prints a percentage label on each bar.</p></dd>
 
 
 <dt id="arg-label-accuracy">label_accuracy<a class="anchor" aria-label="anchor" href="#arg-label-accuracy"></a></dt>
@@ -115,7 +116,9 @@ coloured by group and proportions are computed within each group.</p></dd>
 
 
 <dt id="arg-label-hide">label_hide<a class="anchor" aria-label="anchor" href="#arg-label-hide"></a></dt>
-<dd><p>Proportions below this threshold are left unlabelled.</p></dd>
+<dd><p>Proportions below this threshold are left unlabelled.
+Defaults to <code>0.05</code> when a <code>group</code> is supplied (to keep small stacked
+segments unlabelled) and <code>0</code> otherwise.</p></dd>
 
 
 <dt id="arg-infreq-order">infreq_order<a class="anchor" aria-label="anchor" href="#arg-infreq-order"></a></dt>
