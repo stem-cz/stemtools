@@ -25,7 +25,7 @@ Roxygen version is pinned (`Config/roxygen2/version` in DESCRIPTION); NAMESPACE 
 - **weighted** — builds a `surveycore::as_survey()` design (optionally `surveytidy::group_by()`), computes estimates with Taylor-series confidence intervals, then renames surveycore's `pct`/`ci_low`/`ci_high` to the package-wide `freq`/`freq_low`/`freq_upp`.
 - **unweighted** — falls back to `dplyr::count()` with normal-approximation CIs.
 
-The plotting functions in `R/plots.R` (`stem_barplot`, `stem_barstack`, `stem_battery`, `stem_multiselect`, `stem_inline`) never compute statistics themselves — they call the internal `stem_plot_data()`, which wraps `stem_summarise_cat()` and adds a preformatted `stem_label` column. So estimation logic lives in exactly one place; changes to how frequencies/CIs are computed belong in `R/aggregation.R`, not the plot functions.
+The plotting functions in `R/plots.R` (`stem_barplot`, `stem_battery`, `stem_multiselect`, `stem_inline`) never compute statistics themselves — they call the internal `stem_plot_data()`, which wraps `stem_summarise_cat()` and adds a preformatted `stem_label` column. So estimation logic lives in exactly one place; changes to how frequencies/CIs are computed belong in `R/aggregation.R`, not the plot functions.
 
 **Column-name contract.** The whole pipeline communicates through fixed column names (`freq`, `freq_low`, `freq_upp`, `n`, `group_n`, `item_n`, `stem_label`, plus long-format `item`/`item_cat`/`group`/`group_cat`). These flow from aggregation → `stem_plot_data` → ggplot aesthetics. Renaming any of them requires updating all three layers.
 

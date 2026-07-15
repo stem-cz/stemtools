@@ -27,19 +27,21 @@ single (inline) bar.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 
-\item{labels}{If \code{TRUE}, prints a percentage label at the end of each bar.}
+\item{labels}{If \code{TRUE}, prints a percentage label on each bar.}
 
-\item{label_color}{Colour of the segment labels. Defaults to \code{"black"}.}
+\item{label_color}{Colour of the segment labels in grouped (stacked) plots.
+Defaults to \code{"black"}.}
 
-\item{label_bicolor}{If \code{TRUE} (default), the labels of the two side
-(extreme) response categories are drawn in white, while all other labels
-use \code{label_color}. Set to \code{FALSE} to colour every label with \code{label_color}.}
+\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots the
+labels of the two side (extreme) item categories are drawn in white, while
+all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
+with \code{label_color}.}
 }
 \value{
 A ggplot2 object.
 }
 \description{
-Internal renderer shared by \code{\link[=stem_barstack]{stem_barstack()}} and \code{\link[=stem_inline]{stem_inline()}}. Draws a
+Internal renderer shared by \code{\link[=stem_barplot]{stem_barplot()}} and \code{\link[=stem_inline]{stem_inline()}}. Draws a
 single stacked horizontal bar per \code{y_name} category (or one bar in total when
 \code{y_name} is \code{NULL}).
 }

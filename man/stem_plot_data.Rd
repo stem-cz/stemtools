@@ -21,8 +21,9 @@ stem_plot_data(
 
 \item{item}{Categorical variable to plot.}
 
-\item{group}{Optional grouping variable. When supplied, bars are dodged and
-coloured by group and proportions are computed within each group.}
+\item{group}{Optional grouping variable. When supplied, one stacked
+horizontal bar is drawn per group category (with the item mapped to fill)
+and proportions are computed within each group.}
 
 \item{weight}{Optional survey weights.}
 
@@ -37,7 +38,9 @@ categories.}
 
 \item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
-\item{label_hide}{Proportions below this threshold are left unlabelled.}
+\item{label_hide}{Proportions below this threshold are left unlabelled.
+Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
+segments unlabelled) and \code{0} otherwise.}
 }
 \value{
 A tidy data frame with the item (and group) variable and columns

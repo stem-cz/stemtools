@@ -10,16 +10,12 @@ build_ok <- function(p) {
 test_that("stem_barplot builds, with and without a group", {
   build_ok(stem_barplot(trust, police))
   build_ok(stem_barplot(trust, police, group = eu_index))
+  build_ok(stem_barplot(trust, police, group = eu_index, weight = W))
 })
 
 test_that("stem_barplot honours weight, error bars and label toggles", {
   build_ok(stem_barplot(trust, police, weight = W, errorbar = TRUE))
   build_ok(stem_barplot(trust, police, labels = FALSE))
-})
-
-test_that("stem_barstack builds", {
-  build_ok(stem_barstack(trust, police, group = eu_index))
-  build_ok(stem_barstack(trust, police, group = eu_index, weight = W))
 })
 
 test_that("stem_inline builds a single stacked bar", {
