@@ -61,24 +61,16 @@ Every plotting function accepts the same core arguments:
 stem_barplot(trust, item = government)
 ```
 
-Supplying a `group` variable draws dodged bars so categories can be compared across groups. Proportions are then computed *within* each group.
-
-```{r barplot-group}
-stem_barplot(trust, item = police, group = eu_index, weight = W)
-```
-
 Confidence intervals are always computed and can be shown with `errorbar = TRUE`.
 
 ```{r barplot-errorbar}
 stem_barplot(trust, item = government, errorbar = TRUE)
 ```
 
-## Stacked bar plot
+Supplying a `group` variable instead draws one stacked horizontal bar per category of the group, with the item mapped to fill. Proportions are computed *within* each group, so every bar sums to 100%, which makes it easy to compare the composition of the item across groups.
 
-`stem_barstack()` draws one stacked horizontal bar per category of the `group` variable. Each bar sums to 100%, which makes it easy to compare the composition of the item across groups.
-
-```{r barstack}
-stem_barstack(trust, item = police, group = eu_index, weight = W)
+```{r barplot-group}
+stem_barplot(trust, item = police, group = eu_index, weight = W)
 ```
 
 ## Inline bar plot
@@ -117,11 +109,11 @@ Supplying a `group` variable draws dodged bars for a within-group comparison.
 By default the plots print a percentage label on each bar (set `labels = FALSE` to hide them). `label_accuracy` controls rounding (`1` for whole numbers, `0.1` for one decimal place), `label_suffix` sets the text appended to each label and `label_hide` suppresses labels for proportions below a threshold.
 
 ```{r labels}
-stem_barstack(trust,
-              item = police,
-              group = eu_index,
-              label_accuracy = 0.1,
-              label_hide = 0.1)
+stem_barplot(trust,
+             item = police,
+             group = eu_index,
+             label_accuracy = 0.1,
+             label_hide = 0.1)
 ```
 
 ## Colours
@@ -129,7 +121,7 @@ stem_barstack(trust,
 Use `palette` to pick one of the [Stem palettes][stem_palette] and `direction = -1` to reverse it.
 
 ```{r palette}
-stem_barstack(trust, item = police, group = eu_index, palette = "div2")
+stem_barplot(trust, item = police, group = eu_index, palette = "div2")
 ```
 
 ## Collapsing categories
@@ -137,12 +129,12 @@ stem_barstack(trust, item = police, group = eu_index, palette = "div2")
 `collapse_item` and `collapse_group` collapse (or rename) categories by passing a named list, exactly as in `stem_summarise_cat()`.
 
 ```{r collapse}
-stem_barstack(trust,
-              item = police,
-              group = eu_index,
-              collapse_item = list(`Ano` = c("Definitely Agree", "Rather Agree"),
-                                   `Ani ano, ani ne` = "Neither Agree nor Disagree",
-                                   `Ne` = c("Rather Disagree", "Definitely Disagree")))
+stem_barplot(trust,
+             item = police,
+             group = eu_index,
+             collapse_item = list(`Ano` = c("Definitely Agree", "Rather Agree"),
+                                  `Ani ano, ani ne` = "Neither Agree nor Disagree",
+                                  `Ne` = c("Rather Disagree", "Definitely Disagree")))
 ```
 
 ## Weights

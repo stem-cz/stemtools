@@ -63,7 +63,7 @@ stem_plot_data <- function(
 
 #' Build a stacked horizontal bar plot
 #'
-#' Internal renderer shared by [stem_barstack()] and [stem_inline()]. Draws a
+#' Internal renderer shared by [stem_barplot()] and [stem_inline()]. Draws a
 #' single stacked horizontal bar per `y_name` category (or one bar in total when
 #' `y_name` is `NULL`).
 #'
@@ -71,7 +71,7 @@ stem_plot_data <- function(
 #' @param fill_name Name of the item column mapped to `fill`.
 #' @param y_name Name of the group column mapped to the y axis, or `NULL` for a
 #'   single (inline) bar.
-#' @inheritParams stem_barstack
+#' @inheritParams stem_barplot
 #'
 #' @return A ggplot2 object.
 #' @keywords internal
@@ -116,7 +116,10 @@ stem_stack <- function(
   }
 
   p <- ggplot2::ggplot(plot_data, mapping) +
-    ggplot2::geom_col(color = "white", position = ggplot2::position_stack(reverse = TRUE)) +
+    ggplot2::geom_col(
+      color = "white",
+      position = ggplot2::position_stack(reverse = TRUE)
+    ) +
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),
       expand = ggplot2::expansion(mult = c(0, 0))
@@ -142,16 +145,19 @@ stem_stack <- function(
 
 # Plotting functions ------------------------------------------------------
 
-#' Simple horizontal bar plot
+#' Horizontal bar plot
 #'
-#' Plots the (possibly weighted) distribution of a single categorical variable
-#' as horizontal bars, one bar per category. Supplying a `group` variable draws
-#' dodged bars so categories can be compared across groups.
+#' Plots the (possibly weighted) distribution of a categorical variable as
+#' horizontal bars. Without a `group`, one bar is drawn per item category.
+#' Supplying a `group` variable instead draws one stacked horizontal bar per
+#' group category, with the item mapped to fill; proportions are then computed
+#' within each group, so every bar sums to 100%.
 #'
 #' @param data Data frame holding the item (and group) variables.
 #' @param item Categorical variable to plot.
-#' @param group Optional grouping variable. When supplied, bars are dodged and
-#'   coloured by group and proportions are computed within each group.
+#' @param group Optional grouping variable. When supplied, one stacked
+#'   horizontal bar is drawn per group category (with the item mapped to fill)
+#'   and proportions are computed within each group.
 #' @param weight Optional survey weights.
 #' @param collapse_item Optional named list passed to [stem_summarise_cat()] to
 #'   collapse (or rename) item categories.
@@ -159,12 +165,21 @@ stem_stack <- function(
 #'   categories.
 #' @param palette Name of a Stem palette. See [stem_palette()].
 #' @param direction Palette direction. Use `-1` to reverse the colours.
-#' @param labels If `TRUE`, prints a percentage label at the end of each bar.
+#' @param labels If `TRUE`, prints a percentage label on each bar.
 #' @param label_accuracy Rounding accuracy of labels. `1` gives whole numbers,
 #'   `0.1` one decimal place.
 #' @param label_suffix Suffix appended to labels. Defaults to `""`.
 #' @param label_hide Proportions below this threshold are left unlabelled.
-#' @param errorbar If `TRUE`, adds 95% confidence interval error bars.
+#'   Defaults to `0.05` when a `group` is supplied (to keep small stacked
+#'   segments unlabelled) and `0` otherwise.
+#' @param label_color Colour of the segment labels in grouped (stacked) plots.
+#'   Defaults to `"black"`.
+#' @param label_bicolor If `TRUE` (default), in grouped (stacked) plots the
+#'   labels of the two side (extreme) item categories are drawn in white, while
+#'   all other labels use `label_color`. Set to `FALSE` to colour every label
+#'   with `label_color`.
+#' @param errorbar If `TRUE`, adds 95% confidence interval error bars (ungrouped
+#'   plots only).
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -185,12 +200,20 @@ stem_barplot <- function(
   labels = TRUE,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0,
+  label_hide = NULL,
+  label_color = "black",
+  label_bicolor = TRUE,
   errorbar = FALSE
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
   has_group <- !rlang::quo_is_null(group_quo)
+
+  # Hide small stacked segments by default when grouped; label everything when
+  # showing one bar per category.
+  if (is.null(label_hide)) {
+    label_hide <- if (has_group) 0.05 else 0
+  }
 
   plot_data <- stem_plot_data(
     data = data,
@@ -204,28 +227,28 @@ stem_barplot <- function(
     label_hide = label_hide
   )
 
+  # With a grouping variable, draw one stacked horizontal bar per group
+  # category (item mapped to fill), so each group sums to 100%.
   if (has_group) {
     group_name <- rlang::as_name(group_quo)
-    p <- ggplot2::ggplot(
-      plot_data,
-      ggplot2::aes(
-        x = freq,
-        y = .data[[item_name]],
-        fill = .data[[group_name]],
-        label = stem_label
-      )
-    ) +
-      ggplot2::geom_col(color = "white", position = ggplot2::position_dodge2(reverse = TRUE)) +
-      scale_fill_stem(palette = palette, direction = direction)
-  } else {
-    p <- ggplot2::ggplot(
-      plot_data,
-      ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
-    ) +
-      ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1])
+    return(stem_stack(
+      plot_data = plot_data,
+      fill_name = item_name,
+      y_name = group_name,
+      palette = palette,
+      direction = direction,
+      labels = labels,
+      label_color = label_color,
+      label_bicolor = label_bicolor
+    ))
   }
 
-  p <- p +
+  # Ungrouped: one bar per item category.
+  p <- ggplot2::ggplot(
+    plot_data,
+    ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
+  ) +
+    ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1]) +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),
@@ -237,90 +260,16 @@ stem_barplot <- function(
       ggplot2::geom_errorbar(
         ggplot2::aes(xmin = freq_low, xmax = freq_upp),
         width = 0.2,
-        position = if (has_group) {
-          ggplot2::position_dodge2(padding = 0.5)
-        } else {
-          "identity"
-        }
+        position = "identity"
       )
   }
 
   if (labels) {
     p <- p +
-      ggplot2::geom_text(
-        hjust = -0.2,
-        position = if (has_group) {
-          ggplot2::position_dodge2(width = 0.9, reverse = TRUE)
-        } else {
-          ggplot2::position_identity()
-        }
-      )
+      ggplot2::geom_text(hjust = -0.2, position = ggplot2::position_identity())
   }
 
   p
-}
-
-#' Stacked horizontal bar plot
-#'
-#' Plots the (possibly weighted) distribution of a categorical `item` as a
-#' stacked horizontal bar for each category of a `group` variable. Proportions
-#' are computed within each group, so every bar sums to 100%.
-#'
-#' @inheritParams stem_barplot
-#' @param group Grouping variable. One stacked bar is drawn per group category.
-#' @param label_color Colour of the segment labels. Defaults to `"black"`.
-#' @param label_bicolor If `TRUE` (default), the labels of the two side
-#'   (extreme) response categories are drawn in white, while all other labels
-#'   use `label_color`. Set to `FALSE` to colour every label with `label_color`.
-#'
-#' @return A ggplot2 object.
-#' @export
-#'
-#' @examples \dontrun{
-#' stem_barstack(trust, police, group = eu_index)
-#' stem_barstack(trust, police, group = eu_index, weight = W)
-#' }
-stem_barstack <- function(
-  data,
-  item,
-  group,
-  weight = NULL,
-  collapse_item = NULL,
-  collapse_group = NULL,
-  palette = "div1",
-  direction = 1,
-  labels = TRUE,
-  label_accuracy = 1,
-  label_suffix = "",
-  label_hide = 0.05,
-  label_color = "black",
-  label_bicolor = TRUE
-) {
-  item_name <- rlang::as_name(rlang::enquo(item))
-  group_name <- rlang::as_name(rlang::enquo(group))
-
-  plot_data <- stem_plot_data(
-    data = data,
-    item = {{ item }},
-    group = {{ group }},
-    weight = {{ weight }},
-    collapse_item = collapse_item,
-    collapse_group = collapse_group,
-    label_accuracy = label_accuracy,
-    label_suffix = label_suffix,
-    label_hide = label_hide
-  )
-
-  stem_stack(
-    plot_data = plot_data,
-    fill_name = item_name,
-    y_name = group_name,
-    palette = palette,
-    direction = direction,
-    labels = labels,
-    label_color = label_color,
-    label_bicolor = label_bicolor
-  )
 }
 
 #' Inline stacked bar plot
@@ -329,7 +278,7 @@ stem_barstack <- function(
 #' as one stacked horizontal bar. Useful as a compact, inline summary of a
 #' single item.
 #'
-#' @inheritParams stem_barstack
+#' @inheritParams stem_barplot
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -402,10 +351,10 @@ column_labels <- function(data) {
 #' Plots a set of categorical variables that share the same response categories
 #' (e.g. a battery of Likert items) as a single chart, drawing one stacked
 #' horizontal bar per item. Internally the items are reshaped to long format and
-#' handed to the same machinery as [stem_barstack()], with the item taking the
+#' handed to the same machinery as [stem_barplot()], with the item taking the
 #' role of the group.
 #'
-#' @inheritParams stem_barstack
+#' @inheritParams stem_barplot
 #' @param items Items to plot. Supports tidyselect helpers (e.g.
 #'   `dplyr::starts_with()`).
 #' @param order_by Optional vector of response categories used to order the
@@ -603,7 +552,10 @@ stem_multiselect <- function(
         label = stem_label
       )
     ) +
-      ggplot2::geom_col(color = "white", position = ggplot2::position_dodge2(reverse = TRUE)) +
+      ggplot2::geom_col(
+        color = "white",
+        position = ggplot2::position_dodge2(reverse = TRUE)
+      ) +
       scale_fill_stem(palette = palette, direction = direction)
   } else {
     p <- ggplot2::ggplot(

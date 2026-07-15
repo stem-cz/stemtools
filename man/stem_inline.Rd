@@ -33,20 +33,24 @@ collapse (or rename) item categories.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 
-\item{labels}{If \code{TRUE}, prints a percentage label at the end of each bar.}
+\item{labels}{If \code{TRUE}, prints a percentage label on each bar.}
 
 \item{label_accuracy}{Rounding accuracy of labels. \code{1} gives whole numbers,
 \code{0.1} one decimal place.}
 
 \item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
-\item{label_hide}{Proportions below this threshold are left unlabelled.}
+\item{label_hide}{Proportions below this threshold are left unlabelled.
+Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
+segments unlabelled) and \code{0} otherwise.}
 
-\item{label_color}{Colour of the segment labels. Defaults to \code{"black"}.}
+\item{label_color}{Colour of the segment labels in grouped (stacked) plots.
+Defaults to \code{"black"}.}
 
-\item{label_bicolor}{If \code{TRUE} (default), the labels of the two side
-(extreme) response categories are drawn in white, while all other labels
-use \code{label_color}. Set to \code{FALSE} to colour every label with \code{label_color}.}
+\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots the
+labels of the two side (extreme) item categories are drawn in white, while
+all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
+with \code{label_color}.}
 }
 \value{
 A ggplot2 object.

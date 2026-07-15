@@ -27,8 +27,9 @@ stem_multiselect(
 \item{items}{Items to plot. Supports tidyselect helpers (e.g.
 \code{dplyr::starts_with()}).}
 
-\item{group}{Optional grouping variable. When supplied, bars are dodged and
-coloured by group and proportions are computed within each group.}
+\item{group}{Optional grouping variable. When supplied, one stacked
+horizontal bar is drawn per group category (with the item mapped to fill)
+and proportions are computed within each group.}
 
 \item{weight}{Optional survey weights.}
 
@@ -36,14 +37,16 @@ coloured by group and proportions are computed within each group.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 
-\item{labels}{If \code{TRUE}, prints a percentage label at the end of each bar.}
+\item{labels}{If \code{TRUE}, prints a percentage label on each bar.}
 
 \item{label_accuracy}{Rounding accuracy of labels. \code{1} gives whole numbers,
 \code{0.1} one decimal place.}
 
 \item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
-\item{label_hide}{Proportions below this threshold are left unlabelled.}
+\item{label_hide}{Proportions below this threshold are left unlabelled.
+Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
+segments unlabelled) and \code{0} otherwise.}
 
 \item{infreq_order}{If \code{TRUE} (default), options are ordered by frequency.}
 

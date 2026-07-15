@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{stem_barplot}
 \alias{stem_barplot}
-\title{Simple horizontal bar plot}
+\title{Horizontal bar plot}
 \usage{
 stem_barplot(
   data,
@@ -16,7 +16,9 @@ stem_barplot(
   labels = TRUE,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0,
+  label_hide = NULL,
+  label_color = "black",
+  label_bicolor = TRUE,
   errorbar = FALSE
 )
 }
@@ -25,8 +27,9 @@ stem_barplot(
 
 \item{item}{Categorical variable to plot.}
 
-\item{group}{Optional grouping variable. When supplied, bars are dodged and
-coloured by group and proportions are computed within each group.}
+\item{group}{Optional grouping variable. When supplied, one stacked
+horizontal bar is drawn per group category (with the item mapped to fill)
+and proportions are computed within each group.}
 
 \item{weight}{Optional survey weights.}
 
@@ -40,24 +43,37 @@ categories.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 
-\item{labels}{If \code{TRUE}, prints a percentage label at the end of each bar.}
+\item{labels}{If \code{TRUE}, prints a percentage label on each bar.}
 
 \item{label_accuracy}{Rounding accuracy of labels. \code{1} gives whole numbers,
 \code{0.1} one decimal place.}
 
 \item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
-\item{label_hide}{Proportions below this threshold are left unlabelled.}
+\item{label_hide}{Proportions below this threshold are left unlabelled.
+Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
+segments unlabelled) and \code{0} otherwise.}
 
-\item{errorbar}{If \code{TRUE}, adds 95\% confidence interval error bars.}
+\item{label_color}{Colour of the segment labels in grouped (stacked) plots.
+Defaults to \code{"black"}.}
+
+\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots the
+labels of the two side (extreme) item categories are drawn in white, while
+all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
+with \code{label_color}.}
+
+\item{errorbar}{If \code{TRUE}, adds 95\% confidence interval error bars (ungrouped
+plots only).}
 }
 \value{
 A ggplot2 object.
 }
 \description{
-Plots the (possibly weighted) distribution of a single categorical variable
-as horizontal bars, one bar per category. Supplying a \code{group} variable draws
-dodged bars so categories can be compared across groups.
+Plots the (possibly weighted) distribution of a categorical variable as
+horizontal bars. Without a \code{group}, one bar is drawn per item category.
+Supplying a \code{group} variable instead draws one stacked horizontal bar per
+group category, with the item mapped to fill; proportions are then computed
+within each group, so every bar sums to 100\%.
 }
 \examples{
 \dontrun{

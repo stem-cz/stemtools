@@ -1,6 +1,6 @@
 Package: stemtools
 Title: Tools and helpful wrappers for analysts at Stem (https://www.stem.cz)
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person("Aleš", "Vomáčka", , "ales.vomacka@stem.cz", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1605-8026"))
@@ -22,7 +22,10 @@ Imports:
     scales,
     forcats,
     utils,
-    S7
+    S7,
+    spreadview
+Remotes:
+    alesvomacka/spreadview
 Suggests:
     knitr,
     rmarkdown,
