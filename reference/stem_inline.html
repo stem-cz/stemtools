@@ -11,7 +11,7 @@ single item."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,7 +62,9 @@ single item.</p>
 <span>  label_suffix <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  label_hide <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  label_color <span class="op">=</span> <span class="st">"black"</span>,</span>
-<span>  label_bicolor <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  label_bicolor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  title_show <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  title_quote <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -124,6 +126,17 @@ Defaults to <code>"black"</code>.</p></dd>
 labels of the two side (extreme) item categories are drawn in white, while
 all other labels use <code>label_color</code>. Set to <code>FALSE</code> to colour every label
 with <code>label_color</code>.</p></dd>
+
+
+<dt id="arg-title-show">title_show<a class="anchor" aria-label="anchor" href="#arg-title-show"></a></dt>
+<dd><p>If <code>TRUE</code>, adds a plot title taken from the item's <code>"label"</code>
+attribute, falling back to the variable name when no label is present. The
+title is styled (e.g. drawn in bold) by <code><a href="theme_stem.html">theme_stem()</a></code>. Defaults to <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-title-quote">title_quote<a class="anchor" aria-label="anchor" href="#arg-title-quote"></a></dt>
+<dd><p>If <code>TRUE</code>, wraps the title in low/high double quotation
+marks (<code>„</code> and <code>“</code>). Defaults to <code>FALSE</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

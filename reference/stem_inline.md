@@ -19,7 +19,9 @@ stem_inline(
   label_suffix = "",
   label_hide = 0.05,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  title_show = FALSE,
+  title_quote = FALSE
 )
 ```
 
@@ -82,6 +84,19 @@ stem_inline(
   side (extreme) item categories are drawn in white, while all other
   labels use `label_color`. Set to `FALSE` to colour every label with
   `label_color`.
+
+- title_show:
+
+  If `TRUE`, adds a plot title taken from the item's `"label"`
+  attribute, falling back to the variable name when no label is present.
+  The title is styled (e.g. drawn in bold) by
+  [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md).
+  Defaults to `FALSE`.
+
+- title_quote:
+
+  If `TRUE`, wraps the title in low/high double quotation marks (`„` and
+  `“`). Defaults to `FALSE`.
 
 ## Value
 

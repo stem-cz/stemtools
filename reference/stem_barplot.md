@@ -24,7 +24,9 @@ stem_barplot(
   label_hide = NULL,
   label_color = "black",
   label_bicolor = TRUE,
-  errorbar = FALSE
+  errorbar = FALSE,
+  title_show = FALSE,
+  title_quote = FALSE
 )
 ```
 
@@ -102,6 +104,19 @@ stem_barplot(
 
   If `TRUE`, adds 95% confidence interval error bars (ungrouped plots
   only).
+
+- title_show:
+
+  If `TRUE`, adds a plot title taken from the item's `"label"`
+  attribute, falling back to the variable name when no label is present.
+  The title is styled (e.g. drawn in bold) by
+  [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md).
+  Defaults to `FALSE`.
+
+- title_quote:
+
+  If `TRUE`, wraps the title in low/high double quotation marks (`„` and
+  `“`). Defaults to `FALSE`.
 
 ## Value
 

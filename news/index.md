@@ -1,5 +1,17 @@
 # Changelog
 
+## stemtools 0.1.2
+
+- [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
+  and
+  [`stem_inline()`](https://stem-cz.github.io/stemtools/reference/stem_inline.md)
+  gain a `title_show` argument that adds a plot title taken from the
+  item’s `"label"` attribute, falling back to the variable name when no
+  label is present, and a `title_quote` argument that wraps the title in
+  low/high double quotation marks (`„`/`“`). Both default to `FALSE`.
+- [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)
+  now draws the plot title (`plot.title`) in bold.
+
 ## stemtools 0.1.1
 
 - [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
