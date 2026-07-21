@@ -40,7 +40,7 @@ stem_plot_title <- function(data, item_name, quote = FALSE) {
   }
 
   if (quote) {
-    title <- paste0("„", title, "“")
+    title <- paste0("\u201e", title, "\u201c")
   }
 
   title

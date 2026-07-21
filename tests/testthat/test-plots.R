@@ -47,10 +47,10 @@ test_that("title_quote wraps the title in low/high double quotes", {
   attr(labelled$police, "label") <- "Trust in the police"
 
   p_bar <- stem_barplot(labelled, police, title_show = TRUE, title_quote = TRUE)
-  expect_identical(p_bar$labels$title, "„Trust in the police“")
+  expect_identical(p_bar$labels$title, "\u201eTrust in the police\u201c")
 
   p_inline <- stem_inline(labelled, police, title_show = TRUE, title_quote = TRUE)
-  expect_identical(p_inline$labels$title, "„Trust in the police“")
+  expect_identical(p_inline$labels$title, "\u201eTrust in the police\u201c")
 })
 
 test_that("title_show falls back to the variable name when no label is present", {
@@ -65,7 +65,7 @@ test_that("title_show falls back to the variable name when no label is present",
 
   # Fallback name is quoted too when requested.
   p_quoted <- stem_barplot(no_label, police, title_show = TRUE, title_quote = TRUE)
-  expect_identical(p_quoted$labels$title, "„police“")
+  expect_identical(p_quoted$labels$title, "\u201epolice\u201c")
 })
 
 test_that("stem_battery builds for a set of like items", {
