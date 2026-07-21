@@ -8,6 +8,11 @@ test_that("theme_stem exposes the font family through the family argument", {
   expect_identical(th$text$family, "Helvetica")
 })
 
+test_that("theme_stem draws the plot title in bold", {
+  th <- theme_stem()
+  expect_identical(ggplot2::calc_element("plot.title", th)$face, "bold")
+})
+
 test_that("theme_stem passes ink through to the text colour", {
   th <- theme_stem(ink = "navy")
   expect_identical(th$text$colour, "navy")

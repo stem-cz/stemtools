@@ -16,7 +16,9 @@ stem_inline(
   label_suffix = "",
   label_hide = 0.05,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  title_show = FALSE,
+  title_quote = FALSE
 )
 }
 \arguments{
@@ -51,6 +53,13 @@ Defaults to \code{"black"}.}
 labels of the two side (extreme) item categories are drawn in white, while
 all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
 with \code{label_color}.}
+
+\item{title_show}{If \code{TRUE}, adds a plot title taken from the item's \code{"label"}
+attribute, falling back to the variable name when no label is present. The
+title is styled (e.g. drawn in bold) by \code{\link[=theme_stem]{theme_stem()}}. Defaults to \code{FALSE}.}
+
+\item{title_quote}{If \code{TRUE}, wraps the title in low/high double quotation
+marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
 }
 \value{
 A ggplot2 object.

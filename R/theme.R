@@ -63,6 +63,7 @@ theme_stem <- function(
       panel.grid = ggplot2::element_blank(),
       axis.ticks.y = ggplot2::element_blank(),
       title = ggplot2::element_text(face = "bold", colour = ink),
+      plot.title = ggplot2::element_text(face = "bold"),
       axis.title = ggplot2::element_blank(),
       legend.title = ggplot2::element_blank(),
       plot.title.position = "plot",

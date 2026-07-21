@@ -23,6 +23,51 @@ test_that("stem_inline builds a single stacked bar", {
   build_ok(stem_inline(trust, police, weight = W))
 })
 
+test_that("title_show adds the variable label as the plot title", {
+  labelled <- trust
+  attr(labelled$police, "label") <- "Trust in the police"
+
+  p_bar <- stem_barplot(labelled, police, title_show = TRUE)
+  expect_identical(p_bar$labels$title, "Trust in the police")
+
+  p_inline <- stem_inline(labelled, police, title_show = TRUE)
+  expect_identical(p_inline$labels$title, "Trust in the police")
+
+  # Grouped barplot draws its title too.
+  p_grouped <- stem_barplot(labelled, police, group = eu_index, title_show = TRUE)
+  expect_identical(p_grouped$labels$title, "Trust in the police")
+
+  # No title unless requested.
+  expect_null(stem_barplot(labelled, police)$labels$title)
+  expect_null(stem_inline(labelled, police)$labels$title)
+})
+
+test_that("title_quote wraps the title in low/high double quotes", {
+  labelled <- trust
+  attr(labelled$police, "label") <- "Trust in the police"
+
+  p_bar <- stem_barplot(labelled, police, title_show = TRUE, title_quote = TRUE)
+  expect_identical(p_bar$labels$title, "„Trust in the police“")
+
+  p_inline <- stem_inline(labelled, police, title_show = TRUE, title_quote = TRUE)
+  expect_identical(p_inline$labels$title, "„Trust in the police“")
+})
+
+test_that("title_show falls back to the variable name when no label is present", {
+  no_label <- trust
+  attr(no_label$police, "label") <- NULL
+
+  p_bar <- stem_barplot(no_label, police, title_show = TRUE)
+  expect_identical(p_bar$labels$title, "police")
+
+  p_inline <- stem_inline(no_label, police, title_show = TRUE)
+  expect_identical(p_inline$labels$title, "police")
+
+  # Fallback name is quoted too when requested.
+  p_quoted <- stem_barplot(no_label, police, title_show = TRUE, title_quote = TRUE)
+  expect_identical(p_quoted$labels$title, "„police“")
+})
+
 test_that("stem_battery builds for a set of like items", {
   build_ok(stem_battery(trust, items = c(police, eu, government, army)))
   build_ok(stem_battery(
