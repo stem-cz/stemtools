@@ -1,3 +1,8 @@
+# stemtools 0.1.2
+
+* `stem_barplot()` and `stem_inline()` gain a `title_show` argument that adds a plot title taken from the item's `"label"` attribute, falling back to the variable name when no label is present, and a `title_quote` argument that wraps the title in low/high double quotation marks (`„`/`“`). Both default to `FALSE`.
+* `theme_stem()` now draws the plot title (`plot.title`) in bold.
+
 # stemtools 0.1.1
 
 * `stem_barplot()` now draws a stacked horizontal bar per group category (with the item mapped to fill, each bar summing to 100%) when a `group` variable is supplied, replacing the previous dodged-bars layout. `label_hide` defaults to `0.05` in this grouped mode to keep small segments unlabelled.

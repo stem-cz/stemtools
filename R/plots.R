@@ -19,6 +19,33 @@ format_pct <- function(x, accuracy = 1, suffix = " %", hide = 0) {
   label
 }
 
+#' Build a plot title from a variable label or name
+#'
+#' Internal helper that returns the `"label"` attribute of `data[[item_name]]`,
+#' falling back to `item_name` when the variable has no label. Optionally wraps
+#' the title in Czech low/high double quotation marks.
+#'
+#' @param data Data frame holding the item variable.
+#' @param item_name Name of the item column.
+#' @param quote If `TRUE`, wrap the title in `„` and `“`.
+#'
+#' @return A length-one character vector.
+#' @keywords internal
+stem_plot_title <- function(data, item_name, quote = FALSE) {
+  label <- attr(data[[item_name]], "label")
+  title <- if (is.null(label) || is.na(label)) {
+    item_name
+  } else {
+    as.character(label)
+  }
+
+  if (quote) {
+    title <- paste0("„", title, "“")
+  }
+
+  title
+}
+
 #' Compute plotting frequencies for a categorical variable
 #'
 #' Connects the frequency engine [stem_summarise_cat()] to the Stem plotting
@@ -180,6 +207,11 @@ stem_stack <- function(
 #'   with `label_color`.
 #' @param errorbar If `TRUE`, adds 95% confidence interval error bars (ungrouped
 #'   plots only).
+#' @param title_show If `TRUE`, adds a plot title taken from the item's `"label"`
+#'   attribute, falling back to the variable name when no label is present. The
+#'   title is styled (e.g. drawn in bold) by [theme_stem()]. Defaults to `FALSE`.
+#' @param title_quote If `TRUE`, wraps the title in low/high double quotation
+#'   marks (`„` and `“`). Defaults to `FALSE`.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -203,7 +235,9 @@ stem_barplot <- function(
   label_hide = NULL,
   label_color = "black",
   label_bicolor = TRUE,
-  errorbar = FALSE
+  errorbar = FALSE,
+  title_show = FALSE,
+  title_quote = FALSE
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -231,7 +265,7 @@ stem_barplot <- function(
   # category (item mapped to fill), so each group sums to 100%.
   if (has_group) {
     group_name <- rlang::as_name(group_quo)
-    return(stem_stack(
+    p <- stem_stack(
       plot_data = plot_data,
       fill_name = item_name,
       y_name = group_name,
@@ -240,7 +274,12 @@ stem_barplot <- function(
       labels = labels,
       label_color = label_color,
       label_bicolor = label_bicolor
-    ))
+    )
+    if (title_show) {
+      p <- p +
+        ggplot2::labs(title = stem_plot_title(data, item_name, title_quote))
+    }
+    return(p)
   }
 
   # Ungrouped: one bar per item category.
@@ -267,6 +306,11 @@ stem_barplot <- function(
   if (labels) {
     p <- p +
       ggplot2::geom_text(hjust = -0.2, position = ggplot2::position_identity())
+  }
+
+  if (title_show) {
+    p <- p +
+      ggplot2::labs(title = stem_plot_title(data, item_name, title_quote))
   }
 
   p
@@ -299,7 +343,9 @@ stem_inline <- function(
   label_suffix = "",
   label_hide = 0.05,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  title_show = FALSE,
+  title_quote = FALSE
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
 
@@ -313,7 +359,7 @@ stem_inline <- function(
     label_hide = label_hide
   )
 
-  stem_stack(
+  p <- stem_stack(
     plot_data = plot_data,
     fill_name = item_name,
     y_name = NULL,
@@ -323,6 +369,13 @@ stem_inline <- function(
     label_color = label_color,
     label_bicolor = label_bicolor
   )
+
+  if (title_show) {
+    p <- p +
+      ggplot2::labs(title = stem_plot_title(data, item_name, title_quote))
+  }
+
+  p
 }
 
 # Multi-item plots --------------------------------------------------------
