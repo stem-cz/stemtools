@@ -53,6 +53,40 @@ test_that("title_quote wraps the title in low/high double quotes", {
   expect_identical(p_inline$labels$title, "\u201eTrust in the police\u201c")
 })
 
+test_that("title_wrap breaks long titles onto several lines", {
+  labelled <- trust
+  long <- paste(
+    "How much do you trust the police to act in the best interest of",
+    "ordinary citizens living in this country nowadays"
+  )
+  attr(labelled$police, "label") <- long
+
+  # Default wrap (80) inserts newlines for a long title.
+  wrapped <- stem_barplot(labelled, police, title_show = TRUE)$labels$title
+  expect_match(wrapped, "\n")
+  expect_true(all(nchar(strsplit(wrapped, "\n")[[1]]) <= 80))
+
+  # Narrow wrap produces more lines than a wide one.
+  narrow <- stem_barplot(labelled, police, title_show = TRUE, title_wrap = 20)
+  wide <- stem_barplot(labelled, police, title_show = TRUE, title_wrap = 200)
+  expect_gt(
+    length(strsplit(narrow$labels$title, "\n")[[1]]),
+    length(strsplit(wide$labels$title, "\n")[[1]])
+  )
+
+  # Inf disables wrapping entirely.
+  no_wrap <- stem_inline(labelled, police, title_show = TRUE, title_wrap = Inf)
+  expect_identical(no_wrap$labels$title, long)
+
+  # Wrapping and quoting combine: the quotes enclose the wrapped block.
+  quoted <- stem_barplot(
+    labelled, police, title_show = TRUE, title_quote = TRUE, title_wrap = 20
+  )$labels$title
+  expect_match(quoted, "^\u201e")
+  expect_match(quoted, "\u201c$")
+  expect_match(quoted, "\n")
+})
+
 test_that("title_show falls back to the variable name when no label is present", {
   no_label <- trust
   attr(no_label$police, "label") <- NULL

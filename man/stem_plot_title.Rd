@@ -4,7 +4,7 @@
 \alias{stem_plot_title}
 \title{Build a plot title from a variable label or name}
 \usage{
-stem_plot_title(data, item_name, quote = FALSE)
+stem_plot_title(data, item_name, quote = FALSE, wrap = 80)
 }
 \arguments{
 \item{data}{Data frame holding the item variable.}
@@ -12,6 +12,9 @@ stem_plot_title(data, item_name, quote = FALSE)
 \item{item_name}{Name of the item column.}
 
 \item{quote}{If \code{TRUE}, wrap the title in \verb{„} and \verb{“}.}
+
+\item{wrap}{Maximum number of characters per line. Titles longer than this
+are wrapped onto several lines. Use \code{NULL} or \code{Inf} to disable wrapping.}
 }
 \value{
 A length-one character vector.

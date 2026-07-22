@@ -21,7 +21,8 @@ stem_barplot(
   label_bicolor = TRUE,
   errorbar = FALSE,
   title_show = FALSE,
-  title_quote = FALSE
+  title_quote = FALSE,
+  title_wrap = 80
 )
 }
 \arguments{
@@ -73,6 +74,10 @@ title is styled (e.g. drawn in bold) by \code{\link[=theme_stem]{theme_stem()}}.
 
 \item{title_quote}{If \code{TRUE}, wraps the title in low/high double quotation
 marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
+
+\item{title_wrap}{Maximum number of characters per title line; longer titles
+are wrapped onto several lines so they do not overflow the plot. Use \code{NULL}
+or \code{Inf} to disable wrapping. Defaults to \code{80}.}
 }
 \value{
 A ggplot2 object.

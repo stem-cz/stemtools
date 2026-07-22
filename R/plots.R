@@ -28,15 +28,21 @@ format_pct <- function(x, accuracy = 1, suffix = " %", hide = 0) {
 #' @param data Data frame holding the item variable.
 #' @param item_name Name of the item column.
 #' @param quote If `TRUE`, wrap the title in `„` and `“`.
+#' @param wrap Maximum number of characters per line. Titles longer than this
+#'   are wrapped onto several lines. Use `NULL` or `Inf` to disable wrapping.
 #'
 #' @return A length-one character vector.
 #' @keywords internal
-stem_plot_title <- function(data, item_name, quote = FALSE) {
+stem_plot_title <- function(data, item_name, quote = FALSE, wrap = 80) {
   label <- attr(data[[item_name]], "label")
   title <- if (is.null(label) || is.na(label)) {
     item_name
   } else {
     as.character(label)
+  }
+
+  if (!is.null(wrap) && is.finite(wrap)) {
+    title <- paste(strwrap(title, width = wrap), collapse = "\n")
   }
 
   if (quote) {
@@ -212,6 +218,9 @@ stem_stack <- function(
 #'   title is styled (e.g. drawn in bold) by [theme_stem()]. Defaults to `FALSE`.
 #' @param title_quote If `TRUE`, wraps the title in low/high double quotation
 #'   marks (`„` and `“`). Defaults to `FALSE`.
+#' @param title_wrap Maximum number of characters per title line; longer titles
+#'   are wrapped onto several lines so they do not overflow the plot. Use `NULL`
+#'   or `Inf` to disable wrapping. Defaults to `80`.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -237,7 +246,8 @@ stem_barplot <- function(
   label_bicolor = TRUE,
   errorbar = FALSE,
   title_show = FALSE,
-  title_quote = FALSE
+  title_quote = FALSE,
+  title_wrap = 80
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -277,7 +287,9 @@ stem_barplot <- function(
     )
     if (title_show) {
       p <- p +
-        ggplot2::labs(title = stem_plot_title(data, item_name, title_quote))
+        ggplot2::labs(
+          title = stem_plot_title(data, item_name, title_quote, title_wrap)
+        )
     }
     return(p)
   }
@@ -310,7 +322,9 @@ stem_barplot <- function(
 
   if (title_show) {
     p <- p +
-      ggplot2::labs(title = stem_plot_title(data, item_name, title_quote))
+      ggplot2::labs(
+        title = stem_plot_title(data, item_name, title_quote, title_wrap)
+      )
   }
 
   p
@@ -345,7 +359,8 @@ stem_inline <- function(
   label_color = "black",
   label_bicolor = TRUE,
   title_show = FALSE,
-  title_quote = FALSE
+  title_quote = FALSE,
+  title_wrap = 80
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
 
@@ -372,7 +387,9 @@ stem_inline <- function(
 
   if (title_show) {
     p <- p +
-      ggplot2::labs(title = stem_plot_title(data, item_name, title_quote))
+      ggplot2::labs(
+        title = stem_plot_title(data, item_name, title_quote, title_wrap)
+      )
   }
 
   p
