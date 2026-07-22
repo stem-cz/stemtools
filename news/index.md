@@ -8,7 +8,9 @@
   gain a `title_show` argument that adds a plot title taken from the
   item’s `"label"` attribute, falling back to the variable name when no
   label is present, and a `title_quote` argument that wraps the title in
-  low/high double quotation marks (`„`/`“`). Both default to `FALSE`.
+  low/high double quotation marks (`„`/`“`). Both default to `FALSE`. A
+  `title_wrap` argument (default `80`) wraps long titles onto several
+  lines so they do not overflow the plot.
 - [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)
   now draws the plot title (`plot.title`) in bold.
 

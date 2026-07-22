@@ -8,7 +8,7 @@ marks.
 ## Usage
 
 ``` r
-stem_plot_title(data, item_name, quote = FALSE)
+stem_plot_title(data, item_name, quote = FALSE, wrap = 80)
 ```
 
 ## Arguments
@@ -24,6 +24,11 @@ stem_plot_title(data, item_name, quote = FALSE)
 - quote:
 
   If `TRUE`, wrap the title in `„` and `“`.
+
+- wrap:
+
+  Maximum number of characters per line. Titles longer than this are
+  wrapped onto several lines. Use `NULL` or `Inf` to disable wrapping.
 
 ## Value
 

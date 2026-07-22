@@ -50,7 +50,7 @@ the title in Czech low/high double quotation marks.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">stem_plot_title</span><span class="op">(</span><span class="va">data</span>, <span class="va">item_name</span>, quote <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">stem_plot_title</span><span class="op">(</span><span class="va">data</span>, <span class="va">item_name</span>, quote <span class="op">=</span> <span class="cn">FALSE</span>, wrap <span class="op">=</span> <span class="fl">80</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,6 +67,11 @@ the title in Czech low/high double quotation marks.</p>
 
 <dt id="arg-quote">quote<a class="anchor" aria-label="anchor" href="#arg-quote"></a></dt>
 <dd><p>If <code>TRUE</code>, wrap the title in <code>„</code> and <code>“</code>.</p></dd>
+
+
+<dt id="arg-wrap">wrap<a class="anchor" aria-label="anchor" href="#arg-wrap"></a></dt>
+<dd><p>Maximum number of characters per line. Titles longer than this
+are wrapped onto several lines. Use <code>NULL</code> or <code>Inf</code> to disable wrapping.</p></dd>
 
 </dl></div>
     <div class="section level2">

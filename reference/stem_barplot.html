@@ -73,7 +73,8 @@ within each group, so every bar sums to 100%.</p>
 <span>  label_bicolor <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  errorbar <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  title_show <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  title_quote <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  title_quote <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  title_wrap <span class="op">=</span> <span class="fl">80</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -162,6 +163,12 @@ title is styled (e.g. drawn in bold) by <code><a href="theme_stem.html">theme_st
 <dt id="arg-title-quote">title_quote<a class="anchor" aria-label="anchor" href="#arg-title-quote"></a></dt>
 <dd><p>If <code>TRUE</code>, wraps the title in low/high double quotation
 marks (<code>„</code> and <code>“</code>). Defaults to <code>FALSE</code>.</p></dd>
+
+
+<dt id="arg-title-wrap">title_wrap<a class="anchor" aria-label="anchor" href="#arg-title-wrap"></a></dt>
+<dd><p>Maximum number of characters per title line; longer titles
+are wrapped onto several lines so they do not overflow the plot. Use <code>NULL</code>
+or <code>Inf</code> to disable wrapping. Defaults to <code>80</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">

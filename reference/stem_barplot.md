@@ -26,7 +26,8 @@ stem_barplot(
   label_bicolor = TRUE,
   errorbar = FALSE,
   title_show = FALSE,
-  title_quote = FALSE
+  title_quote = FALSE,
+  title_wrap = 80
 )
 ```
 
@@ -117,6 +118,12 @@ stem_barplot(
 
   If `TRUE`, wraps the title in low/high double quotation marks (`„` and
   `“`). Defaults to `FALSE`.
+
+- title_wrap:
+
+  Maximum number of characters per title line; longer titles are wrapped
+  onto several lines so they do not overflow the plot. Use `NULL` or
+  `Inf` to disable wrapping. Defaults to `80`.
 
 ## Value
 
