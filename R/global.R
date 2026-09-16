@@ -1,5 +1,6 @@
 #' @import utils
 #' @importFrom rlang .data
+#' @importFrom rlang %||%
 NULL
 
 # Bare data-variable symbols referenced via non-standard evaluation (dplyr /

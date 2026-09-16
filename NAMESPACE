@@ -11,8 +11,12 @@ export(se_mean)
 export(se_median)
 export(se_prop)
 export(select_diverging)
+export(stem_add_chart)
+export(stem_as_mschart)
 export(stem_barplot)
 export(stem_battery)
+export(stem_export_docx)
+export(stem_export_pptx)
 export(stem_inline)
 export(stem_multiselect)
 export(stem_palette)
@@ -23,7 +27,12 @@ export(stem_summarise_cat)
 export(stem_summarise_num)
 export(theme_stem)
 import(utils)
-importFrom(rlang,":=")
-importFrom(rlang,.data)
-importFrom(spreadview,compose_spreadsheet)
-importFrom(spreadview,get_categorical_vars)
+importFrom(rlang,
+  "%||%",
+  ":=",
+  .data
+)
+importFrom(spreadview,
+  compose_spreadsheet,
+  get_categorical_vars
+)
