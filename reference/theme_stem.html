@@ -11,7 +11,7 @@ globally with ggplot2::theme_set() so every plot picks it up:"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@ globally with <code><a href="https://ggplot2.tidyverse.org/reference/get_theme.h
 <span>  paper <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  accent <span class="op">=</span> <span class="st">"#35978F"</span>,</span>
 <span>  family <span class="op">=</span> <span class="st">"Calibri"</span>,</span>
+<span>  label_size <span class="op">=</span> <span class="fl">14</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -85,6 +86,14 @@ Defaults to the primary Stem brand colour.</p></dd>
 <dd><p>Font family for all text. Defaults to <code>"Calibri"</code>, the Stem
 house font. Pass <code>""</code> to use the graphics device's default family (useful
 on machines where Calibri is not installed).</p></dd>
+
+
+<dt id="arg-label-size">label_size<a class="anchor" aria-label="anchor" href="#arg-label-size"></a></dt>
+<dd><p>Point size of the numeric labels drawn inside the plot
+(the <code>stem_label</code> values printed by <code><a href="stem_barplot.html">stem_barplot()</a></code> and friends). Passed
+to <code><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">ggplot2::element_geom()</a></code> as <code>fontsize</code>, so it is given in points, like
+the other text sizes of the theme. Defaults to <code>14</code>, matching the label
+size used by the Stem apps.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

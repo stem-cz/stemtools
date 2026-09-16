@@ -14,6 +14,7 @@ theme_stem(
   paper = "white",
   accent = "#35978F",
   family = "Calibri",
+  label_size = 14,
   ...
 )
 ```
@@ -48,6 +49,17 @@ theme_stem(
   Font family for all text. Defaults to `"Calibri"`, the Stem house
   font. Pass `""` to use the graphics device's default family (useful on
   machines where Calibri is not installed).
+
+- label_size:
+
+  Point size of the numeric labels drawn inside the plot (the
+  `stem_label` values printed by
+  [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
+  and friends). Passed to
+  [`ggplot2::element_geom()`](https://ggplot2.tidyverse.org/reference/element.html)
+  as `fontsize`, so it is given in points, like the other text sizes of
+  the theme. Defaults to `14`, matching the label size used by the Stem
+  apps.
 
 - ...:
 

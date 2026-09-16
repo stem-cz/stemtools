@@ -33,10 +33,18 @@ devtools::install_github("stem-cz/stemtools")
   : Computes parametric standard error for proportions
 - [`select_diverging()`](https://stem-cz.github.io/stemtools/reference/select_diverging.md)
   : Select n colours from a diverging palette
+- [`stem_add_chart()`](https://stem-cz.github.io/stemtools/reference/stem_add_chart.md)
+  : Add a Stem plot to a PowerPoint or Word document as a native chart
+- [`stem_as_mschart()`](https://stem-cz.github.io/stemtools/reference/stem_as_mschart.md)
+  : Convert a Stem plot into a native Microsoft chart
 - [`stem_barplot()`](https://stem-cz.github.io/stemtools/reference/stem_barplot.md)
   : Horizontal bar plot
 - [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
   : Stacked bar plot for a battery of like items
+- [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
+  : Export Stem plots to Word as native charts
+- [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
+  : Export Stem plots to PowerPoint as native charts
 - [`stem_inline()`](https://stem-cz.github.io/stemtools/reference/stem_inline.md)
   : Inline stacked bar plot
 - [`stem_multiselect()`](https://stem-cz.github.io/stemtools/reference/stem_multiselect.md)
