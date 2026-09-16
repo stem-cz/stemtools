@@ -26,6 +26,11 @@
 #' @param family Font family for all text. Defaults to `"Calibri"`, the Stem
 #'   house font. Pass `""` to use the graphics device's default family (useful
 #'   on machines where Calibri is not installed).
+#' @param label_size Point size of the numeric labels drawn inside the plot
+#'   (the `stem_label` values printed by [stem_barplot()] and friends). Passed
+#'   to [ggplot2::element_geom()] as `fontsize`, so it is given in points, like
+#'   the other text sizes of the theme. Defaults to `14`, matching the label
+#'   size used by the Stem apps.
 #' @param ... Arguments to be passed to [ggplot2::theme()], overriding the Stem
 #'   defaults.
 #'
@@ -45,11 +50,17 @@ theme_stem <- function(
   paper = "white",
   accent = "#35978F",
   family = "Calibri",
+  label_size = 14,
   ...
 ) {
   ggplot2::theme_grey(base_family = family) +
     ggplot2::theme(
-      geom = ggplot2::element_geom(ink = ink, paper = paper, accent = accent),
+      geom = ggplot2::element_geom(
+        ink = ink,
+        paper = paper,
+        accent = accent,
+        fontsize = label_size
+      ),
       rect = ggplot2::element_rect(fill = paper, colour = NA),
       text = ggplot2::element_text(family = family, size = 18, colour = ink),
       panel.background = ggplot2::element_rect(fill = paper),

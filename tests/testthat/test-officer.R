@@ -202,3 +202,107 @@ test_that("stem_add_chart() adds to both document types", {
 
   expect_error(stem_add_chart(list(), chart), "officer")
 })
+
+test_that("stem_label_size() reads the resolved label size in points", {
+  local_stem_theme()
+
+  p <- stem_barplot(trust, government)
+  expect_equal(stem_label_size(p, ggplot2::ggplot_build(p)), 14)
+
+  p18 <- stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
+  expect_equal(stem_label_size(p18, ggplot2::ggplot_build(p18)), 18)
+
+  # No text layer at all: fall back rather than error.
+  p0 <- stem_barplot(trust, government, labels = FALSE)
+  expect_equal(stem_label_size(p0, ggplot2::ggplot_build(p0)), 11)
+})
+
+test_that("data labels are exported at 11/14 of their ggplot size", {
+  spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
+  expect_equal(spec$label_size, 11)
+
+  # The scale follows a custom `label_size`, rounded to half points.
+  spec18 <- stem_chart_spec(
+    stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
+  )
+  expect_equal(spec18$label_size, 14)
+
+  expect_equal(spec$font_size, 18)
+})
+
+test_that("stem_label_fp() sizes the labels with the export size", {
+  spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
+  fp <- stem_label_fp(spec, "x")
+  expect_equal(fp[["x"]]$font.size, 11)
+})
+
+test_that("the mschart theme uses the pinned export type sizes", {
+  skip_if_no_office()
+
+  spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
+  theme <- stem_mschart_theme(spec)
+
+  expect_equal(theme$axis_text_x$font.size, 11)
+  expect_equal(theme$axis_text_y$font.size, 11)
+  expect_equal(theme$legend_text$font.size, 11)
+  expect_equal(theme$axis_title_x$font.size, 12)
+  expect_equal(theme$main_title$font.size, 14)
+
+  # The family and the colours still follow the plot's theme.
+  expect_equal(theme$axis_text_x$font.family, spec$font_family)
+  expect_equal(theme$axis_text_x$color, spec$ink)
+
+  # A larger base text size no longer leaks into the exported chart.
+  big <- stem_chart_spec(
+    stem_barplot(trust, government) +
+      theme_stem(family = "", text = ggplot2::element_text(size = 24))
+  )
+  expect_equal(big$font_size, 24)
+  expect_equal(stem_mschart_theme(big)$axis_text_x$font.size, 11)
+})
+
+test_that("charts follow the app's bar geometry and axis steps", {
+  skip_if_no_office()
+  local_stem_theme()
+
+  stacked <- stem_as_mschart(stem_battery(trust, c(government, army)))
+  expect_equal(stacked$options$gap_width, 30)
+  expect_equal(stacked$y_axis$major_unit, 25)
+
+  simple <- stem_as_mschart(stem_barplot(trust, government))
+  expect_equal(simple$options$gap_width, 30)
+  expect_equal(simple$y_axis$major_unit, 10)
+
+  # Overridable.
+  expect_equal(
+    stem_as_mschart(stem_barplot(trust, government), axis_major_unit = 20)$y_axis$major_unit,
+    20
+  )
+})
+
+test_that("data labels print the plot's own text, blanks included", {
+  skip_if_no_office()
+  local_stem_theme()
+
+  plot <- stem_battery(trust, c(government, army), label_hide = 0.2)
+  chart <- stem_as_mschart(plot)
+  expect_equal(chart$label_cols, ".stem_label")
+
+  # The exported text is the plot's own, blanks from `label_hide` included.
+  labels <- chart$data[[".stem_label"]]
+  expect_setequal(labels, plot$data$stem_label)
+  expect_true(any(labels == ""))
+
+  # An explicit `num_fmt` labels the worksheet values instead.
+  values <- stem_as_mschart(stem_barplot(trust, government), num_fmt = "0.0")
+  expect_null(values$label_cols)
+  expect_false(".stem_label" %in% names(values$data))
+})
+
+test_that("bar separators keep the ggplot line width", {
+  skip_if_no_office()
+  local_stem_theme()
+
+  spec <- stem_chart_spec(stem_barplot(trust, government))
+  expect_equal(spec$border_width, 0.5 * ggplot2::.pt)
+})

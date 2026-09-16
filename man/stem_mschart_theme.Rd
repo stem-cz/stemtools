@@ -16,6 +16,9 @@ An mschart theme.
 }
 \description{
 Internal helper turning the typography and the "no gridlines, no ticks" look
-of \code{\link[=theme_stem]{theme_stem()}} into the equivalent \code{\link[mschart:mschart_theme]{mschart::mschart_theme()}}.
+of \code{\link[=theme_stem]{theme_stem()}} into the equivalent \code{\link[mschart:mschart_theme]{mschart::mschart_theme()}}. The font
+family and the colours follow the plot's theme; the font \emph{sizes} are the
+fixed export sizes (11 pt axis and legend text, 12 pt axis titles, 14 pt
+chart title), matching the decks produced by the Stem apps.
 }
 \keyword{internal}

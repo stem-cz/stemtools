@@ -157,7 +157,8 @@ stem_chart_spec <- function(plot) {
   }
   # The last bar layer holds the data; earlier ones are decoration (e.g. the
   # background bars of stem_multiselect()).
-  layer <- plot$layers[[max(which(col_layers))]]
+  col_layer_idx <- max(which(col_layers))
+  layer <- plot$layers[[col_layer_idx]]
 
   text_layers <- vapply(
     plot$layers,
@@ -228,23 +229,100 @@ stem_chart_spec <- function(plot) {
     reverse_cat = reverse_cat,
     colors = colors,
     border = layer$aes_params$colour %||% NA_character_,
+    border_width = stem_border_width(built, col_layer_idx),
     labels = any(text_layers),
+    # The preformatted ggplot labels, so the exported chart prints exactly the
+    # text the plot shows, blanks for `label_hide` included.
+    label_text = as.character(data$stem_label %||% NA_character_),
     label_color = data[[".label_color"]],
     num_fmt = stem_num_fmt(data$stem_label),
     title = plot$labels$title,
     has_errorbar = has_errorbar,
     font_family = family,
     font_size = theme$text$size %||% 12,
+    # Half-point steps, as PowerPoint itself uses.
+    label_size = round(
+      2 * stem_label_size(plot, built) * stem_label_export_scale
+    ) / 2,
     ink = theme$text$colour %||% "black",
     paper = theme$plot.background$fill %||% "transparent",
     legend_position = theme$legend.position %||% "top"
   )
 }
 
+# PowerPoint renders chart text noticeably larger than the ggplot preview does
+# at the same nominal size, so the Stem apps draw the numeric labels at 14 pt on
+# screen and export them at 11 pt. `stem_label_export_scale` keeps that ratio
+# whatever `theme_stem(label_size = )` is set to.
+stem_label_export_scale <- 11 / 14
+
+# Typography of the exported charts, in points. These are pinned rather than
+# taken from the ggplot theme for the same reason as the label scale above: the
+# theme's base size is chosen for an on-screen plot, and carrying it into Office
+# makes the axis and legend text far larger than the deck needs.
+stem_export_axis_size <- 11
+stem_export_axis_title_size <- 12
+stem_export_title_size <- 14
+
+#' Border width of the bars of a Stem plot
+#'
+#' Internal helper reading the width of the separator ggplot2 draws between the
+#' bars, in points, so the native chart can reproduce it. mschart wants points
+#' where ggplot2 uses millimetres.
+#'
+#' @param built The result of [ggplot2::ggplot_build()] for the plot.
+#' @param layer_idx Index of the bar layer.
+#'
+#' @return The border width in points.
+#' @keywords internal
+stem_border_width <- function(built, layer_idx) {
+  linewidth <- built$data[[layer_idx]]$linewidth
+  linewidth <- stats::median(linewidth, na.rm = TRUE)
+  if (!is.finite(linewidth) || linewidth <= 0) {
+    linewidth <- 0.5
+  }
+  linewidth * ggplot2::.pt
+}
+
+#' Point size of the numeric labels of a Stem plot
+#'
+#' Internal helper reading back the size ggplot2 resolved for the in-plot
+#' numeric labels. The built layer data carries the value in millimetres,
+#' including the default that [theme_stem()] supplies through
+#' [ggplot2::element_geom()], so the export follows a custom `label_size`
+#' without the caller having to repeat it.
+#'
+#' @param plot A ggplot object.
+#' @param built The result of [ggplot2::ggplot_build()] for `plot`.
+#'
+#' @return The label size in points. Falls back to `11` when the plot draws no
+#'   labels at all.
+#' @keywords internal
+stem_label_size <- function(plot, built) {
+  text_layers <- which(vapply(
+    plot$layers,
+    function(l) inherits(l$geom, "GeomText") || inherits(l$geom, "GeomLabel"),
+    logical(1)
+  ))
+
+  for (i in text_layers) {
+    size <- built$data[[i]]$size
+    size <- size[!is.na(size)]
+    if (length(size)) {
+      return(size[[1]] * ggplot2::.pt)
+    }
+  }
+
+  11
+}
+
 #' Translate a ggplot theme into an mschart theme
 #'
 #' Internal helper turning the typography and the "no gridlines, no ticks" look
-#' of [theme_stem()] into the equivalent [mschart::mschart_theme()].
+#' of [theme_stem()] into the equivalent [mschart::mschart_theme()]. The font
+#' family and the colours follow the plot's theme; the font *sizes* are the
+#' fixed export sizes (11 pt axis and legend text, 12 pt axis titles, 14 pt
+#' chart title), matching the decks produced by the Stem apps.
 #'
 #' @param spec A specification produced by [stem_chart_spec()].
 #' @param legend If `TRUE`, the legend is shown.
@@ -252,7 +330,7 @@ stem_chart_spec <- function(plot) {
 #' @return An mschart theme.
 #' @keywords internal
 stem_mschart_theme <- function(spec, legend = TRUE) {
-  base <- function(size = spec$font_size, bold = FALSE, color = spec$ink) {
+  base <- function(size = stem_export_axis_size, bold = FALSE, color = spec$ink) {
     officer::fp_text(
       font.family = spec$font_family,
       font.size = size,
@@ -278,8 +356,8 @@ stem_mschart_theme <- function(spec, legend = TRUE) {
   background <- if (is.na(spec$paper)) "transparent" else spec$paper
 
   mschart::mschart_theme(
-    main_title = base(size = spec$font_size, bold = TRUE),
-    axis_title = base(bold = TRUE),
+    main_title = base(size = stem_export_title_size, bold = TRUE),
+    axis_title = base(size = stem_export_axis_title_size, bold = TRUE),
     axis_text = base(),
     legend_text = base(),
     grid_major_line = officer::fp_border(width = 0),
@@ -304,9 +382,8 @@ stem_mschart_theme <- function(spec, legend = TRUE) {
 #' needs no recomputation and stays in sync with the ggplot version.
 #'
 #' A few ggplot features have no Office equivalent and are dropped, with a
-#' message: confidence interval error bars (`errorbar = TRUE`), the background
-#' bars of [stem_multiselect()], and the per-segment hiding of small labels
-#' (`label_hide`) — Office shows either all data labels or none.
+#' message: confidence interval error bars (`errorbar = TRUE`) and the
+#' background bars of [stem_multiselect()].
 #'
 #' @param plot A ggplot2 object created by [stem_barplot()], [stem_inline()],
 #'   [stem_battery()] or [stem_multiselect()].
@@ -318,11 +395,16 @@ stem_mschart_theme <- function(spec, legend = TRUE) {
 #' @param legend If `TRUE`, shows a legend. Defaults to `TRUE` for plots with a
 #'   fill variable and `FALSE` otherwise, matching the ggplot.
 #' @param num_fmt Excel number format code for the data labels, e.g. `"0"`,
-#'   `"0.0"` or `"0 \"%\""`. Defaults to a format derived from the ggplot
-#'   labels.
+#'   `"0.0"` or `"0 \"%\""`. By default the chart prints the plot's own label
+#'   text instead of formatting the worksheet values, so the accuracy
+#'   (`label_accuracy`) and the blanks left by `label_hide` carry over exactly.
+#'   Give a format to label the values from the worksheet instead, which keeps
+#'   the labels live when the data are edited in Excel.
 #' @param axis_num_fmt Excel number format code for the value axis. Defaults to
-#'   `"0 \"%\""`, matching the percentage axis of the Stem plots.
+#'   `"0\"%\""`, matching the percentage axis of the Stem plots.
 #' @param axis_show If `TRUE` (default), draws the value axis.
+#' @param axis_major_unit Spacing of the value axis ticks, in percentage
+#'   points. Defaults to `25` for stacked charts and `10` otherwise.
 #' @param gap_width Gap between bars, as a percentage of the bar width.
 #' @param value_name Name of the value column in the embedded worksheet; it is
 #'   also the series name of charts without a fill variable.
@@ -348,9 +430,10 @@ stem_as_mschart <- function(
   labels = NULL,
   legend = NULL,
   num_fmt = NULL,
-  axis_num_fmt = "0 \"%\"",
+  axis_num_fmt = "0\"%\"",
   axis_show = TRUE,
-  gap_width = 25,
+  axis_major_unit = NULL,
+  gap_width = 30,
   value_name = "%"
 ) {
   spec <- stem_chart_spec(plot)
@@ -368,9 +451,9 @@ stem_as_mschart <- function(
   if (is.null(legend)) {
     legend <- !is.null(spec$series)
   }
-  if (is.null(num_fmt)) {
-    num_fmt <- spec$num_fmt
-  }
+  # With no explicit `num_fmt` the chart prints the plot's own label text, so
+  # the accuracy and the `label_hide` blanks of the ggplot carry over.
+  label_as_text <- is.null(num_fmt)
   if (is.null(title)) {
     title <- spec$title
   }
@@ -380,6 +463,10 @@ stem_as_mschart <- function(
   # ggplot wraps long titles across lines; Office wraps them itself.
   if (!is.null(title)) {
     title <- gsub("\n", " ", title)
+  }
+
+  if (is.null(axis_major_unit)) {
+    axis_major_unit <- if (spec$type == "stacked") 25 else 10
   }
 
   # Office charts are built on percentages (0-100), not proportions, so the
@@ -401,14 +488,21 @@ stem_as_mschart <- function(
     )
   }
 
-  keep <- c(spec$cat, spec$series, value_name)
+  label_name <- NULL
+  if (labels && label_as_text && !anyNA(spec$label_text)) {
+    label_name <- ".stem_label"
+    chart_data[[label_name]] <- spec$label_text
+  }
+
+  keep <- c(spec$cat, spec$series, value_name, label_name)
   chart_data <- chart_data[order(chart_data[[spec$cat]]), keep, drop = FALSE]
 
   chart <- mschart::ms_barchart(
     data = chart_data,
     x = spec$cat,
     y = value_name,
-    group = spec$series
+    group = spec$series,
+    labels = label_name
   )
 
   chart <- switch(
@@ -443,6 +537,7 @@ stem_as_mschart <- function(
   if (!is.na(spec$border)) {
     strokes <- lapply(fills, function(x) spec$border)
     chart <- mschart::chart_data_stroke(chart, values = strokes)
+    chart <- mschart::chart_data_line_width(chart, values = spec$border_width)
   }
 
   chart <- mschart::chart_labels(
@@ -453,12 +548,17 @@ stem_as_mschart <- function(
   )
 
   if (labels) {
-    chart <- mschart::chart_data_labels(
-      chart,
-      show_val = TRUE,
-      num_fmt = num_fmt,
-      position = if (spec$type == "stacked") "ctr" else "outEnd"
-    )
+    position <- if (spec$type == "stacked") "ctr" else "outEnd"
+    chart <- if (is.null(label_name)) {
+      mschart::chart_data_labels(
+        chart,
+        show_val = TRUE,
+        num_fmt = num_fmt %||% spec$num_fmt,
+        position = position
+      )
+    } else {
+      mschart::chart_data_labels(chart, show_val = FALSE, position = position)
+    }
     chart <- mschart::chart_labels_text(
       chart,
       values = stem_label_fp(spec, names(fills))
@@ -488,7 +588,8 @@ stem_as_mschart <- function(
     minor_tick_mark = "none",
     crosses = if (spec$reverse_cat) "max" else "autoZero",
     limit_min = 0,
-    limit_max = if (spec$type == "stacked") 100 else NULL
+    limit_max = if (spec$type == "stacked") 100 else NULL,
+    major_unit = axis_major_unit
   )
 
   chart
@@ -520,10 +621,82 @@ stem_label_fp <- function(spec, series_names) {
   lapply(colours, function(col) {
     officer::fp_text(
       font.family = spec$font_family,
-      font.size = spec$font_size,
+      font.size = spec$label_size %||% spec$font_size,
       color = col
     )
   })
+}
+
+#' Left-align the titles of the charts in an Office file
+#'
+#' Internal helper patching the chart parts of a written `.pptx`/`.docx`.
+#' Office centres a chart title, whereas [theme_stem()] sets
+#' `plot.title.position = "plot"`, which flushes it left above the whole plot.
+#' mschart exposes no alignment setting, so the paragraph property is written
+#' into the chart XML afterwards, as the Stem apps do.
+#'
+#' Silently leaves the file untouched when the `zip` package is missing or the
+#' file cannot be rewritten: the alignment is cosmetic and never worth failing
+#' an export over.
+#'
+#' @param path Path of the Office file to patch.
+#'
+#' @return The path, invisibly.
+#' @keywords internal
+stem_leftalign_titles <- function(path) {
+  if (!requireNamespace("zip", quietly = TRUE)) {
+    return(invisible(path))
+  }
+
+  tryCatch(
+    {
+      dir <- tempfile()
+      dir.create(dir)
+      on.exit(unlink(dir, recursive = TRUE), add = TRUE)
+      utils::unzip(path, exdir = dir)
+
+      charts <- list.files(
+        dir,
+        pattern = "^chart[0-9a-f]*\\.xml$",
+        recursive = TRUE,
+        full.names = TRUE
+      )
+
+      patched <- FALSE
+      for (chart in charts) {
+        xml <- paste(
+          readLines(chart, warn = FALSE, encoding = "UTF-8"),
+          collapse = "\n"
+        )
+        # The first <a:pPr> inside <c:title> is the title's own paragraph.
+        aligned <- sub(
+          "(?s)(<c:title[ >].*?)<a:pPr>",
+          "\\1<a:pPr algn=\"l\">",
+          xml,
+          perl = TRUE
+        )
+        if (!identical(xml, aligned)) {
+          writeLines(aligned, chart, useBytes = TRUE)
+          patched <- TRUE
+        }
+      }
+
+      if (patched) {
+        rezipped <- tempfile(fileext = ".zip")
+        zip::zip(
+          zipfile = rezipped,
+          files = list.files(dir, recursive = TRUE, all.files = TRUE, no.. = TRUE),
+          root = dir,
+          include_directories = FALSE
+        )
+        file.copy(rezipped, path, overwrite = TRUE)
+        unlink(rezipped)
+      }
+    },
+    error = function(e) NULL
+  )
+
+  invisible(path)
 }
 
 # Office documents --------------------------------------------------------
@@ -727,6 +900,7 @@ stem_export_pptx <- function(
   }
 
   print(doc, target = path)
+  stem_leftalign_titles(path)
   invisible(path)
 }
 
@@ -783,6 +957,7 @@ stem_export_docx <- function(
   }
 
   print(doc, target = path)
+  stem_leftalign_titles(path)
   invisible(path)
 }
 

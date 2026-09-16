@@ -1,3 +1,8 @@
+# stemtools 0.1.3
+
+* `theme_stem()` gains a `label_size` argument setting the point size of the numeric labels drawn inside the plot, defaulting to the `14` used by the Stem apps.
+* New `stem_as_mschart()`, `stem_export_pptx()`, `stem_export_docx()` and `stem_add_chart()` turn the Stem plots into *native* Microsoft Office charts, which carry an embedded worksheet that can be edited in Excel. The charts render like the exports produced by the Stem apps (`blockr.stem`).
+
 # stemtools 0.1.2
 
 * `stem_barplot()` and `stem_inline()` gain a `title_show` argument that adds a plot title taken from the item's `"label"` attribute, falling back to the variable name when no label is present, and a `title_quote` argument that wraps the title in low/high double quotation marks (`„`/`“`). Both default to `FALSE`. A `title_wrap` argument (default `80`) wraps long titles onto several lines so they do not overflow the plot.

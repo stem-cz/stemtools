@@ -1,6 +1,6 @@
 Package: stemtools
 Title: Tools and helpful wrappers for analysts at Stem (https://www.stem.cz)
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Aleš", "Vomáčka", , "ales.vomacka@stem.cz", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1605-8026"))
@@ -31,6 +31,7 @@ Remotes:
     alesvomacka/spreadview
 Suggests:
     knitr,
+    zip,
     rmarkdown,
     testthat (>= 3.0.0),
     withr

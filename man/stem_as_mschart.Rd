@@ -10,9 +10,10 @@ stem_as_mschart(
   labels = NULL,
   legend = NULL,
   num_fmt = NULL,
-  axis_num_fmt = "0 \\"\%\\"",
+  axis_num_fmt = "0\\"\%\\"",
   axis_show = TRUE,
-  gap_width = 25,
+  axis_major_unit = NULL,
+  gap_width = 30,
   value_name = "\%"
 )
 }
@@ -31,13 +32,19 @@ whatever the ggplot does.}
 fill variable and \code{FALSE} otherwise, matching the ggplot.}
 
 \item{num_fmt}{Excel number format code for the data labels, e.g. \code{"0"},
-\code{"0.0"} or \verb{"0 \\"\%\\""}. Defaults to a format derived from the ggplot
-labels.}
+\code{"0.0"} or \verb{"0 \\"\%\\""}. By default the chart prints the plot's own label
+text instead of formatting the worksheet values, so the accuracy
+(\code{label_accuracy}) and the blanks left by \code{label_hide} carry over exactly.
+Give a format to label the values from the worksheet instead, which keeps
+the labels live when the data are edited in Excel.}
 
 \item{axis_num_fmt}{Excel number format code for the value axis. Defaults to
-\verb{"0 \\"\%\\""}, matching the percentage axis of the Stem plots.}
+\verb{"0\\"\%\\""}, matching the percentage axis of the Stem plots.}
 
 \item{axis_show}{If \code{TRUE} (default), draws the value axis.}
+
+\item{axis_major_unit}{Spacing of the value axis ticks, in percentage
+points. Defaults to \code{25} for stacked charts and \code{10} otherwise.}
 
 \item{gap_width}{Gap between bars, as a percentage of the bar width.}
 
@@ -62,9 +69,8 @@ and the fonts are all read back off the ggplot object, so the native chart
 needs no recomputation and stays in sync with the ggplot version.
 
 A few ggplot features have no Office equivalent and are dropped, with a
-message: confidence interval error bars (\code{errorbar = TRUE}), the background
-bars of \code{\link[=stem_multiselect]{stem_multiselect()}}, and the per-segment hiding of small labels
-(\code{label_hide}) — Office shows either all data labels or none.
+message: confidence interval error bars (\code{errorbar = TRUE}) and the
+background bars of \code{\link[=stem_multiselect]{stem_multiselect()}}.
 }
 \examples{
 \dontrun{
