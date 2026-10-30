@@ -45,11 +45,20 @@ All the plotting functions are composed from a shared frequency core. Each one c
 stem_summarise_cat(trust, item = police, group = eu_index, weight = W)
 ```
 
+The warning flags cells with fewer than 30 unweighted observations (set `min_cell_n = NULL` to turn it off; the plotting functions never raise it). Other uncertainty measures and the weighted N are available on request:
+
+```{r summarise-variance}
+stem_summarise_cat(trust, item = police, weight = W,
+                   variance = c("se", "moe", "deff"), n_weighted = TRUE)
+```
+
+Variables with `{haven}` value labels (e.g. read from SPSS with `haven::read_sav()`) are converted to factors automatically, so their labels appear in tables and plots.
+
 Every plotting function accepts the same core arguments:
 
 * `item` -- the categorical variable to plot,
 * `group` -- an optional grouping variable,
-* `weight` -- optional survey weights (passed to `{surveycore}`),
+* `weight` -- optional survey weights (passed to `{srvyr}`),
 * `palette` and `direction` -- the [Stem colour palette][stem_palette] to use,
 * `label_*` -- controls for the percentage labels.
 
@@ -139,9 +148,9 @@ stem_barplot(trust,
 
 ## Weights
 
-If a `weight` variable is specified, weights are treated as survey weights and passed into `{surveycore}`, which builds a Taylor-series survey design. Manipulating that design uses `{surveytidy}`, whose verbs mirror `{dplyr}`, so weighted and unweighted code read the same way.
+If a `weight` variable is specified, weights are treated as survey weights and passed into `{srvyr}`, which builds a Taylor-series survey design (via the `{survey}` package). `{srvyr}`'s verbs mirror `{dplyr}`, so weighted and unweighted code read the same way.
 
-With unweighted data, the confidence intervals are computed using the basic $\sqrt{\frac{p \cdot (1-p)}{n}}$ formula. With very small proportions and small samples this can lead to bounds outside of the `(0, 1)` range. With weighted data, the confidence intervals come from `{surveycore}` using Taylor-series linearization.
+With unweighted data, the standard errors are computed using the basic $\sqrt{\frac{p \cdot (1-p)}{n}}$ formula. With very small proportions and small samples this can lead to confidence bounds outside of the `(0, 1)` range. With weighted data, the standard errors come from `{srvyr}` using Taylor-series linearization.
 
 ```{r weights}
 stem_barplot(trust, item = government, weight = W)

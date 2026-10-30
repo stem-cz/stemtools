@@ -13,7 +13,11 @@ stem_summarise_cat(
   collapse_item = NULL,
   collapse_group = NULL,
   na.rm = TRUE,
-  return_n = FALSE
+  return_n = FALSE,
+  variance = "ci",
+  conf_level = 0.95,
+  n_weighted = FALSE,
+  min_cell_n = 30
 )
 }
 \arguments{
@@ -36,6 +40,19 @@ stem_summarise_cat(
 denominator so proportions still sum to 1) and \code{NA} group values form their own group.}
 
 \item{return_n}{If \code{TRUE}, returns absolute group sizes.}
+
+\item{variance}{Uncertainty measures to return, any of \code{"se"} (standard error), \code{"var"}
+(variance), \code{"cv"} (coefficient of variation), \code{"ci"} (confidence interval), \code{"moe"} (margin of
+error) and \code{"deff"} (design effect). Defaults to \code{"ci"}; \code{NULL} returns point estimates only.
+Columns are named after the estimate, e.g. \code{freq_se}, \code{freq_low}/\code{freq_upp}, \code{freq_deff}.}
+
+\item{conf_level}{Confidence level used by \code{"ci"} and \code{"moe"}. Defaults to \code{0.95}.}
+
+\item{n_weighted}{If \code{TRUE}, adds an \code{n_weighted} column with the sum of weights in each cell
+(the estimated population count). Equals \code{n} for unweighted data.}
+
+\item{min_cell_n}{Warn when any cell has fewer than this many unweighted observations. Defaults
+to \code{30}; \code{NULL} disables the warning.}
 }
 \value{
 Tidy dataframe
@@ -43,11 +60,14 @@ Tidy dataframe
 \description{
 Takes one categorical variable and returns a tidy dataframe, including relative frequencies and
 absolute size of each group. The variable can be further segmented by another categorical variable.
-Can also take survey weights. Returns 95\% confidence intervals.
+Can also take survey weights. Returns confidence intervals and, on request, other uncertainty measures.
 }
 \examples{
 trust |> stem_summarise_cat(item = police,
                             group = eu,
                             weight = W,
                             collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
+
+trust |> stem_summarise_cat(item = police, weight = W,
+                            variance = c("se", "ci", "deff"), n_weighted = TRUE)
 }

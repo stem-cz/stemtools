@@ -81,7 +81,9 @@ stem_plot_data <- function(
     group = {{ group }},
     weight = {{ weight }},
     collapse_item = collapse_item,
-    collapse_group = collapse_group
+    collapse_group = collapse_group,
+    # Small cells are common in plots; the warning would just be noise.
+    min_cell_n = NULL
   )
 
   plot_data$stem_label <- format_pct(
@@ -459,6 +461,8 @@ stem_battery <- function(
   label_color = "black",
   label_bicolor = TRUE
 ) {
+  # Value labels become factor levels before the items are stacked.
+  data <- label_values(data, {{ items }})
   item_data <- dplyr::select(data, {{ items }})
   item_names <- names(item_data)
 
@@ -575,6 +579,7 @@ stem_multiselect <- function(
   group_quo <- rlang::enquo(group)
   has_group <- !rlang::quo_is_null(group_quo)
 
+  data <- label_values(data, {{ items }})
   item_names <- names(dplyr::select(data, {{ items }}))
   n_items <- length(item_names)
 
@@ -590,7 +595,8 @@ stem_multiselect <- function(
     data = long,
     item = .response,
     group = {{ group }},
-    weight = {{ weight }}
+    weight = {{ weight }},
+    min_cell_n = NULL
   )
 
   # Frequencies are shares of responses; rescale to shares of respondents.

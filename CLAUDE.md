@@ -22,12 +22,14 @@ Roxygen version is pinned (`Config/roxygen2/version` in DESCRIPTION); NAMESPACE 
 ## Architecture
 
 **Aggregation is the engine; plotting sits on top of it.** `R/aggregation.R` defines `stem_summarise_cat()` / `stem_summarise_num()` (dispatched by `stem_summarise()`), the single source of survey estimates. Each has two code paths:
-- **weighted** — builds a `surveycore::as_survey()` design (optionally `surveytidy::group_by()`), computes estimates with Taylor-series confidence intervals, then renames surveycore's `pct`/`ci_low`/`ci_high` to the package-wide `freq`/`freq_low`/`freq_upp`.
-- **unweighted** — falls back to `dplyr::count()` with normal-approximation CIs.
+- **weighted** — builds a `srvyr::as_survey_design()` design, drops NAs with `filter()` on the design (domain estimation), and computes `survey_prop()`/`survey_mean()` with Taylor-series standard errors.
+- **unweighted** — falls back to `dplyr::count()` with the parametric SEs from `R/utils.R` (design effect 1).
+
+Both paths produce only the estimate plus internal `.se`/`.deff` columns; `add_uncertainty()` turns those into whatever the `variance` argument requests (`<est>_se`, `_var`, `_cv`, `_low`/`_upp`, `_moe`, `_deff`). Shared helpers in the same file: `label_values()` converts `haven_labelled` columns to factors, and `warn_small_cells()` raises the `stemtools_warning_small_cell` warning (plots pass `min_cell_n = NULL` to suppress it).
 
 The plotting functions in `R/plots.R` (`stem_barplot`, `stem_battery`, `stem_multiselect`, `stem_inline`) never compute statistics themselves — they call the internal `stem_plot_data()`, which wraps `stem_summarise_cat()` and adds a preformatted `stem_label` column. So estimation logic lives in exactly one place; changes to how frequencies/CIs are computed belong in `R/aggregation.R`, not the plot functions.
 
-**Column-name contract.** The whole pipeline communicates through fixed column names (`freq`, `freq_low`, `freq_upp`, `n`, `group_n`, `item_n`, `stem_label`, plus long-format `item`/`item_cat`/`group`/`group_cat`). These flow from aggregation → `stem_plot_data` → ggplot aesthetics. Renaming any of them requires updating all three layers.
+**Column-name contract.** The whole pipeline communicates through fixed column names (`freq`, `freq_low`, `freq_upp`, `n`, `group_n`, `item_n`, `n_weighted`, `stem_label`, plus long-format `item`/`item_cat`/`group`/`group_cat`). These flow from aggregation → `stem_plot_data` → ggplot aesthetics. Renaming any of them requires updating all three layers.
 
 **Palettes.** `R/color-palettes.R` defines an S7 class `stem_colors` and a single registry list `.stem_palettes` (the source of truth, tagged nominal/diverging/sequential). `stem_palette()`, `stem_palette_gen()`, `scale_*_stem()`, and `stem_palettes_all()` all derive from it — add a palette by appending one `stem_colors()` entry to that list.
 

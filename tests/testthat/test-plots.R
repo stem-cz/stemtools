@@ -120,6 +120,16 @@ test_that("stem_battery warns and falls back to names when a label is missing", 
   )
 })
 
+test_that("stem_battery uses haven value labels as response categories", {
+  df <- data.frame(
+    a = haven::labelled(c(1, 2, 2, 1), c(Yes = 1, No = 2), label = "Item A"),
+    b = haven::labelled(c(2, 2, 1, 1), c(Yes = 1, No = 2), label = "Item B")
+  )
+  p <- stem_battery(df, items = c(a, b))
+  build_ok(p)
+  expect_equal(levels(p$data$.response), c("Yes", "No"))
+})
+
 test_that("stem_multiselect builds, with and without a group", {
   build_ok(stem_multiselect(trust, items = dplyr::starts_with("biggest_concern")))
   build_ok(stem_multiselect(

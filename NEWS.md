@@ -1,3 +1,13 @@
+# stemtools (development version)
+
+* Weighted estimates are now computed with `{srvyr}` (Taylor-series linearization via `{survey}`) instead of the discontinued `{surveycore}` and `{surveytidy}`, which are no longer dependencies. Point estimates, standard errors and confidence intervals are unchanged.
+* `stem_summarise()`, `stem_summarise_cat()` and `stem_summarise_num()` gain:
+  * `variance`, selecting any of the standard error (`"se"`), variance (`"var"`), coefficient of variation (`"cv"`), confidence interval (`"ci"`, the default), margin of error (`"moe"`) and design effect (`"deff"`), returned as e.g. `freq_se` or `mean_moe`. `variance = NULL` returns point estimates only.
+  * `conf_level` (default `0.95`) for the confidence interval and margin of error.
+  * `n_weighted`, adding an `n_weighted` column with the sum of weights per cell.
+  * `min_cell_n` (default `30`): a warning of class `stemtools_warning_small_cell` is raised when any cell has fewer unweighted observations. The plotting functions do not raise it.
+* Variables with `{haven}` value labels are converted to factors using their labels, in the summary functions and in all plotting functions. `stem_summarise()` treats a labelled item as categorical.
+
 # stemtools 0.1.3
 
 * `theme_stem()` gains a `label_size` argument setting the point size of the numeric labels drawn inside the plot, defaulting to the `14` used by the Stem apps.

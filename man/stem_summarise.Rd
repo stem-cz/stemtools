@@ -13,7 +13,11 @@ stem_summarise(
   collapse_item = NULL,
   collapse_group = NULL,
   na.rm = TRUE,
-  return_n = FALSE
+  return_n = FALSE,
+  variance = "ci",
+  conf_level = 0.95,
+  n_weighted = FALSE,
+  min_cell_n = 30
 )
 }
 \arguments{
@@ -36,19 +40,42 @@ stem_summarise(
 or yielding an \code{NA} mean for numeric items) and \code{NA} group values form their own group.}
 
 \item{return_n}{If \code{TRUE}, returns absolute group sizes.}
+
+\item{variance}{Uncertainty measures to return, any of \code{"se"} (standard error), \code{"var"}
+(variance), \code{"cv"} (coefficient of variation), \code{"ci"} (confidence interval), \code{"moe"} (margin of
+error) and \code{"deff"} (design effect). Defaults to \code{"ci"}; \code{NULL} returns point estimates only.
+Columns are named after the estimate, e.g. \code{freq_se}, \code{freq_low}/\code{freq_upp}, \code{freq_deff}.}
+
+\item{conf_level}{Confidence level used by \code{"ci"} and \code{"moe"}. Defaults to \code{0.95}.}
+
+\item{n_weighted}{If \code{TRUE}, adds an \code{n_weighted} column with the sum of weights in each cell
+(the estimated population count). Equals \code{n} for unweighted data.}
+
+\item{min_cell_n}{Warn when any cell has fewer than this many unweighted observations. Defaults
+to \code{30}; \code{NULL} disables the warning.}
 }
 \value{
-An aggregated data frame with point estimates (either proportions or means) and 95\% confidence intervals.
+An aggregated data frame with point estimates (either proportions or means) and the requested uncertainty measures.
 }
 \description{
 Summarise either numeric or categerical variable, possible segment by another categorical variable.
 Actually a wrapper for \code{\link[=stem_summarise_cat]{stem_summarise_cat()}} and \code{\link[=stem_summarise_num]{stem_summarise_num()}}.
 }
 \details{
-Apart from either point estimates (proportions or means), the function also returns 95\% confidence interval bounds.
-If unweighted, the intervals are computed using the basic \code{sqrt((p * (1-p)) / n)} formula, where \code{n} is the size of the
-(possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
-of the (0;1) bounds. If weights are used, the confidence intervals come from \code{surveycore} (Taylor-series linearization).
+Apart from either point estimates (proportions or means), the function returns confidence interval bounds
+(95\% by default, see \code{conf_level}). Further uncertainty measures can be requested via \code{variance}.
+If unweighted, standard errors are computed using the basic \code{sqrt((p * (1-p)) / n)} formula, where \code{n} is the size of the
+(possibly segmented) sample, and the design effect is 1. If the estimated proportions are very high/low, this may lead to
+interval estimates outside of the (0;1) bounds. If weights are used, standard errors come from \code{srvyr}/\code{survey}
+(Taylor-series linearization) and design effects are computed against simple random sampling with replacement.
+In both cases the intervals are \verb{estimate +/- z * se}, with \code{z} the normal quantile for \code{conf_level}.
+
+Variables with value labels (\code{haven_labelled}, e.g. read by \code{\link[haven:read_sav]{haven::read_sav()}}) are converted to factors using the
+labels. A numeric item with value labels is treated as categorical by \code{stem_summarise()}; \code{stem_summarise_num()}
+averages its underlying codes.
+
+A warning (of class \code{stemtools_warning_small_cell}) is raised when any estimate is based on fewer than \code{min_cell_n}
+unweighted observations.
 
 If \code{long = TRUE}, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 multiple variables and bind the results into a single data frame. See online vignettes for details.
@@ -59,6 +86,7 @@ You can also use the arguments to rename categories (\code{list(Yes = "Agree")})
 
 If \code{return_n = TRUE}, columns holding the absolute frequencies will be added. Column \code{n} is the number of observations for the specific combination of
 item and grouping variable, \code{item_n} is the frequency of the item categories and \code{group_n} is the frequency of the group categories.
+If \code{n_weighted = TRUE}, column \code{n_weighted} holds the sum of weights for the same combination.
 }
 \examples{
 stem_summarise(data = trust, item = government)
@@ -67,4 +95,7 @@ stem_summarise(data = trust, item = age, group = eu_index)
 
 stem_summarise(data = trust, item = government,
                collapse_item = list(Agree = c("Definitely Agree", "Rather Agree")))
+
+stem_summarise(data = trust, item = government, weight = W,
+               variance = c("se", "moe", "deff"), n_weighted = TRUE)
 }

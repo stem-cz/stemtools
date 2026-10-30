@@ -16,8 +16,8 @@ Imports:
     dplyr,
     tidyr,
     rlang,
-    surveycore,
-    surveytidy,
+    srvyr,
+    haven,
     tibble,
     scales,
     forcats,
@@ -33,6 +33,7 @@ Suggests:
     knitr,
     zip,
     rmarkdown,
+    survey,
     testthat (>= 3.0.0),
     withr
 Depends:
