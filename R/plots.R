@@ -33,7 +33,7 @@ format_pct <- function(x, accuracy = 1, suffix = " %", hide = 0) {
 #'
 #' @return A length-one character vector.
 #' @keywords internal
-stem_plot_title <- function(data, item_name, quote = FALSE, wrap = 80) {
+stem_plot_title <- function(data, item_name, quote = FALSE, wrap = 73) {
   label <- attr(data[[item_name]], "label")
   title <- if (is.null(label) || is.na(label)) {
     item_name
@@ -54,7 +54,7 @@ stem_plot_title <- function(data, item_name, quote = FALSE, wrap = 80) {
 #'
 #' @return A length-one character vector.
 #' @keywords internal
-format_title <- function(title, quote = FALSE, wrap = 80) {
+format_title <- function(title, quote = FALSE, wrap = 73) {
   if (!is.null(wrap) && is.finite(wrap)) {
     title <- paste(strwrap(title, width = wrap), collapse = "\n")
   }
@@ -353,7 +353,8 @@ stem_stack <- function(
 #'   marks (`„` and `“`). Defaults to `FALSE`.
 #' @param title_wrap Maximum number of characters per title line; longer titles
 #'   are wrapped onto several lines so they do not overflow the plot. Use `NULL`
-#'   or `Inf` to disable wrapping. Defaults to `80`.
+#'   or `Inf` to disable wrapping. Defaults to `73`, measured so that a line of
+#'   15.6 pt bold Calibri (the [theme_stem()] title) fits a chart 19 cm wide.
 #' @param dk_levels Optional character vector of "don't know" categories of the
 #'   item (e.g. `"Nevím"`). They are moved to the end (the right end of stacked
 #'   bars and of the legend, the bottom of single-colour bar charts) and drawn
@@ -396,7 +397,7 @@ stem_barplot <- function(
   errorbar = FALSE,
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80,
+  title_wrap = 73,
   dk_levels = NULL,
   dk_color = "grey70",
   bar_color = "#82143C"
@@ -548,7 +549,7 @@ stem_inline <- function(
   label_bicolor = TRUE,
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80,
+  title_wrap = 73,
   dk_levels = NULL,
   dk_color = "grey70"
 ) {
@@ -738,7 +739,7 @@ stem_battery <- function(
   label_bicolor = TRUE,
   title = NULL,
   title_quote = FALSE,
-  title_wrap = 80,
+  title_wrap = 73,
   dk_levels = NULL,
   dk_color = "grey70"
 ) {
@@ -1106,7 +1107,7 @@ stem_boxplot <- function(
   palette = "div1",
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80
+  title_wrap = 73
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)

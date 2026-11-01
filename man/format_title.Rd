@@ -4,7 +4,7 @@
 \alias{format_title}
 \title{Wrap and quote a plot title}
 \usage{
-format_title(title, quote = FALSE, wrap = 80)
+format_title(title, quote = FALSE, wrap = 73)
 }
 \arguments{
 \item{title}{A length-one character vector.}

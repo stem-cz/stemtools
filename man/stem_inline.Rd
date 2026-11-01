@@ -19,7 +19,7 @@ stem_inline(
   label_bicolor = TRUE,
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80,
+  title_wrap = 73,
   dk_levels = NULL,
   dk_color = "grey70"
 )
@@ -67,7 +67,8 @@ marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
 
 \item{title_wrap}{Maximum number of characters per title line; longer titles
 are wrapped onto several lines so they do not overflow the plot. Use \code{NULL}
-or \code{Inf} to disable wrapping. Defaults to \code{80}.}
+or \code{Inf} to disable wrapping. Defaults to \code{73}, measured so that a line of
+15.6 pt bold Calibri (the \code{\link[=theme_stem]{theme_stem()}} title) fits a chart 19 cm wide.}
 
 \item{dk_levels}{Optional character vector of "don't know" categories of the
 item (e.g. \code{"Nevím"}). They are moved to the end (the right end of stacked

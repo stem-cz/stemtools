@@ -13,7 +13,7 @@ stem_boxplot(
   palette = "div1",
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80
+  title_wrap = 73
 )
 }
 \arguments{
@@ -40,7 +40,8 @@ marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
 
 \item{title_wrap}{Maximum number of characters per title line; longer titles
 are wrapped onto several lines so they do not overflow the plot. Use \code{NULL}
-or \code{Inf} to disable wrapping. Defaults to \code{80}.}
+or \code{Inf} to disable wrapping. Defaults to \code{73}, measured so that a line of
+15.6 pt bold Calibri (the \code{\link[=theme_stem]{theme_stem()}} title) fits a chart 19 cm wide.}
 }
 \value{
 A ggplot2 object.

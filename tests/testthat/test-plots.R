@@ -544,3 +544,20 @@ test_that("an empty scale point does not shift the other colours", {
     expect_equal(unname(unlist(chart$series_settings$fill)), div1)
   }
 })
+
+test_that("titles wrap at 73 characters by default", {
+  long <- paste(rep("Jak byste celkově hodnotil(a) práci vlády", 4), collapse = " ")
+  df <- trust
+  attr(df$police, "label") <- long
+  for (p in list(stem_barplot(df, police, title_show = TRUE),
+                 stem_inline(df, police, title_show = TRUE),
+                 stem_battery(df, items = c(police, army), title = long))) {
+    lines <- strsplit(p$labels$title, "\n")[[1]]
+    expect_gt(length(lines), 1)
+    expect_true(all(nchar(lines) <= 73))
+    expect_identical(lines, strwrap(long, 73))
+  }
+  df$age <- structure(df$age, label = long)
+  lines <- strsplit(stem_boxplot(df, age, title_show = TRUE)$labels$title, "\n")[[1]]
+  expect_identical(lines, strwrap(long, 73))
+})

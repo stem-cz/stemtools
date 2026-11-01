@@ -4,7 +4,7 @@
 \alias{stem_plot_title}
 \title{Build a plot title from a variable label or name}
 \usage{
-stem_plot_title(data, item_name, quote = FALSE, wrap = 80)
+stem_plot_title(data, item_name, quote = FALSE, wrap = 73)
 }
 \arguments{
 \item{data}{Data frame holding the item variable.}
