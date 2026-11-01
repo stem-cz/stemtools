@@ -22,6 +22,7 @@
 
 * `stem_battery(order_by = )` scores items from the plotted shares, so missing answers no longer lower an item's score. Items with missing answers may now be ordered differently.
 * `stem_battery()` stops with an error naming the items and categories that differ when the items do not share the same categories in the same order. Previously answers outside the first item's levels silently became `NA` and the bars were re-percentaged.
+* `stem_battery()` (and the yes/no layout of `stem_multiselect()`) stop with an error naming the duplicated label and its items when several items have the same label. Previously their bars merged or overwrote each other.
 
 # stemtools 0.1.3
 

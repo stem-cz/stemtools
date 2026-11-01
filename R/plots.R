@@ -633,7 +633,24 @@ item_display_names <- function(item_data, item_label = TRUE) {
     )
     return(item_names)
   }
-  unname(labels_lookup[item_names])
+  labels <- unname(labels_lookup[item_names])
+
+  # Items sharing a label would merge into (or overwrite) one bar.
+  dup <- unique(labels[duplicated(labels)])
+  if (length(dup)) {
+    detail <- vapply(dup, function(label) {
+      paste0("\"", label, "\" (", paste0("`", item_names[labels == label], "`",
+                                          collapse = ", "), ")")
+    }, character(1))
+    stop(
+      "Several items have the same label, so their bars would merge:\n",
+      paste0("* ", detail, collapse = "\n"),
+      "\nGive them distinct `label` attributes, or use `item_label = FALSE`.",
+      call. = FALSE
+    )
+  }
+
+  labels
 }
 
 #' Shared response categories of a battery

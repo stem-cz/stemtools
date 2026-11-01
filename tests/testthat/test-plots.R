@@ -561,3 +561,21 @@ test_that("titles wrap at 73 characters by default", {
   lines <- strsplit(stem_boxplot(df, age, title_show = TRUE)$labels$title, "\n")[[1]]
   expect_identical(lines, strwrap(long, 73))
 })
+
+test_that("items with the same label stop with an error naming them", {
+  df <- trust
+  attr(df$army, "label") <- attr(df$police, "label")
+  attr(df$eu, "label") <- attr(df$police, "label")
+  expect_error(
+    stem_battery(df, items = c(police, army, eu, government)),
+    paste0("\"", attr(trust$police, "label"), "\" (`police`, `army`, `eu`)"),
+    fixed = TRUE
+  )
+  # Variable names are unique, so item_label = FALSE still works.
+  expect_no_error(stem_battery(df, items = c(police, army), item_label = FALSE))
+
+  yn <- yes_no_data()
+  attr(yn$q5_2, "label") <- "Ceny"
+  expect_error(stem_multiselect(yn, items = q5_1:q5_4, selected = "Ano"),
+               "\"Ceny\" (`q5_1`, `q5_2`)", fixed = TRUE)
+})
