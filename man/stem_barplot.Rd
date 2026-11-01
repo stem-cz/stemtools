@@ -25,7 +25,8 @@ stem_barplot(
   title_wrap = 73,
   dk_levels = NULL,
   dk_color = "grey70",
-  bar_color = "#82143C"
+  bar_color = "#82143C",
+  other_levels = NULL
 )
 }
 \arguments{
@@ -97,6 +98,11 @@ levels; otherwise distinguishable darker greys are derived from the first.}
 \item{bar_color}{Fill of single-series bars (ungrouped \code{\link[=stem_barplot]{stem_barplot()}} and
 \code{\link[=stem_multiselect]{stem_multiselect()}}). Defaults to the Stem brand burgundy \code{"#82143C"},
 whatever the \code{palette}.}
+
+\item{other_levels}{Optional character vector of "other" categories (e.g.
+\code{c("Jiné", "Ostatní")}), kept last in the order given, just before any
+\code{dk_levels}: at the bottom of single-colour bar charts, at the right end of
+stacked bars. They keep their palette colour. Defaults to \code{NULL}.}
 }
 \value{
 A ggplot2 object.

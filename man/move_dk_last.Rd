@@ -2,20 +2,23 @@
 % Please edit documentation in R/plots.R
 \name{move_dk_last}
 \alias{move_dk_last}
-\title{Move "don't know" levels to the end}
+\title{Move "other" and "don't know" levels to the end}
 \usage{
-move_dk_last(x, dk_levels)
+move_dk_last(x, dk_levels, other_levels = NULL)
 }
 \arguments{
 \item{x}{A factor or character vector.}
 
 \item{dk_levels}{Character vector of "don't know" levels.}
+
+\item{other_levels}{Character vector of "other" levels.}
 }
 \value{
 A factor.
 }
 \description{
-Internal helper. Levels of \code{x} named in \code{dk_levels} are moved after all
-other levels; \code{dk_levels} absent from \code{x} are ignored.
+Internal helper. The levels of \code{x} end with \code{other_levels} (e.g. "Jiné")
+and then \code{dk_levels}, each in the order given; levels absent from \code{x} are
+ignored.
 }
 \keyword{internal}

@@ -155,7 +155,8 @@ stem_plot_data <- function(
   label_accuracy = 1,
   label_suffix = "",
   label_hide = 0,
-  dk_levels = NULL
+  dk_levels = NULL,
+  other_levels = NULL
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
 
@@ -170,8 +171,8 @@ stem_plot_data <- function(
     min_cell_n = NULL
   )
 
-  if (!is.null(dk_levels)) {
-    plot_data[[item_name]] <- move_dk_last(plot_data[[item_name]], dk_levels)
+  if (!is.null(dk_levels) || !is.null(other_levels)) {
+    plot_data[[item_name]] <- move_dk_last(plot_data[[item_name]], dk_levels, other_levels)
   }
 
   plot_data$stem_label <- format_pct(
@@ -184,23 +185,25 @@ stem_plot_data <- function(
   plot_data
 }
 
-#' Move "don't know" levels to the end
+#' Move "other" and "don't know" levels to the end
 #'
-#' Internal helper. Levels of `x` named in `dk_levels` are moved after all
-#' other levels; `dk_levels` absent from `x` are ignored.
+#' Internal helper. The levels of `x` end with `other_levels` (e.g. "Jiné")
+#' and then `dk_levels`, each in the order given; levels absent from `x` are
+#' ignored.
 #'
 #' @param x A factor or character vector.
 #' @param dk_levels Character vector of "don't know" levels.
+#' @param other_levels Character vector of "other" levels.
 #'
 #' @return A factor.
 #' @keywords internal
-move_dk_last <- function(x, dk_levels) {
+move_dk_last <- function(x, dk_levels, other_levels = NULL) {
   x <- as.factor(x)
-  dk <- intersect(dk_levels, levels(x))
-  if (!length(dk)) {
+  last <- intersect(c(other_levels, dk_levels), levels(x))
+  if (!length(last)) {
     return(x)
   }
-  forcats::fct_relevel(x, dk, after = Inf)
+  forcats::fct_relevel(x, last, after = Inf)
 }
 
 #' Greys for "don't know" levels
@@ -437,6 +440,10 @@ stem_stack <- function(
 #' @param bar_color Fill of single-series bars (ungrouped [stem_barplot()] and
 #'   [stem_multiselect()]). Defaults to the Stem brand burgundy `"#82143C"`,
 #'   whatever the `palette`.
+#' @param other_levels Optional character vector of "other" categories (e.g.
+#'   `c("Jiné", "Ostatní")`), kept last in the order given, just before any
+#'   `dk_levels`: at the bottom of single-colour bar charts, at the right end of
+#'   stacked bars. They keep their palette colour. Defaults to `NULL`.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -471,7 +478,8 @@ stem_barplot <- function(
   title_wrap = 73,
   dk_levels = NULL,
   dk_color = "grey70",
-  bar_color = "#82143C"
+  bar_color = "#82143C",
+  other_levels = NULL
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -493,7 +501,8 @@ stem_barplot <- function(
     label_accuracy = label_accuracy,
     label_suffix = label_suffix,
     label_hide = label_hide,
-    dk_levels = dk_levels
+    dk_levels = dk_levels,
+    other_levels = other_levels
   )
 
   # With a grouping variable, draw one stacked horizontal bar per group
@@ -791,7 +800,8 @@ battery_categories <- function(item_data) {
 #'   `dplyr::starts_with()`).
 #' @param order_by Optional vector of response categories used to order the
 #'   items, e.g. `c("Definitely Agree", "Rather Agree")` orders items by their
-#'   combined share of those two categories.
+#'   combined share of those two categories. An error if none of them is a
+#'   category.
 #' @param item_label If `TRUE` (default), item labels (the `"label"` attribute)
 #'   are used instead of variable names. Falls back to names, with a warning, if
 #'   any item lacks a label.
@@ -799,8 +809,18 @@ battery_categories <- function(item_data) {
 #'   when given; defaults to `NULL` (no title).
 #' @param title_quote If `TRUE`, wraps the title in low/high double quotation
 #'   marks (`„` and `“`). Defaults to `FALSE`.
+#' @param item_order Optional fixed order of the items, top to bottom, as
+#'   variable names or labels, e.g. the order of a "master" battery so that
+#'   several batteries share it. Items not listed follow in their original
+#'   order. Cannot be combined with `order_by`.
+#' @param items_per_chart Optional maximum number of items per chart. When
+#'   given, the (sorted) battery is split into several charts and a list of
+#'   plots is returned, titled e.g. "(1/2)" and "(2/2)" (after `title`, if
+#'   any) when there is more than one.
+#' @param collapse_item Optional named list collapsing (or renaming) the
+#'   categories of every item, as in [stem_barplot()].
 #'
-#' @return A ggplot2 object.
+#' @return A ggplot2 object, or a list of them when `items_per_chart` is given.
 #' @export
 #'
 #' @examples \dontrun{
@@ -829,12 +849,24 @@ stem_battery <- function(
   title_quote = FALSE,
   title_wrap = 73,
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  item_order = NULL,
+  items_per_chart = NULL,
+  collapse_item = NULL
 ) {
+  if (!is.null(order_by) && !is.null(item_order)) {
+    stop("Give either `order_by` or `item_order`, not both.", call. = FALSE)
+  }
+
   # Value labels become factor levels before the items are stacked.
   data <- label_values(data, {{ items }})
-  item_data <- dplyr::select(data, {{ items }})
-  item_names <- names(item_data)
+  item_names <- names(dplyr::select(data, {{ items }}))
+  if (!is.null(collapse_item)) {
+    for (name in item_names) {
+      data <- collapse_cats(data, !!rlang::sym(name), collapse_item)
+    }
+  }
+  item_data <- dplyr::select(data, dplyr::all_of(item_names))
   categories <- battery_categories(item_data)
 
   long <- data |>
@@ -851,10 +883,11 @@ stem_battery <- function(
   }
 
   # Label or name the items.
+  display_names <- item_display_names(item_data, item_label)
   long$.battery_item <- factor(
     long$.battery_item,
     levels = item_names,
-    labels = item_display_names(item_data, item_label)
+    labels = display_names
   )
 
   plot_data <- stem_plot_data(
@@ -871,6 +904,14 @@ stem_battery <- function(
   # Optionally order items by their combined share of `order_by` categories,
   # scored from the plotted shares (so missing answers don't count).
   if (!is.null(order_by)) {
+    if (!any(order_by %in% levels(as.factor(plot_data$.response)))) {
+      stop(
+        "`order_by` matches no category. Categories are: ",
+        paste0("\"", levels(as.factor(plot_data$.response)), "\"", collapse = ", "),
+        ".",
+        call. = FALSE
+      )
+    }
     order_levels <- plot_data |>
       dplyr::summarise(
         score = sum(freq[.response %in% order_by]),
@@ -884,25 +925,62 @@ stem_battery <- function(
     )
   }
 
-  p <- stem_stack(
-    plot_data = plot_data,
-    fill_name = ".response",
-    y_name = ".battery_item",
-    palette = palette,
-    direction = direction,
-    labels = labels,
-    label_color = label_color,
-    label_bicolor = label_bicolor,
-    dk_levels = dk_levels,
-    dk_color = dk_color
-  )
-
-  if (!is.null(title)) {
-    p <- p +
-      ggplot2::labs(title = format_title(title, title_quote, title_wrap))
+  # A fixed order, e.g. shared with a "master" battery. Items may be given by
+  # variable name or label; unlisted items follow in their original order.
+  if (!is.null(item_order)) {
+    as_label <- ifelse(
+      item_order %in% item_names,
+      display_names[match(item_order, item_names)],
+      item_order
+    )
+    unknown <- item_order[!as_label %in% display_names]
+    if (length(unknown)) {
+      stop(
+        "`item_order` names items that are not in the battery: ",
+        paste0("\"", unknown, "\"", collapse = ", "), ".",
+        call. = FALSE
+      )
+    }
+    plot_data$.battery_item <- factor(
+      plot_data$.battery_item,
+      levels = c(unique(as_label), setdiff(display_names, as_label))
+    )
   }
 
-  p
+  stack <- function(chart_data, chart_title) {
+    p <- stem_stack(
+      plot_data = chart_data,
+      fill_name = ".response",
+      y_name = ".battery_item",
+      palette = palette,
+      direction = direction,
+      labels = labels,
+      label_color = label_color,
+      label_bicolor = label_bicolor,
+      dk_levels = dk_levels,
+      dk_color = dk_color
+    )
+    if (!is.null(chart_title)) {
+      p <- p +
+        ggplot2::labs(title = format_title(chart_title, title_quote, title_wrap))
+    }
+    p
+  }
+
+  if (is.null(items_per_chart)) {
+    return(stack(plot_data, title))
+  }
+
+  # Split a long battery into several charts, in sort order.
+  item_levels <- levels(plot_data$.battery_item)
+  chunks <- split(item_levels, ceiling(seq_along(item_levels) / items_per_chart))
+  n_charts <- length(chunks)
+  lapply(seq_len(n_charts), function(i) {
+    chart_data <- plot_data[plot_data$.battery_item %in% chunks[[i]], ]
+    chart_data$.battery_item <- factor(chart_data$.battery_item, levels = chunks[[i]])
+    part <- if (n_charts > 1) sprintf("(%d/%d)", i, n_charts)
+    stack(chart_data, if (is.null(title)) part else paste(c(title, part), collapse = " "))
+  })
 }
 
 #' Share of respondents choosing each yes/no item
@@ -983,9 +1061,14 @@ selected_shares <- function(data, item_names, selected, group = NULL, weight = N
 #' @param item_label Yes/no layout only. If `TRUE` (default), bars are named
 #'   after the items' `"label"` attributes, falling back to variable names, with
 #'   a warning, if any item lacks a label (as in [stem_battery()]).
-#' @param keep_last Optional bars to keep at the end (the bottom) whatever the
-#'   ordering, e.g. `c("Jiné", "Ostatní")`, in the order given. Refers to
-#'   options, or in the yes/no layout to items (by label or variable name).
+#' @param other_levels Optional "other" bars to keep at the end (the bottom)
+#'   whatever the ordering, e.g. `c("Jiné", "Ostatní")`, in the order given and
+#'   just before any `dk_levels`. Refers to options, or in the yes/no layout to
+#'   items (by label or variable name).
+#' @param dk_levels Optional "don't know" bars, referred to like `other_levels`.
+#'   They go last (below the "other" bars) and, in ungrouped plots, are drawn
+#'   grey (`dk_color`) as separate series of the native chart, as in
+#'   [stem_barplot()].
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -995,7 +1078,7 @@ selected_shares <- function(data, item_names, selected, group = NULL, weight = N
 #' stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"), weight = W)
 #'
 #' # Yes/no columns, one bar per item.
-#' stem_multiselect(survey, items = q5_1:q5_8, selected = "Ano", keep_last = "Jiné")
+#' stem_multiselect(survey, items = q5_1:q5_8, selected = "Ano", other_levels = "Jiné")
 #' }
 stem_multiselect <- function(
   data,
@@ -1014,8 +1097,10 @@ stem_multiselect <- function(
   background_alpha = 1,
   selected = NULL,
   item_label = TRUE,
-  keep_last = NULL,
-  bar_color = "#82143C"
+  other_levels = NULL,
+  bar_color = "#82143C",
+  dk_levels = NULL,
+  dk_color = "grey70"
 ) {
   group_quo <- rlang::enquo(group)
   has_group <- !rlang::quo_is_null(group_quo)
@@ -1057,12 +1142,12 @@ stem_multiselect <- function(
       levels = item_names,
       labels = display_names
     )
-    # keep_last may name items by variable name as well as by label.
-    keep_last <- ifelse(
-      keep_last %in% item_names,
-      display_names[match(keep_last, item_names)],
-      keep_last
-    )
+    # other_levels and dk_levels may name items by variable name or label.
+    as_label <- function(x) {
+      ifelse(x %in% item_names, display_names[match(x, item_names)], x)
+    }
+    other_levels <- as_label(other_levels)
+    dk_levels <- as_label(dk_levels)
   }
 
   plot_data$stem_label <- format_pct(
@@ -1079,16 +1164,19 @@ stem_multiselect <- function(
     )
   }
 
-  # The first level is drawn at the bottom, so bars kept last go first.
-  if (length(keep_last)) {
+  # The first level is drawn at the bottom, so bars kept last go first: from
+  # the top the bars read ..., other_levels, dk_levels.
+  last <- c(other_levels, dk_levels)
+  if (length(last)) {
     plot_data$.response <- as.factor(plot_data$.response)
-    keep_last <- intersect(keep_last, levels(plot_data$.response))
+    last <- intersect(last, levels(plot_data$.response))
     plot_data$.response <- forcats::fct_relevel(
       plot_data$.response,
-      rev(keep_last),
+      rev(last),
       after = 0
     )
   }
+  dk_present <- intersect(dk_levels, as.character(plot_data$.response))
 
   if (has_group) {
     group_name <- rlang::as_name(group_quo)
@@ -1114,10 +1202,21 @@ stem_multiselect <- function(
         fill = stem_legend_guide(levels(as.factor(plot_data[[group_name]])))
       )
   } else {
-    p <- ggplot2::ggplot(
-      plot_data,
-      ggplot2::aes(x = freq, y = .response, label = stem_label)
-    )
+    # Grey "don't know" bars form series of their own, as in stem_barplot().
+    if (length(dk_present)) {
+      series_levels <- c("%", dk_present)
+      plot_data$.series <- factor(
+        ifelse(as.character(plot_data$.response) %in% dk_present,
+               as.character(plot_data$.response), "%"),
+        levels = series_levels
+      )
+      mapping <- ggplot2::aes(
+        x = freq, y = .response, fill = .data[[".series"]], label = stem_label
+      )
+    } else {
+      mapping <- ggplot2::aes(x = freq, y = .response, label = stem_label)
+    }
+    p <- ggplot2::ggplot(plot_data, mapping)
 
     if (background) {
       background_data <- data.frame(
@@ -1136,7 +1235,19 @@ stem_multiselect <- function(
         )
     }
 
-    p <- p + ggplot2::geom_col(color = "white", fill = bar_color)
+    if (length(dk_present)) {
+      p <- p +
+        ggplot2::geom_col(color = "white", position = ggplot2::position_identity()) +
+        ggplot2::scale_fill_manual(
+          values = stats::setNames(
+            c(bar_color, dk_colors(length(dk_present), dk_color)),
+            series_levels
+          ),
+          guide = "none"
+        )
+    } else {
+      p <- p + ggplot2::geom_col(color = "white", fill = bar_color)
+    }
   }
 
   p <- p +

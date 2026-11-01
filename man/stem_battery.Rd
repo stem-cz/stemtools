@@ -22,7 +22,10 @@ stem_battery(
   title_quote = FALSE,
   title_wrap = 73,
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  item_order = NULL,
+  items_per_chart = NULL,
+  collapse_item = NULL
 )
 }
 \arguments{
@@ -35,7 +38,8 @@ stem_battery(
 
 \item{order_by}{Optional vector of response categories used to order the
 items, e.g. \code{c("Definitely Agree", "Rather Agree")} orders items by their
-combined share of those two categories.}
+combined share of those two categories. An error if none of them is a
+category.}
 
 \item{item_label}{If \code{TRUE} (default), item labels (the \code{"label"} attribute)
 are used instead of variable names. Falls back to names, with a warning, if
@@ -85,9 +89,22 @@ in the data are ignored. Defaults to \code{NULL}.}
 \item{dk_color}{Fill colour of the "don't know" categories. Defaults to
 \code{"grey70"} (\verb{#B3B3B3}). Give several colours for several "don't know"
 levels; otherwise distinguishable darker greys are derived from the first.}
+
+\item{item_order}{Optional fixed order of the items, top to bottom, as
+variable names or labels, e.g. the order of a "master" battery so that
+several batteries share it. Items not listed follow in their original
+order. Cannot be combined with \code{order_by}.}
+
+\item{items_per_chart}{Optional maximum number of items per chart. When
+given, the (sorted) battery is split into several charts and a list of
+plots is returned, titled e.g. "(1/2)" and "(2/2)" (after \code{title}, if
+any) when there is more than one.}
+
+\item{collapse_item}{Optional named list collapsing (or renaming) the
+categories of every item, as in \code{\link[=stem_barplot]{stem_barplot()}}.}
 }
 \value{
-A ggplot2 object.
+A ggplot2 object, or a list of them when \code{items_per_chart} is given.
 }
 \description{
 Plots a set of categorical variables that share the same response categories

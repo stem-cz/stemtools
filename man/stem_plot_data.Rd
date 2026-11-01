@@ -14,7 +14,8 @@ stem_plot_data(
   label_accuracy = 1,
   label_suffix = "",
   label_hide = 0,
-  dk_levels = NULL
+  dk_levels = NULL,
+  other_levels = NULL
 )
 }
 \arguments{
@@ -48,6 +49,11 @@ item (e.g. \code{"Nevím"}). They are moved to the end (the right end of stacked
 bars and of the legend, the bottom of single-colour bar charts) and drawn
 grey, and they do not count towards the palette size. Levels not present
 in the data are ignored. Defaults to \code{NULL}.}
+
+\item{other_levels}{Optional character vector of "other" categories (e.g.
+\code{c("Jiné", "Ostatní")}), kept last in the order given, just before any
+\code{dk_levels}: at the bottom of single-colour bar charts, at the right end of
+stacked bars. They keep their palette colour. Defaults to \code{NULL}.}
 }
 \value{
 A tidy data frame with the item (and group) variable and columns

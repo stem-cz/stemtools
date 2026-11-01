@@ -21,8 +21,10 @@ stem_multiselect(
   background_alpha = 1,
   selected = NULL,
   item_label = TRUE,
-  keep_last = NULL,
-  bar_color = "#82143C"
+  other_levels = NULL,
+  bar_color = "#82143C",
+  dk_levels = NULL,
+  dk_color = "grey70"
 )
 }
 \arguments{
@@ -69,13 +71,23 @@ columns).}
 after the items' \code{"label"} attributes, falling back to variable names, with
 a warning, if any item lacks a label (as in \code{\link[=stem_battery]{stem_battery()}}).}
 
-\item{keep_last}{Optional bars to keep at the end (the bottom) whatever the
-ordering, e.g. \code{c("Jiné", "Ostatní")}, in the order given. Refers to
-options, or in the yes/no layout to items (by label or variable name).}
+\item{other_levels}{Optional "other" bars to keep at the end (the bottom)
+whatever the ordering, e.g. \code{c("Jiné", "Ostatní")}, in the order given and
+just before any \code{dk_levels}. Refers to options, or in the yes/no layout to
+items (by label or variable name).}
 
 \item{bar_color}{Fill of single-series bars (ungrouped \code{\link[=stem_barplot]{stem_barplot()}} and
 \code{\link[=stem_multiselect]{stem_multiselect()}}). Defaults to the Stem brand burgundy \code{"#82143C"},
 whatever the \code{palette}.}
+
+\item{dk_levels}{Optional "don't know" bars, referred to like \code{other_levels}.
+They go last (below the "other" bars) and, in ungrouped plots, are drawn
+grey (\code{dk_color}) as separate series of the native chart, as in
+\code{\link[=stem_barplot]{stem_barplot()}}.}
+
+\item{dk_color}{Fill colour of the "don't know" categories. Defaults to
+\code{"grey70"} (\verb{#B3B3B3}). Give several colours for several "don't know"
+levels; otherwise distinguishable darker greys are derived from the first.}
 }
 \value{
 A ggplot2 object.
@@ -103,6 +115,6 @@ stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
 stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"), weight = W)
 
 # Yes/no columns, one bar per item.
-stem_multiselect(survey, items = q5_1:q5_8, selected = "Ano", keep_last = "Jiné")
+stem_multiselect(survey, items = q5_1:q5_8, selected = "Ano", other_levels = "Jiné")
 }
 }

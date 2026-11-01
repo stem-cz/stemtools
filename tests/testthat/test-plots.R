@@ -392,11 +392,11 @@ test_that("stem_multiselect(selected =) draws one bar per yes/no item", {
     as.character(p$data$.response[order(p$data$freq)])
   )
 
-  # keep_last pins items to the bottom (the first levels), by label or name.
-  p2 <- stem_multiselect(df, items = q5_1:q5_4, selected = "Ano", keep_last = "Jiné")
+  # other_levels pins items to the bottom (the first levels), by label or name.
+  p2 <- stem_multiselect(df, items = q5_1:q5_4, selected = "Ano", other_levels = "Jiné")
   expect_equal(levels(p2$data$.response)[1], "Jiné")
   p3 <- stem_multiselect(df, items = q5_1:q5_4, selected = "Ano",
-                         keep_last = c("q5_4", "Bydlení"))
+                         other_levels = c("q5_4", "Bydlení"))
   expect_equal(levels(p3$data$.response)[1:2], c("Bydlení", "Jiné"))
 
   chart <- stem_as_mschart(p2)
@@ -434,11 +434,11 @@ test_that("stem_multiselect(selected =) checks its input", {
   expect_true("q5_4" %in% levels(p$data$.response))
 })
 
-test_that("stem_multiselect mention mode is unchanged and accepts keep_last", {
+test_that("stem_multiselect mention mode is unchanged and accepts other_levels", {
   p <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
   lv <- levels(p$data$.response)
   p2 <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"),
-                         keep_last = lv[length(lv)])
+                         other_levels = lv[length(lv)])
   expect_equal(levels(p2$data$.response), c(lv[length(lv)], lv[-length(lv)]))
   expect_equal(sort(p2$data$freq), sort(p$data$freq))
 })
@@ -626,4 +626,113 @@ test_that("the legend uses as many rows as it needs", {
   expect_lt(long$params$ncol, 7)
   expect_true(long$params$theme$legend.byrow)
   expect_equal(stem_legend_guide(paste(rep("x", 400), collapse = ""))$params$ncol, 1)
+})
+
+# battery and bar-chart options (v2 item 8) --------------------------------------
+
+test_that("stem_battery(order_by =) stops when it matches no category", {
+  expect_error(stem_battery(trust, items = c(police, army), order_by = "Agree"),
+               "`order_by` matches no category")
+})
+
+test_that("stem_battery(item_order =) fixes the item order, by name or label", {
+  skip_if_not_installed("mschart")
+  lab <- function(x) attr(trust[[x]], "label")
+  p <- stem_battery(trust, items = c(police, eu, government, army),
+                    item_order = c("army", lab("government")))
+  expect_equal(levels(p$data$.battery_item),
+               c(lab("army"), lab("government"), lab("police"), lab("eu")))
+  chart <- stem_as_mschart(p)
+  expect_equal(levels(chart$data[[chart$x]])[1], lab("army"))
+
+  # A "master" battery's order carries over.
+  master <- stem_battery(trust, items = c(police, eu, government, army),
+                         order_by = "Definitely Agree")
+  follower <- stem_battery(trust, items = c(police, eu, government, army),
+                           item_order = levels(master$data$.battery_item))
+  expect_equal(levels(follower$data$.battery_item), levels(master$data$.battery_item))
+
+  expect_error(stem_battery(trust, items = c(police, army), item_order = "nope"),
+               "not in the battery: \"nope\"")
+  expect_error(stem_battery(trust, items = c(police, army), item_order = "army",
+                            order_by = "Rather Agree"), "not both")
+})
+
+test_that("stem_battery(items_per_chart =) splits a battery in sort order", {
+  skip_if_not_installed("mschart")
+  plots <- stem_battery(trust, items = c(police, eu, government, army, scientists),
+                        order_by = "Definitely Agree", items_per_chart = 3,
+                        title = "Trust")
+  expect_type(plots, "list")
+  expect_length(plots, 2)
+  expect_equal(plots[[1]]$labels$title, "Trust (1/2)")
+  expect_equal(plots[[2]]$labels$title, "Trust (2/2)")
+  expect_equal(nlevels(plots[[1]]$data$.battery_item), 3)
+  expect_equal(nlevels(plots[[2]]$data$.battery_item), 2)
+  # Together they keep the sorted order of the unsplit battery.
+  whole <- stem_battery(trust, items = c(police, eu, government, army, scientists),
+                        order_by = "Definitely Agree")
+  expect_equal(c(levels(plots[[1]]$data$.battery_item), levels(plots[[2]]$data$.battery_item)),
+               levels(whole$data$.battery_item))
+  # Same colours in every part; each converts.
+  expect_equal(fill_of(plots[[1]]), fill_of(plots[[2]]))
+  for (p in plots) expect_s3_class(stem_as_mschart(p), "ms_barchart")
+
+  # One chart only: still a list, without "(1/1)".
+  one <- stem_battery(trust, items = c(police, army), items_per_chart = 5)
+  expect_length(one, 1)
+  expect_null(one[[1]]$labels$title)
+})
+
+test_that("stem_battery(collapse_item =) collapses every item", {
+  skip_if_not_installed("mschart")
+  p <- stem_battery(trust, items = c(police, army),
+                    collapse_item = list(Agree = c("Definitely Agree", "Rather Agree"),
+                                         Disagree = c("Rather Disagree", "Definitely Disagree")))
+  expect_equal(levels(p$data$.response), c("Agree", "Neither Agree nor Disagree", "Disagree"))
+  expect_s3_class(stem_as_mschart(p), "ms_barchart")
+})
+
+test_that("other_levels go last, before don't-know, in bar plots", {
+  skip_if_not_installed("mschart")
+  df <- trust_dk()
+  df$police <- forcats::fct_relevel(df$police, "Rather Agree", after = 0)
+  p <- stem_barplot(df, police, other_levels = "Rather Agree", dk_levels = "Nevím")
+  expect_equal(tail(levels(p$data$police), 2), c("Rather Agree", "Nevím"))
+  chart <- stem_as_mschart(p)
+  expect_equal(tail(levels(chart$data[[chart$x]]), 2), c("Rather Agree", "Nevím"))
+
+  # Stacked: right end of the bar, "other" keeps its palette colour.
+  p <- stem_barplot(df, police, group = eu_index, other_levels = "Rather Agree",
+                    dk_levels = "Nevím")
+  fills <- fill_of(p)
+  expect_equal(names(fills)[5:6], c("Rather Agree", "Nevím"))
+  expect_equal(unname(fills[6]), "#B3B3B3")
+  expect_false(fills[["Rather Agree"]] == "#B3B3B3")
+})
+
+test_that("stem_multiselect puts other and don't-know bars last, don't-know grey", {
+  skip_if_not_installed("mschart")
+  yn <- yes_no_data()
+  yn$q5_5 <- factor(ifelse(stats::runif(200) < 0.99, "Ano", "Ne"), levels = c("Ano", "Ne"))
+  attr(yn$q5_5, "label") <- "Nevím"
+  p <- stem_multiselect(yn, items = c(q5_1, q5_2, q5_3, q5_4, q5_5), selected = "Ano",
+                        other_levels = "q5_4", dk_levels = "Nevím")
+  # Bottom-first levels: don't-know, then other, then by share.
+  expect_equal(levels(p$data$.response)[1:2], c("Nevím", "Jiné"))
+  built <- ggplot2::ggplot_build(p)$data[[2]] # layer 1: background bars
+  dk_bar <- built$fill[built$y == 1]
+  expect_equal(dk_bar, "#B3B3B3")
+  expect_true(all(built$fill[built$y != 1] == "#82143C"))
+
+  chart <- stem_as_mschart(p)
+  expect_equal(names(chart$series_settings$fill), c("%", "Nevím"))
+  expect_equal(chart$options$overlap, 100)
+
+  # Mention columns: options work the same way.
+  m <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
+  lv <- levels(m$data$.response)
+  m2 <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"),
+                         other_levels = lv[length(lv)], dk_levels = lv[1])
+  expect_equal(levels(m2$data$.response)[1:2], c(lv[1], lv[length(lv)]))
 })
