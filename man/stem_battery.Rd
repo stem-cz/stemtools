@@ -69,6 +69,11 @@ horizontal bar per item. Internally the items are reshaped to long format and
 handed to the same machinery as \code{\link[=stem_barplot]{stem_barplot()}}, with the item taking the
 role of the group.
 }
+\details{
+Factor items must have the same levels in the same order (and character items
+may only use those levels); otherwise the function stops with an error naming
+the items and categories that differ, rather than dropping answers.
+}
 \examples{
 \dontrun{
 stem_battery(trust, items = c(police, eu, government, army))

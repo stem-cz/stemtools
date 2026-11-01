@@ -418,6 +418,56 @@ column_labels <- function(data) {
   stats::setNames(labels, names(data))
 }
 
+#' Shared response categories of a battery
+#'
+#' Internal helper checking that the items of a battery can be stacked into one
+#' response column without losing answers. Factor items must have the same
+#' levels in the same order; character items may only use those levels.
+#'
+#' @param item_data A data frame holding only the battery items.
+#'
+#' @return The shared levels, or `NULL` when no item is a factor (character
+#'   items are combined as they are, so nothing can be lost).
+#' @keywords internal
+battery_categories <- function(item_data) {
+  is_fct <- vapply(item_data, is.factor, logical(1))
+  if (!any(is_fct)) {
+    return(NULL)
+  }
+
+  ref_name <- names(item_data)[which(is_fct)[1]]
+  ref <- levels(item_data[[ref_name]])
+  quote_cats <- function(x) paste0("\"", x, "\"", collapse = ", ")
+
+  problems <- character()
+  for (name in names(item_data)) {
+    x <- item_data[[name]]
+    cats <- if (is.factor(x)) levels(x) else unique(as.character(x[!is.na(x)]))
+    if (is.factor(x) && identical(cats, ref)) next
+    extra <- setdiff(cats, ref)
+    missing <- if (is.factor(x)) setdiff(ref, cats) else character()
+    if (!is.factor(x) && !length(extra)) next
+
+    detail <- c(
+      if (length(missing)) paste("lacks", quote_cats(missing)),
+      if (length(extra)) paste("has", quote_cats(extra))
+    )
+    if (!length(detail)) detail <- "has the same categories in a different order"
+    problems <- c(problems, paste0("`", name, "` ", paste(detail, collapse = " and ")))
+  }
+
+  if (length(problems)) {
+    stop(
+      "All battery items must have the same categories in the same order.\n",
+      "Compared with `", ref_name, "` (", quote_cats(ref), "):\n",
+      paste0("* ", problems, collapse = "\n"),
+      call. = FALSE
+    )
+  }
+
+  ref
+}
+
 #' Stacked bar plot for a battery of like items
 #'
 #' Plots a set of categorical variables that share the same response categories
@@ -425,6 +475,10 @@ column_labels <- function(data) {
 #' horizontal bar per item. Internally the items are reshaped to long format and
 #' handed to the same machinery as [stem_barplot()], with the item taking the
 #' role of the group.
+#'
+#' Factor items must have the same levels in the same order (and character items
+#' may only use those levels); otherwise the function stops with an error naming
+#' the items and categories that differ, rather than dropping answers.
 #'
 #' @inheritParams stem_barplot
 #' @param items Items to plot. Supports tidyselect helpers (e.g.
@@ -465,6 +519,7 @@ stem_battery <- function(
   data <- label_values(data, {{ items }})
   item_data <- dplyr::select(data, {{ items }})
   item_names <- names(item_data)
+  categories <- battery_categories(item_data)
 
   long <- data |>
     dplyr::select({{ items }}, {{ weight }}) |>
@@ -475,8 +530,8 @@ stem_battery <- function(
     )
 
   # Keep the shared response categories in their original order.
-  if (is.factor(item_data[[1]])) {
-    long$.response <- factor(long$.response, levels = levels(item_data[[1]]))
+  if (!is.null(categories)) {
+    long$.response <- factor(long$.response, levels = categories)
   }
 
   # Label or name the items.

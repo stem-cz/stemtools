@@ -11,6 +11,7 @@
 ## Bug fixes
 
 * `stem_battery(order_by = )` scores items from the plotted shares, so missing answers no longer lower an item's score. Items with missing answers may now be ordered differently.
+* `stem_battery()` stops with an error naming the items and categories that differ when the items do not share the same categories in the same order. Previously answers outside the first item's levels silently became `NA` and the bars were re-percentaged.
 
 # stemtools 0.1.3
 

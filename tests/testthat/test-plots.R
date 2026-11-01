@@ -132,6 +132,34 @@ test_that("stem_battery orders items by the plotted shares, ignoring missing ans
   expect_equal(levels(chart$data[[chart$x]]), c("a", "b", "c"))
 })
 
+test_that("stem_battery stops when items have different categories", {
+  lv <- c("Yes", "No")
+  df <- data.frame(
+    a = factor(c("Yes", "No"), levels = lv),
+    b = factor(c("Yes", "No"), levels = rev(lv)),
+    c = factor(c("Yes", "Maybe"), levels = c("Yes", "Maybe")),
+    d = c("Yes", "Perhaps"),
+    e = c("Yes", NA),
+    stringsAsFactors = FALSE
+  )
+  expect_error(stem_battery(df, items = c(a, b), item_label = FALSE),
+               "`b` has the same categories in a different order")
+  expect_error(stem_battery(df, items = c(a, c), item_label = FALSE),
+               "`c` lacks \"No\" and has \"Maybe\"")
+  expect_error(stem_battery(df, items = c(a, d), item_label = FALSE),
+               "`d` has \"Perhaps\"")
+  # Character items within the shared levels, and all-character batteries, are fine.
+  expect_no_error(stem_battery(df, items = c(a, e), item_label = FALSE))
+  expect_no_error(stem_battery(df, items = c(d, e), item_label = FALSE))
+
+  # Trust's battery items all share one set of levels.
+  skip_if_not_installed("mschart")
+  expect_s3_class(
+    stem_as_mschart(stem_battery(trust, items = c(police, eu, government, army))),
+    "ms_barchart"
+  )
+})
+
 test_that("stem_battery warns and falls back to names when a label is missing", {
   no_label <- trust
   attr(no_label$police, "label") <- NULL
