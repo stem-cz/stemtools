@@ -131,6 +131,42 @@ test_that("weighted estimates match the survey package", {
   expect_equal(out$freq_se, as.numeric(survey::SE(ref)))
 })
 
+test_that("point estimates equal weighted shares computed by hand", {
+  # Missing answers, so that "valid answers" differs from all rows.
+  df <- trust
+  df$police[c(3, 10, 50, 200)] <- NA
+  df$eu_index[c(5, 60)] <- NA
+  df$age[c(7, 80)] <- NA
+  valid <- !is.na(df$police)
+
+  # share = sum of weights in a category / sum of weights of valid answers
+  by_hand <- function(w, keep = valid) {
+    tapply(w[keep], df$police[keep], sum) / sum(w[keep])
+  }
+
+  out <- stem_summarise_cat(df, police, weight = W)
+  expect_equal(out$freq, as.numeric(by_hand(df$W)))
+  out <- stem_summarise_cat(df, police)
+  expect_equal(out$freq, as.numeric(by_hand(rep(1, nrow(df)))))
+
+  for (g in levels(df$eu_index)) {
+    keep <- valid & !is.na(df$eu_index) & df$eu_index == g
+    out <- stem_summarise_cat(df, police, group = eu_index, weight = W, min_cell_n = NULL)
+    expect_equal(out$freq[out$eu_index == g], as.numeric(by_hand(df$W, keep)))
+    out <- stem_summarise_cat(df, police, group = eu_index, min_cell_n = NULL)
+    expect_equal(out$freq[out$eu_index == g], as.numeric(by_hand(rep(1, nrow(df)), keep)))
+  }
+
+  # Means: sum(w * x) / sum(w) over valid answers.
+  ok <- !is.na(df$age)
+  out <- stem_summarise_num(df, age, weight = W)
+  expect_equal(out$mean, sum(df$W[ok] * df$age[ok]) / sum(df$W[ok]))
+  ok <- ok & !is.na(df$eu_index) & df$eu_index == "Neutral"
+  out <- stem_summarise_num(df, age, group = eu_index, weight = W)
+  expect_equal(out$mean[out$eu_index == "Neutral"],
+               sum(df$W[ok] * df$age[ok]) / sum(df$W[ok]))
+})
+
 # weighted N --------------------------------------------------------------
 
 test_that("n_weighted is the sum of weights per cell", {
