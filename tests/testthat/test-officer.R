@@ -73,6 +73,49 @@ test_that("stem_as_mschart() converts stacked plots with the right palette", {
   expect_equal(unname(label_colors[3]), "black")
 })
 
+test_that("label colours follow each fill's contrast, in ggplot and native charts", {
+  skip_if_no_office()
+  local_stem_theme()
+  label_colors <- function(chart) {
+    vapply(chart$series_settings$labels_fp, function(x) x$color, character(1))
+  }
+
+  # Diverging palettes: unchanged, white on the two extremes only.
+  for (pal in c("modern", "div1", "div2", "div3")) {
+    for (n in 2:5) {
+      fills <- stem_palette_gen(pal)(n)
+      expect_equal(
+        unname(contrast_label_color(fills)),
+        ifelse(seq_len(n) %in% c(1, n), "white", "black")
+      )
+    }
+  }
+
+  # A grey "don't know" segment gets a dark label, not the white side label.
+  df <- trust
+  df$police <- forcats::fct_expand(df$police, "Nevím", "Neodpověděl")
+  df$police[1:80] <- "Nevím"
+  df$police[81:100] <- "Neodpověděl"
+  p <- stem_inline(df, police, dk_levels = c("Nevím", "Neodpověděl"),
+                   dk_color = c("grey70", "grey25"))
+  by_level <- vapply(split(p$data$.label_color, p$data$police), `[`, "", 1)
+  expect_equal(unname(by_level[c(1, 5, 6, 7)]), c("white", "white", "black", "white"))
+  chart <- stem_as_mschart(p)
+  expect_equal(label_colors(chart)[names(by_level)], by_level)
+
+  # A sequential palette: light fills now get dark labels.
+  p <- stem_barplot(trust, police, group = eu_index, palette = "seq1")
+  by_level <- vapply(split(p$data$.label_color, p$data$police), `[`, "", 1)
+  expect_equal(unname(by_level), c("black", "black", "black", "black", "white"))
+  expect_equal(label_colors(stem_as_mschart(p))[names(by_level)], by_level)
+
+  # label_bicolor = FALSE colours every label with label_color, in both.
+  p <- stem_barplot(trust, police, group = eu_index, label_bicolor = FALSE,
+                    label_color = "grey20")
+  expect_true(all(p$data$.label_color == "grey20"))
+  expect_true(all(label_colors(stem_as_mschart(p)) == "grey20"))
+})
+
 test_that("stem_as_mschart() handles inline, battery and multiselect plots", {
   skip_if_no_office()
   local_stem_theme()

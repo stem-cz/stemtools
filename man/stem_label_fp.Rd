@@ -15,8 +15,9 @@ stem_label_fp(spec, series_names)
 A named list of \code{\link[officer:fp_text]{officer::fp_text()}} objects, one per series.
 }
 \description{
-Internal helper reproducing the bicolour labels of the stacked Stem plots:
-the two extreme (side) categories are labelled in white, everything else in
-the theme's foreground colour.
+Internal helper reproducing the label colours of the stacked Stem plots:
+each series is labelled in the colour \code{\link[=stem_stack]{stem_stack()}} stored for it in
+\code{.label_color} (white on dark fills, dark on light ones). Labels of other
+charts, which sit outside the bars, use the theme's foreground colour.
 }
 \keyword{internal}

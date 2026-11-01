@@ -59,10 +59,11 @@ segments unlabelled) and \code{0} otherwise.}
 \item{label_color}{Colour of the segment labels in grouped (stacked) plots.
 Defaults to \code{"black"}.}
 
-\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots the
-labels of the two side (extreme) item categories are drawn in white, while
-all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
-with \code{label_color}.}
+\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots each
+label's colour is chosen from its fill: white on dark fills, \code{label_color}
+on light ones (by luma, see \code{contrast_label_color()}). With the diverging
+palettes this draws the extreme categories in white. Set to \code{FALSE} to
+colour every label with \code{label_color}.}
 
 \item{title}{Optional plot title, usually the wording the items share. Shown
 when given; defaults to \code{NULL} (no title).}

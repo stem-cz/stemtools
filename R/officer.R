@@ -597,9 +597,10 @@ stem_as_mschart <- function(
 
 #' Data label colours for a native chart
 #'
-#' Internal helper reproducing the bicolour labels of the stacked Stem plots:
-#' the two extreme (side) categories are labelled in white, everything else in
-#' the theme's foreground colour.
+#' Internal helper reproducing the label colours of the stacked Stem plots:
+#' each series is labelled in the colour [stem_stack()] stored for it in
+#' `.label_color` (white on dark fills, dark on light ones). Labels of other
+#' charts, which sit outside the bars, use the theme's foreground colour.
 #'
 #' @param spec A specification produced by [stem_chart_spec()].
 #' @param series_names Names of the chart series.
@@ -609,13 +610,12 @@ stem_as_mschart <- function(
 stem_label_fp <- function(spec, series_names) {
   colours <- stats::setNames(rep(spec$ink, length(series_names)), series_names)
 
-  # Mirror stem_stack()'s `label_bicolor`: white on the first and last series.
   if (!is.null(spec$series) &&
     identical(spec$type, "stacked") &&
-    !is.null(spec$label_color) &&
-    any(spec$label_color == "white")) {
-    side <- series_names[c(1L, length(series_names))]
-    colours[side] <- "white"
+    !is.null(spec$label_color)) {
+    series_values <- as.character(spec$data[[spec$series]])
+    per_series <- spec$label_color[match(series_names, series_values)]
+    colours[!is.na(per_series)] <- per_series[!is.na(per_series)]
   }
 
   lapply(colours, function(col) {

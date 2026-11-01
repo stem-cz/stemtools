@@ -196,6 +196,26 @@ stem_fill_values <- function(
   stats::setNames(colors, levels)
 }
 
+#' Label colour that contrasts with a fill
+#'
+#' Internal helper. A fill whose Rec. 601 luma (`0.299 R + 0.587 G + 0.114 B`,
+#' on a 0-255 scale) is below `threshold` counts as dark and gets a white
+#' label; lighter fills get `light`. The threshold of 150 keeps the labels of
+#' every Stem diverging palette as they were drawn before (white on the
+#' extremes, dark on the light middle colours).
+#'
+#' @param fill Character vector of fill colours, possibly named.
+#' @param light Label colour used on light fills.
+#' @param threshold Luma below which a fill counts as dark.
+#'
+#' @return Character vector of label colours, with the names of `fill`.
+#' @keywords internal
+contrast_label_color <- function(fill, light = "black", threshold = 150) {
+  rgb <- grDevices::col2rgb(fill)
+  luma <- colSums(rgb * c(0.299, 0.587, 0.114))
+  stats::setNames(ifelse(luma < threshold, "white", light), names(fill))
+}
+
 #' Build a stacked horizontal bar plot
 #'
 #' Internal renderer shared by [stem_barplot()] and [stem_inline()]. Draws a
@@ -232,15 +252,12 @@ stem_stack <- function(
     dk_color = dk_color
   )
 
-  # Colour the labels of the two side (extreme) substantive categories white,
-  # all others with `label_color`.
+  # Pick each level's label colour from its fill: white on dark fills,
+  # `label_color` on light ones.
   if (label_bicolor) {
-    side_levels <- setdiff(fill_levels, dk_levels)
-    side_levels <- side_levels[c(1, length(side_levels))]
-    plot_data$.label_color <- ifelse(
-      as.character(plot_data[[fill_name]]) %in% side_levels,
-      "white",
-      label_color
+    level_colors <- contrast_label_color(fill_values, light = label_color)
+    plot_data$.label_color <- unname(
+      level_colors[as.character(plot_data[[fill_name]])]
     )
   } else {
     plot_data$.label_color <- label_color
@@ -321,10 +338,11 @@ stem_stack <- function(
 #'   segments unlabelled) and `0` otherwise.
 #' @param label_color Colour of the segment labels in grouped (stacked) plots.
 #'   Defaults to `"black"`.
-#' @param label_bicolor If `TRUE` (default), in grouped (stacked) plots the
-#'   labels of the two side (extreme) item categories are drawn in white, while
-#'   all other labels use `label_color`. Set to `FALSE` to colour every label
-#'   with `label_color`.
+#' @param label_bicolor If `TRUE` (default), in grouped (stacked) plots each
+#'   label's colour is chosen from its fill: white on dark fills, `label_color`
+#'   on light ones (by luma, see `contrast_label_color()`). With the diverging
+#'   palettes this draws the extreme categories in white. Set to `FALSE` to
+#'   colour every label with `label_color`.
 #' @param errorbar If `TRUE`, adds 95% confidence interval error bars (ungrouped
 #'   plots only).
 #' @param title_show If `TRUE`, adds a plot title taken from the item's `"label"`
