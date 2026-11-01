@@ -17,7 +17,10 @@ stem_battery(
   label_suffix = "",
   label_hide = 0.05,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  title = NULL,
+  title_quote = FALSE,
+  title_wrap = 80
 )
 }
 \arguments{
@@ -58,6 +61,16 @@ Defaults to \code{"black"}.}
 labels of the two side (extreme) item categories are drawn in white, while
 all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
 with \code{label_color}.}
+
+\item{title}{Optional plot title, usually the wording the items share. Shown
+when given; defaults to \code{NULL} (no title).}
+
+\item{title_quote}{If \code{TRUE}, wraps the title in low/high double quotation
+marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
+
+\item{title_wrap}{Maximum number of characters per title line; longer titles
+are wrapped onto several lines so they do not overflow the plot. Use \code{NULL}
+or \code{Inf} to disable wrapping. Defaults to \code{80}.}
 }
 \value{
 A ggplot2 object.
@@ -80,6 +93,7 @@ stem_battery(trust, items = c(police, eu, government, army))
 stem_battery(trust,
              items = c(police, eu, government, army),
              weight = W,
-             order_by = c("Definitely Agree", "Rather Agree"))
+             order_by = c("Definitely Agree", "Rather Agree"),
+             title = "How much do you trust these institutions?")
 }
 }

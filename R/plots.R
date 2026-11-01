@@ -41,6 +41,20 @@ stem_plot_title <- function(data, item_name, quote = FALSE, wrap = 80) {
     as.character(label)
   }
 
+  format_title(title, quote = quote, wrap = wrap)
+}
+
+#' Wrap and quote a plot title
+#'
+#' Internal helper shared by [stem_plot_title()] and the `title` argument of
+#' [stem_battery()].
+#'
+#' @param title A length-one character vector.
+#' @inheritParams stem_plot_title
+#'
+#' @return A length-one character vector.
+#' @keywords internal
+format_title <- function(title, quote = FALSE, wrap = 80) {
   if (!is.null(wrap) && is.finite(wrap)) {
     title <- paste(strwrap(title, width = wrap), collapse = "\n")
   }
@@ -489,6 +503,10 @@ battery_categories <- function(item_data) {
 #' @param item_label If `TRUE` (default), item labels (the `"label"` attribute)
 #'   are used instead of variable names. Falls back to names, with a warning, if
 #'   any item lacks a label.
+#' @param title Optional plot title, usually the wording the items share. Shown
+#'   when given; defaults to `NULL` (no title).
+#' @param title_quote If `TRUE`, wraps the title in low/high double quotation
+#'   marks (`„` and `“`). Defaults to `FALSE`.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -498,7 +516,8 @@ battery_categories <- function(item_data) {
 #' stem_battery(trust,
 #'              items = c(police, eu, government, army),
 #'              weight = W,
-#'              order_by = c("Definitely Agree", "Rather Agree"))
+#'              order_by = c("Definitely Agree", "Rather Agree"),
+#'              title = "How much do you trust these institutions?")
 #' }
 stem_battery <- function(
   data,
@@ -513,7 +532,10 @@ stem_battery <- function(
   label_suffix = "",
   label_hide = 0.05,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  title = NULL,
+  title_quote = FALSE,
+  title_wrap = 80
 ) {
   # Value labels become factor levels before the items are stacked.
   data <- label_values(data, {{ items }})
@@ -579,7 +601,7 @@ stem_battery <- function(
     )
   }
 
-  stem_stack(
+  p <- stem_stack(
     plot_data = plot_data,
     fill_name = ".response",
     y_name = ".battery_item",
@@ -589,6 +611,13 @@ stem_battery <- function(
     label_color = label_color,
     label_bicolor = label_bicolor
   )
+
+  if (!is.null(title)) {
+    p <- p +
+      ggplot2::labs(title = format_title(title, title_quote, title_wrap))
+  }
+
+  p
 }
 
 #' Bar plot for a set of multiple-choice items

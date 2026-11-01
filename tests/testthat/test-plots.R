@@ -132,6 +132,22 @@ test_that("stem_battery orders items by the plotted shares, ignoring missing ans
   expect_equal(levels(chart$data[[chart$x]]), c("a", "b", "c"))
 })
 
+test_that("stem_battery shows a given title, quoted and wrapped like the others", {
+  expect_null(stem_battery(trust, items = c(police, eu))$labels$title)
+
+  p <- stem_battery(trust, items = c(police, eu), title = "Trust in institutions")
+  expect_identical(p$labels$title, "Trust in institutions")
+
+  p <- stem_battery(trust, items = c(police, eu), title = "Trust in institutions",
+                    title_quote = TRUE, title_wrap = 10)
+  expect_identical(p$labels$title, "„Trust in\ninstitutions“")
+
+  skip_if_not_installed("mschart")
+  chart <- stem_as_mschart(p)
+  expect_s3_class(chart, "ms_barchart")
+  expect_identical(chart$labels$title, "„Trust in institutions“")
+})
+
 test_that("stem_battery stops when items have different categories", {
   lv <- c("Yes", "No")
   df <- data.frame(
