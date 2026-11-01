@@ -158,6 +158,7 @@ test_that("cells below min_cell_n raise a classed warning", {
 # value labels ------------------------------------------------------------
 
 test_that("haven value labels are applied to item and group", {
+  skip_if_not_installed("haven")
   df <- data.frame(
     q = haven::labelled(c(1, 2, 2, 1, NA, 2), c(Yes = 1, No = 2)),
     g = haven::labelled(c(1, 1, 2, 2, 1, 2), c(Men = 1, Women = 2))

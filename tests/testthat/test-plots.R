@@ -121,6 +121,7 @@ test_that("stem_battery warns and falls back to names when a label is missing", 
 })
 
 test_that("stem_battery uses haven value labels as response categories", {
+  skip_if_not_installed("haven")
   df <- data.frame(
     a = haven::labelled(c(1, 2, 2, 1), c(Yes = 1, No = 2), label = "Item A"),
     b = haven::labelled(c(2, 2, 1, 1), c(Yes = 1, No = 2), label = "Item B")

@@ -6,7 +6,7 @@
   * `conf_level` (default `0.95`) for the confidence interval and margin of error.
   * `n_weighted`, adding an `n_weighted` column with the sum of weights per cell.
   * `min_cell_n` (default `30`): a warning of class `stemtools_warning_small_cell` is raised when any cell has fewer unweighted observations. The plotting functions do not raise it.
-* Variables with `{haven}` value labels are converted to factors using their labels, in the summary functions and in all plotting functions. `stem_summarise()` treats a labelled item as categorical.
+* Variables with `{haven}` value labels are converted to factors using their labels, in the summary functions and in all plotting functions. haven is only a suggested dependency, needed only when labelled data is present. `stem_summarise()` treats a labelled item as categorical.
 
 # stemtools 0.1.3
 

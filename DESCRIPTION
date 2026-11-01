@@ -17,7 +17,6 @@ Imports:
     tidyr,
     rlang,
     srvyr,
-    haven,
     tibble,
     scales,
     forcats,
@@ -30,6 +29,7 @@ Imports:
 Remotes:
     alesvomacka/spreadview
 Suggests:
+    haven,
     knitr,
     zip,
     rmarkdown,

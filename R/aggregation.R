@@ -55,12 +55,22 @@ add_uncertainty <- function(df, est, variance, conf_level) {
   dplyr::select(df, -dplyr::any_of(c(".se", ".deff")))
 }
 
-# Convert haven-labelled columns (e.g. from `haven::read_sav()`) among `cols`
-# to factors, using the value labels as levels. Other columns are untouched.
+# Names of the haven-labelled columns (e.g. from `haven::read_sav()`) among
+# `cols`. haven is only suggested: labelled data can't exist without it, so it
+# is required only once such a column turns up.
+labelled_cols <- function(data, cols) {
+  is_labelled <- function(x) inherits(x, "haven_labelled")
+  labelled <- names(dplyr::select(data, ({{ cols }}) & dplyr::where(is_labelled)))
+  if (length(labelled) > 0) rlang::check_installed("haven", "to handle value labels.")
+  labelled
+}
+
+# Convert haven-labelled columns among `cols` to factors, using the value
+# labels as levels. Other columns are untouched.
 label_values <- function(data, cols) {
   dplyr::mutate(
     data,
-    dplyr::across(({{ cols }}) & dplyr::where(haven::is.labelled), haven::as_factor)
+    dplyr::across(dplyr::all_of(labelled_cols(data, {{ cols }})), haven::as_factor)
   )
 }
 
@@ -237,7 +247,10 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 
   # A labelled numeric item is averaged on its codes; a labelled group is
   # shown by its labels.
-  data <- dplyr::mutate(data, dplyr::across({{ item }}, haven::zap_labels))
+  data <- dplyr::mutate(
+    data,
+    dplyr::across(dplyr::all_of(labelled_cols(data, {{ item }})), haven::zap_labels)
+  )
   data <- label_values(data, {{ group }})
   if (has_group && !is.null(collapse_group)) {
     data <- collapse_cats(data, {{ group }}, collapse_group)
