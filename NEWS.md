@@ -18,6 +18,7 @@
 * Colours, label colours and category counts follow the factor's full set of levels: `stem_summarise_cat()` and `stem_summarise()` gain `drop = FALSE`, returning levels nobody chose as 0 % rows (within each group, weighted or not), and the stacked plots colour every level. **This changes existing output**: summaries now include those zero rows, and an empty scale point no longer shifts the colours of the others. Empty cells don't trigger the small-cell warning. Use `drop = TRUE` for the previous behaviour.
 * The default `title_wrap` of `stem_barplot()`, `stem_inline()`, `stem_battery()` and `stem_boxplot()` is 73 characters (previously 80), measured so that a line of the 15.6 pt bold title fits a chart 19 cm wide. **Long titles now wrap a little earlier.**
 * The value axis of native charts reads "50 %", with a space, as in the images: the default `axis_num_fmt` of `stem_as_mschart()` is `0\" %\"` (previously `0\"%\"`, which read "50%"). **This changes existing native charts.**
+* Long category labels on the y axis wrap automatically (at 40 characters, about a third of a 19 cm chart at the 13 pt theme), as do legend entries (at 30 characters). The legend of stacked and grouped plots uses as many rows as it needs to fit 19 cm instead of a single row. Widths are based on measured Calibri text width. Wrapping only changes the displayed labels, so native charts, which wrap text themselves, get no line breaks. **This changes existing output** for long labels and wide legends.
 
 ## Bug fixes
 

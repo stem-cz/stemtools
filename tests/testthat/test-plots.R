@@ -579,3 +579,51 @@ test_that("items with the same label stop with an error naming them", {
   expect_error(stem_multiselect(yn, items = q5_1:q5_4, selected = "Ano"),
                "\"Ceny\" (`q5_1`, `q5_2`)", fixed = TRUE)
 })
+
+# label wrapping ----------------------------------------------------------------
+
+test_that("wrap_labels wraps at a character width and keeps NA", {
+  # strwrap() keeps lines shorter than `width`.
+  wrap <- wrap_labels(11)
+  expect_equal(wrap(c("short", "a much longer label here", NA)),
+               c("short", "a much\nlonger\nlabel here", NA))
+})
+
+test_that("long y-axis and legend labels wrap in the plot, not in the data", {
+  skip_if_not_installed("mschart")
+  lv <- c("Rozhodně souhlasím se všemi body", "Spíše souhlasím",
+          "Rozhodně nesouhlasím s většinou bodů")
+  long_item <- "Vláda by měla více podporovat rodiny s malými dětmi a samoživitele"
+  df <- data.frame(a = factor(rep(lv, 10), levels = lv), b = factor(rev(rep(lv, 10)), levels = lv))
+  attr(df$a, "label") <- long_item
+  attr(df$b, "label") <- "Daně"
+
+  p <- stem_battery(df, items = c(a, b))
+  built <- ggplot2::ggplot_build(p)
+  y_labels <- built$layout$panel_params[[1]]$y$get_labels()
+  expect_true(any(grepl("\n", y_labels)))
+  expect_true(all(nchar(unlist(strsplit(y_labels, "\n"))) <= stem_axis_wrap))
+  fill_labels <- built$plot$scales$get_scales("fill")$get_labels()
+  expect_true(all(nchar(unlist(strsplit(fill_labels, "\n"))) <= stem_legend_wrap))
+  # The data keep the original text, so native charts get no line breaks and
+  # still put the first item on top.
+  expect_true(long_item %in% levels(p$data$.battery_item))
+  chart <- stem_as_mschart(p)
+  expect_false(any(grepl("\n", as.character(chart$data[[chart$x]]))))
+  expect_equal(chart$x_axis$orientation, "maxMin")
+
+  # Ungrouped bar plots and multiselect plots wrap their y labels too.
+  for (q in list(stem_barplot(df, a), stem_multiselect(df, items = c(a, b)))) {
+    y_labels <- ggplot2::ggplot_build(q)$layout$panel_params[[1]]$y$get_labels()
+    expect_true(all(nchar(unlist(strsplit(y_labels, "\n"))) <= stem_axis_wrap))
+  }
+})
+
+test_that("the legend uses as many rows as it needs", {
+  short <- stem_legend_guide(c("Ano", "Ne", "Nevím"))
+  expect_equal(short$params$ncol, 3)
+  long <- stem_legend_guide(paste("Rozhodně souhlasím s výrokem číslo", 1:7))
+  expect_lt(long$params$ncol, 7)
+  expect_true(long$params$theme$legend.byrow)
+  expect_equal(stem_legend_guide(paste(rep("x", 400), collapse = ""))$params$ncol, 1)
+})

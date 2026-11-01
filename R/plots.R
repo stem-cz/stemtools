@@ -19,6 +19,73 @@ format_pct <- function(x, accuracy = 1, suffix = " %", hide = 0) {
   label
 }
 
+# Label wrapping ----------------------------------------------------------
+
+# Wrap widths for a chart exported 19 cm wide at the theme_stem() 13 pt type
+# scale. Measured with systemfonts on Czech survey wording: axis and legend
+# text (10.4 pt Calibri) averages 3.94 pt per character, so a 40-character
+# y-axis label takes at most about a third of the width, and a legend entry
+# keeps the usual Likert labels on one line.
+stem_axis_wrap <- 40
+stem_legend_wrap <- 30
+stem_canvas_pt <- 19 / 2.54 * 72 - 6.5 - 18 # 19 cm minus the plot margins
+stem_char_pt <- 3.94 * 1.1                  # with 10 % headroom
+stem_legend_key_pt <- 16 + 6.5 + 6.5        # key, gap to text, spacing
+
+#' Wrap labels to a number of characters
+#'
+#' Internal helper returning a labelling function for ggplot2 scales. Wrapping
+#' happens on the displayed labels only, so the plot data (and the native
+#' charts built from it, which wrap text themselves) keep the original text.
+#'
+#' @param width Maximum number of characters per line.
+#'
+#' @return A function taking and returning a character vector.
+#' @keywords internal
+wrap_labels <- function(width) {
+  function(x) {
+    out <- vapply(
+      as.character(x),
+      function(s) paste(strwrap(s, width = width), collapse = "\n"),
+      character(1),
+      USE.NAMES = FALSE
+    )
+    out[is.na(x)] <- NA_character_
+    out
+  }
+}
+
+#' Legend guide fitting a 19 cm chart
+#'
+#' Internal helper. Lays the legend out in as many columns as fit the width of
+#' a 19 cm chart, and as many rows as that needs. Column widths follow ggplot2's
+#' legend table: each column is as wide as its widest (wrapped) entry.
+#'
+#' @param levels Legend entries, in order.
+#' @param width_pt Available width in points.
+#'
+#' @return A [ggplot2::guide_legend()].
+#' @keywords internal
+stem_legend_guide <- function(levels, width_pt = stem_canvas_pt) {
+  wrapped <- wrap_labels(stem_legend_wrap)(levels)
+  entry_pt <- vapply(
+    strsplit(wrapped, "\n"),
+    function(lines) max(nchar(lines), 0) * stem_char_pt,
+    numeric(1)
+  ) + stem_legend_key_pt
+
+  n <- length(levels)
+  ncol <- 1
+  for (k in rev(seq_len(max(n, 1)))) {
+    column <- (seq_len(n) - 1) %% k + 1
+    if (sum(tapply(entry_pt, column, max)) <= width_pt) {
+      ncol <- k
+      break
+    }
+  }
+  ggplot2::guide_legend(ncol = ncol, byrow = TRUE)
+}
+
 #' Build a plot title from a variable label or name
 #'
 #' Internal helper that returns the `"label"` attribute of `data[[item_name]]`,
@@ -289,9 +356,13 @@ stem_stack <- function(
       labels = scales::label_percent(suffix = " %"),
       expand = ggplot2::expansion(mult = c(0, 0))
     ) +
-    ggplot2::scale_y_discrete(limits = rev) +
-    ggplot2::scale_fill_manual(values = fill_values, breaks = fill_levels) +
-    ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1))
+    ggplot2::scale_y_discrete(limits = rev, labels = wrap_labels(stem_axis_wrap)) +
+    ggplot2::scale_fill_manual(
+      values = fill_values,
+      breaks = fill_levels,
+      labels = wrap_labels(stem_legend_wrap)
+    ) +
+    ggplot2::guides(fill = stem_legend_guide(fill_levels))
 
   if (labels) {
     p <- p +
@@ -489,7 +560,7 @@ stem_barplot <- function(
   }
 
   p <- p +
-    ggplot2::scale_y_discrete(limits = rev) +
+    ggplot2::scale_y_discrete(limits = rev, labels = wrap_labels(stem_axis_wrap)) +
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),
       expand = ggplot2::expansion(mult = c(0, 0.1))
@@ -1034,7 +1105,14 @@ stem_multiselect <- function(
         color = "white",
         position = ggplot2::position_dodge2(reverse = TRUE)
       ) +
-      scale_fill_stem(palette = palette, direction = direction)
+      scale_fill_stem(
+        palette = palette,
+        direction = direction,
+        labels = wrap_labels(stem_legend_wrap)
+      ) +
+      ggplot2::guides(
+        fill = stem_legend_guide(levels(as.factor(plot_data[[group_name]])))
+      )
   } else {
     p <- ggplot2::ggplot(
       plot_data,
@@ -1062,6 +1140,7 @@ stem_multiselect <- function(
   }
 
   p <- p +
+    ggplot2::scale_y_discrete(labels = wrap_labels(stem_axis_wrap)) +
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),
       limits = c(0, NA),
@@ -1170,7 +1249,7 @@ stem_boxplot <- function(
       colour = "grey10",
       stroke = 0.8
     ) +
-    ggplot2::scale_y_discrete(limits = rev) +
+    ggplot2::scale_y_discrete(limits = rev, labels = wrap_labels(stem_axis_wrap)) +
     ggplot2::labs(x = NULL, y = NULL)
 
   if (nrow(box$outliers)) {

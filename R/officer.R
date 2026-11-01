@@ -219,12 +219,13 @@ stem_chart_spec <- function(plot) {
   }
 
   # `stem_stack()` and `stem_barplot()` reverse the discrete y scale so the
-  # first category sits at the top; `stem_multiselect()` does not. The panel's
-  # y labels run bottom-to-top, so comparing them with the natural category
-  # order tells the two apart.
+  # first category sits at the top; `stem_multiselect()` does not. The panel's y
+  # breaks (the category values, not the possibly wrapped labels) run
+  # bottom-to-top, so comparing them with the natural category order tells the
+  # two apart.
   cat_levels <- stem_levels(data[[cat_name]])
   y_labels <- tryCatch(
-    as.character(built$layout$panel_params[[1]]$y$get_labels()),
+    as.character(built$layout$panel_params[[1]]$y$get_breaks()),
     error = function(e) NULL
   )
   reverse_cat <- !is.null(y_labels) && identical(y_labels, rev(cat_levels))
