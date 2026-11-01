@@ -23,6 +23,7 @@
 * `stem_barplot()` gains `other_levels` for "other" categories (e.g. "Jiné", "Ostatní"), kept last just before any `dk_levels`. `stem_multiselect()` gains `dk_levels` and `dk_color`: "don't know" bars go last and, in ungrouped plots, are drawn grey as separate native series, as in `stem_barplot()`.
 * In the yes/no layout, `stem_multiselect()` warns when every option comes out 0 % or every option 100 %, which usually means `selected` doesn't match the data.
 * `stem_summarise_num()` gains `quantiles = TRUE`, adding the weighted first quartile, median and third quartile (`q1`, `median`, `q3`), defined as in `stem_boxplot()`. With `return_n`/`n_weighted` and `long = TRUE` it gives a summary table of numeric variables.
+* Theme and label defaults: stacked segments (`stem_inline()`, `stem_battery()`, grouped `stem_barplot()`) hide labels below 3 % instead of 5 % (`label_hide`); separate bars still show every label. `theme_stem()` aligns the legend left with the title and keeps an 18 pt right margin so the "100 %" axis label is never cut off. Numbers use the Czech decimal comma everywhere they are formatted (data labels, axes, box plot axes, and so native charts), with "50 %" spacing. **This changes existing output.**
 
 ## Bug fixes
 

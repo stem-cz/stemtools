@@ -3,8 +3,8 @@
 #' Format proportions as percentage labels
 #'
 #' Internal helper used to turn proportions into ready-to-plot percentage
-#' labels. Proportions below `hide` are returned as empty strings so that small
-#' segments stay unlabelled.
+#' labels, with the Czech decimal comma (e.g. "12,5"). Proportions below `hide`
+#' are returned as empty strings so that small segments stay unlabelled.
 #'
 #' @param x Numeric vector of proportions (between 0 and 1).
 #' @param accuracy Rounding accuracy passed to [scales::percent()].
@@ -14,7 +14,7 @@
 #' @return Character vector of formatted labels.
 #' @keywords internal
 format_pct <- function(x, accuracy = 1, suffix = " %", hide = 0) {
-  label <- scales::percent(x, accuracy = accuracy, suffix = suffix)
+  label <- scales::percent(x, accuracy = accuracy, suffix = suffix, decimal.mark = ",")
   label[x < hide] <- ""
   label
 }
@@ -356,7 +356,7 @@ stem_stack <- function(
       position = ggplot2::position_stack(reverse = TRUE)
     ) +
     ggplot2::scale_x_continuous(
-      labels = scales::label_percent(suffix = " %"),
+      labels = scales::label_percent(suffix = " %", decimal.mark = ","),
       expand = ggplot2::expansion(mult = c(0, 0))
     ) +
     ggplot2::scale_y_discrete(limits = rev, labels = wrap_labels(stem_axis_wrap)) +
@@ -409,7 +409,7 @@ stem_stack <- function(
 #'   `0.1` one decimal place.
 #' @param label_suffix Suffix appended to labels. Defaults to `""`.
 #' @param label_hide Proportions below this threshold are left unlabelled.
-#'   Defaults to `0.05` when a `group` is supplied (to keep small stacked
+#'   Defaults to `0.03` when a `group` is supplied (to keep small stacked
 #'   segments unlabelled) and `0` otherwise.
 #' @param label_color Colour of the segment labels in grouped (stacked) plots.
 #'   Defaults to `"black"`.
@@ -488,7 +488,7 @@ stem_barplot <- function(
   # Hide small stacked segments by default when grouped; label everything when
   # showing one bar per category.
   if (is.null(label_hide)) {
-    label_hide <- if (has_group) 0.05 else 0
+    label_hide <- if (has_group) 0.03 else 0
   }
 
   plot_data <- stem_plot_data(
@@ -571,7 +571,7 @@ stem_barplot <- function(
   p <- p +
     ggplot2::scale_y_discrete(limits = rev, labels = wrap_labels(stem_axis_wrap)) +
     ggplot2::scale_x_continuous(
-      labels = scales::label_percent(suffix = " %"),
+      labels = scales::label_percent(suffix = " %", decimal.mark = ","),
       expand = ggplot2::expansion(mult = c(0, 0.1))
     )
 
@@ -624,7 +624,7 @@ stem_inline <- function(
   labels = TRUE,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0.05,
+  label_hide = 0.03,
   label_color = "black",
   label_bicolor = TRUE,
   title_show = FALSE,
@@ -842,7 +842,7 @@ stem_battery <- function(
   labels = TRUE,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0.05,
+  label_hide = 0.03,
   label_color = "black",
   label_bicolor = TRUE,
   title = NULL,
@@ -1264,7 +1264,7 @@ stem_multiselect <- function(
   p <- p +
     ggplot2::scale_y_discrete(labels = wrap_labels(stem_axis_wrap)) +
     ggplot2::scale_x_continuous(
-      labels = scales::label_percent(suffix = " %"),
+      labels = scales::label_percent(suffix = " %", decimal.mark = ","),
       limits = c(0, NA),
       expand = ggplot2::expansion(mult = c(0, 0.1))
     )
@@ -1372,6 +1372,9 @@ stem_boxplot <- function(
       stroke = 0.8
     ) +
     ggplot2::scale_y_discrete(limits = rev, labels = wrap_labels(stem_axis_wrap)) +
+    ggplot2::scale_x_continuous(
+      labels = scales::label_number(decimal.mark = ",", big.mark = " ")
+    ) +
     ggplot2::labs(x = NULL, y = NULL)
 
   if (nrow(box$outliers)) {

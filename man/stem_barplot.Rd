@@ -58,7 +58,7 @@ categories.}
 \item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
 \item{label_hide}{Proportions below this threshold are left unlabelled.
-Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
+Defaults to \code{0.03} when a \code{group} is supplied (to keep small stacked
 segments unlabelled) and \code{0} otherwise.}
 
 \item{label_color}{Colour of the segment labels in grouped (stacked) plots.

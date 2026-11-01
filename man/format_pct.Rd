@@ -20,7 +20,7 @@ Character vector of formatted labels.
 }
 \description{
 Internal helper used to turn proportions into ready-to-plot percentage
-labels. Proportions below \code{hide} are returned as empty strings so that small
-segments stay unlabelled.
+labels, with the Czech decimal comma (e.g. "12,5"). Proportions below \code{hide}
+are returned as empty strings so that small segments stay unlabelled.
 }
 \keyword{internal}

@@ -14,7 +14,7 @@ stem_inline(
   labels = TRUE,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0.05,
+  label_hide = 0.03,
   label_color = "black",
   label_bicolor = TRUE,
   title_show = FALSE,
@@ -46,7 +46,7 @@ collapse (or rename) item categories.}
 \item{label_suffix}{Suffix appended to labels. Defaults to \code{""}.}
 
 \item{label_hide}{Proportions below this threshold are left unlabelled.
-Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
+Defaults to \code{0.03} when a \code{group} is supplied (to keep small stacked
 segments unlabelled) and \code{0} otherwise.}
 
 \item{label_color}{Colour of the segment labels in grouped (stacked) plots.

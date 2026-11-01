@@ -78,6 +78,12 @@ theme_stem <- function(
       panel.background = ggplot2::element_rect(fill = paper),
       strip.background = ggplot2::element_rect(fill = paper),
       legend.position = "top",
+      # Left-aligned with the title, which also starts at the plot's edge.
+      legend.location = "plot",
+      legend.justification.top = "left",
+      # Room on the right for the "100 %" axis label, which sticks out half its
+      # width (about 12 pt) past the panel.
+      plot.margin = ggplot2::margin(t = 6.5, r = 18, b = 6.5, l = 6.5),
       legend.background = ggplot2::element_rect(
         linewidth = 0.2,
         colour = "grey"

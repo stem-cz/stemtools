@@ -758,3 +758,45 @@ test_that("stem_multiselect(selected =) warns when every option is 0 % or 100 %"
 
   expect_no_warning(stem_multiselect(yn, items = q5_1:q5_4, selected = "Ano"))
 })
+
+# theme and label defaults (v2 item 12) ------------------------------------------
+
+test_that("stacked segments hide labels below 3 %, separate bars show all", {
+  b_label <- function(p) {
+    fill <- p$data[[stem_aes_name(p$mapping$fill, p$data) %||% "q"]]
+    p$data$stem_label[fill == "B"]
+  }
+  # 4 % is labelled on stacked segments (it was hidden below 5 % before).
+  df <- data.frame(q = factor(c(rep("A", 96), rep("B", 4)), levels = c("A", "B")), g = "x")
+  for (p in list(stem_inline(df, q), stem_barplot(df, q, group = g),
+                 stem_battery(df, items = q, item_label = FALSE))) {
+    expect_equal(b_label(p), "4")
+  }
+  # 2 % is hidden on a stacked segment but shown on a separate bar.
+  df <- data.frame(q = factor(c(rep("A", 98), rep("B", 2)), levels = c("A", "B")))
+  expect_equal(b_label(stem_inline(df, q)), "")
+  expect_equal(b_label(stem_barplot(df, q)), "2")
+})
+
+test_that("numbers use the Czech decimal comma", {
+  skip_if_not_installed("mschart")
+  p <- stem_barplot(trust, police, label_accuracy = 0.1)
+  expect_true(all(grepl("^[0-9]+,[0-9]$", p$data$stem_label)))
+  built <- ggplot2::ggplot_build(p)
+  expect_true(all(grepl(" %$", built$layout$panel_params[[1]]$x$get_labels())))
+  # Native charts print the plot's own label text.
+  chart <- stem_as_mschart(p)
+  expect_true(all(grepl(",", chart$data$.stem_label)))
+
+  # Axis labels with decimals use the comma: a narrow range forces 2,5 % steps.
+  df <- data.frame(q = factor(rep(c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J"),
+                                  c(91, 1, 1, 1, 1, 1, 1, 1, 1, 1))))
+  p <- stem_barplot(df[df$q != "A", , drop = FALSE], q)
+  axis <- ggplot2::ggplot_build(p)$layout$panel_params[[1]]$x$get_labels()
+  expect_true(all(grepl("^[0-9]+(,[0-9]+)? %$", axis)))
+
+  # Box plot axes too.
+  df <- data.frame(x = c(0.25, 0.5, 0.75, 1))
+  box <- ggplot2::ggplot_build(stem_boxplot(df, x))
+  expect_true(any(grepl(",", box$layout$panel_params[[1]]$x$get_labels())))
+})

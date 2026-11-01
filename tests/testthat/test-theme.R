@@ -45,3 +45,10 @@ test_that("native charts keep their fixed type sizes with the new theme", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
   expect_equal(spec$label_size, 11)
 })
+
+test_that("theme_stem left-aligns the legend and leaves room for \"100 %\"", {
+  th <- theme_stem()
+  expect_identical(th$legend.location, "plot")
+  expect_identical(th$legend.justification.top, "left")
+  expect_gte(as.numeric(th$plot.margin[2]), 18)
+})
