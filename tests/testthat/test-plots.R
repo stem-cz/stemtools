@@ -277,8 +277,9 @@ test_that("don't-know levels go last, grey, outside the palette (stacked plots)"
     expect_equal(unname(unlist(chart$series_settings$fill)), unname(fills))
   }
 
-  # Without dk_levels the sixth category still overflows the palette.
-  expect_error(ggplot2::ggplot_build(stem_inline(df, police)), "Not enough colours")
+  # Without dk_levels "Nevím" is a sixth substantive category of the palette.
+  fills <- fill_of(stem_inline(df, police))
+  expect_equal(unname(fills), stem_palette_gen("div1")(6))
 })
 
 test_that("don't-know levels move to the end even when listed first", {

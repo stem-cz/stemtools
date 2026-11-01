@@ -9,6 +9,9 @@
 #' @param name Character. Identifier name for the palette.
 #' @param type Character. Palette type: `"nominal"`, `"diverging"`, or `"sequential"`.
 #' @param colors Character vector of hex colour codes.
+#' @param extended Optional named list of longer versions of the palette, keyed
+#'   by the number of colours (e.g. `list("6" = ..., "7" = ...)`). Used by
+#'   [stem_palette_gen()] when more categories than `colors` are needed.
 #'
 #' @return S7 object of class `"stem_palette"`.
 #' @keywords internal
@@ -17,7 +20,8 @@ stem_colors <- S7::new_class(
   properties = list(
     name = S7::class_character,
     type = S7::class_character,
-    colors = S7::class_vector
+    colors = S7::class_vector,
+    extended = S7::class_list
   ),
   validator = function(self) {
     if (!self@type %in% c("nominal", "diverging", "sequential")) {
@@ -27,6 +31,13 @@ stem_colors <- S7::new_class(
 )
 
 # Palette registry --------------------------------------------------------
+
+# 6- and 7-colour versions of a 5-colour diverging palette: `dark` holds the
+# darker colours added at the low and high end.
+diverging_extended <- function(colors, dark) {
+  seven <- c(dark[1], colors, dark[2])
+  list("6" = seven[-4], "7" = seven)
+}
 
 #' Registry of all stem colour palettes
 #'
@@ -81,26 +92,43 @@ stem_colors <- S7::new_class(
     colors = c("#FCEFE2", "#F9DFC6", "#F7CFA9", "#F4BF8D", "#F1AF70", "#D5904E")
   ),
 
-  # Diverging palettes
+  # Diverging palettes. The 7-colour versions add a darker colour at each end
+  # of the 5-colour palette; the 6-colour versions drop the 7-colour midpoint.
   modern = stem_colors(
     name = "modern",
     type = "diverging",
-    colors = c("#35978F", "#80CDC1", "#B0C89F", "#DFC27D", "#BF812D")
+    colors = c("#35978F", "#80CDC1", "#B0C89F", "#DFC27D", "#BF812D"),
+    extended = diverging_extended(
+      c("#35978F", "#80CDC1", "#B0C89F", "#DFC27D", "#BF812D"),
+      dark = c("#01665E", "#8C510A")
+    )
   ),
   div1 = stem_colors(
     name = "div1",
     type = "diverging",
-    colors = c("#4DA8A0", "#8CD2CC", "#D1C9BC", "#FDA592", "#FC684D")
+    colors = c("#4DA8A0", "#8CD2CC", "#D1C9BC", "#FDA592", "#FC684D"),
+    extended = diverging_extended(
+      c("#4DA8A0", "#8CD2CC", "#D1C9BC", "#FDA592", "#FC684D"),
+      dark = c("#2E7F78", "#D8452B")
+    )
   ),
   div2 = stem_colors(
     name = "div2",
     type = "diverging",
-    colors = c("#6094D5", "#BAD1EC", "#DCBDC7", "#FDA592", "#FC684D")
+    colors = c("#6094D5", "#BAD1EC", "#DCBDC7", "#FDA592", "#FC684D"),
+    extended = diverging_extended(
+      c("#6094D5", "#BAD1EC", "#DCBDC7", "#FDA592", "#FC684D"),
+      dark = c("#3E6FB0", "#D8452B")
+    )
   ),
   div3 = stem_colors(
     name = "div3",
     type = "diverging",
-    colors = c("#82143C", "#C5919D", "#CAB2B9", "#A6A7A6", "#646464")
+    colors = c("#82143C", "#C5919D", "#CAB2B9", "#A6A7A6", "#646464"),
+    extended = diverging_extended(
+      c("#82143C", "#C5919D", "#CAB2B9", "#A6A7A6", "#646464"),
+      dark = c("#5C0B2A", "#3C3C3C")
+    )
   )
 )
 
@@ -161,6 +189,11 @@ stem_palette <- function(palette = "div1") {
 #' symmetric structure of the palette. All other palette types return the first `n` colours,
 #' optionally reversed.
 #'
+#' The diverging palettes have 5 colours, plus dedicated 6- and 7-colour versions for
+#' 6- and 7-point scales (a darker colour added at each end; the 6-colour version has no
+#' midpoint). Asking for more colours than a palette has is an error suggesting
+#' `collapse_item`.
+#'
 #' @param palette Name of the palette. See [stem_palette()] for the full list of valid names.
 #' @param direction `1` (default) returns colours in their natural order; `-1` reverses the order.
 #'
@@ -179,13 +212,20 @@ stem_palette <- function(palette = "div1") {
 stem_palette_gen <- function(palette = "div1", direction = 1) {
   function(n) {
     all_colors <- stem_palette(palette)
+    extended <- .stem_palettes[[palette]]@extended
 
     if (n > length(all_colors)) {
-      stop("Not enough colours in palette '", palette, "' (needs ", n,
-           ", has ", length(all_colors), ").", call. = FALSE)
-    }
-
-    if (attr(all_colors, "type") == "diverging") {
+      # Longer scales use the palette's dedicated 6-/7-colour versions.
+      if (!is.null(extended[[as.character(n)]])) {
+        all_colors <- extended[[as.character(n)]]
+      } else {
+        most <- max(length(all_colors), as.integer(names(extended)))
+        stop("Not enough colours in palette '", palette, "' (needs ", n,
+             ", has ", most, "). Collapse categories with `collapse_item`, e.g. ",
+             "`collapse_item = list(Agree = c(\"Strongly agree\", \"Agree\"))`.",
+             call. = FALSE)
+      }
+    } else if (attr(all_colors, "type") == "diverging") {
       all_colors <- select_diverging(all_colors, n)
     }
 

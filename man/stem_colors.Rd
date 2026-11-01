@@ -4,7 +4,12 @@
 \alias{stem_colors}
 \title{stem S7 palette class}
 \usage{
-stem_colors(name = character(0), type = character(0), colors = logical(0))
+stem_colors(
+  name = character(0),
+  type = character(0),
+  colors = logical(0),
+  extended = list()
+)
 }
 \arguments{
 \item{name}{Character. Identifier name for the palette.}
@@ -12,6 +17,10 @@ stem_colors(name = character(0), type = character(0), colors = logical(0))
 \item{type}{Character. Palette type: \code{"nominal"}, \code{"diverging"}, or \code{"sequential"}.}
 
 \item{colors}{Character vector of hex colour codes.}
+
+\item{extended}{Optional named list of longer versions of the palette, keyed
+by the number of colours (e.g. \code{list("6" = ..., "7" = ...)}). Used by
+\code{\link[=stem_palette_gen]{stem_palette_gen()}} when more categories than \code{colors} are needed.}
 }
 \value{
 S7 object of class \code{"stem_palette"}.

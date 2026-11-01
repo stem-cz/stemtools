@@ -22,6 +22,11 @@ satisfy ggplot2's discrete scale interface, but can also be called directly.
 Diverging palettes use \code{\link[=select_diverging]{select_diverging()}} to pick colours that preserve the
 symmetric structure of the palette. All other palette types return the first \code{n} colours,
 optionally reversed.
+
+The diverging palettes have 5 colours, plus dedicated 6- and 7-colour versions for
+6- and 7-point scales (a darker colour added at each end; the 6-colour version has no
+midpoint). Asking for more colours than a palette has is an error suggesting
+\code{collapse_item}.
 }
 \examples{
 # Create a generator then call it for 3 colours

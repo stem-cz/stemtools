@@ -64,8 +64,54 @@ test_that("stem_palette_gen direction = -1 reverses the colours", {
 })
 
 test_that("stem_palette_gen errors when asked for too many colours", {
-  gen <- stem_palette_gen("modern") # 5 colours
+  gen <- stem_palette_gen("modern") # 5 colours, extended to 7
   expect_error(gen(99), "Not enough colours")
+  expect_error(gen(8), "needs 8, has 7).*collapse_item")
+  expect_error(stem_palette_gen("seq1")(7), "needs 7, has 6).*collapse_item")
+})
+
+test_that("diverging selections for 2-5 categories are unchanged", {
+  expect_identical(stem_palette_gen("div1")(2), c("#4DA8A0", "#FC684D"))
+  expect_identical(stem_palette_gen("div1")(3), c("#4DA8A0", "#D1C9BC", "#FC684D"))
+  expect_identical(stem_palette_gen("div1")(4), c("#4DA8A0", "#8CD2CC", "#FDA592", "#FC684D"))
+  for (pal in c("modern", "div1", "div2", "div3")) {
+    for (n in 2:5) {
+      expect_identical(
+        stem_palette_gen(pal)(n),
+        select_diverging(as.character(stem_palette(pal)), n)
+      )
+    }
+  }
+})
+
+test_that("every diverging palette has 6- and 7-colour versions", {
+  for (pal in c("modern", "div1", "div2", "div3")) {
+    base <- as.character(stem_palette(pal))
+    seven <- stem_palette_gen(pal)(7)
+    six <- stem_palette_gen(pal)(6)
+    expect_length(unique(seven), 7)
+    expect_length(unique(six), 6)
+    # The 5-colour palette sits inside the 7-colour one; 6 drops the midpoint.
+    expect_identical(seven[2:6], base)
+    expect_identical(six, seven[-4])
+    expect_true(all(grepl("^#[0-9A-F]{6}$", seven)))
+    expect_identical(stem_palette_gen(pal, direction = -1)(7), rev(seven))
+  }
+  # stem_palette() itself still returns the 5 base colours.
+  expect_length(stem_palette("div1"), 5)
+})
+
+test_that("6- and 7-point scales can be stacked and exported", {
+  skip_if_not_installed("mschart")
+  lv <- paste("Level", 1:7)
+  df <- data.frame(q = factor(rep(lv, 10), levels = lv), g = rep(c("a", "b"), 35))
+  for (n in 6:7) {
+    d <- droplevels(df[df$q %in% lv[seq_len(n)], ])
+    p <- stem_barplot(d, q, group = g)
+    expect_no_error(ggplot2::ggplot_build(p))
+    chart <- stem_as_mschart(p)
+    expect_equal(unname(unlist(chart$series_settings$fill)), stem_palette_gen("div1")(n))
+  }
 })
 
 # ggplot2 scales ---------------------------------------------------------
