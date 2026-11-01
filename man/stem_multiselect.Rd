@@ -21,7 +21,8 @@ stem_multiselect(
   background_alpha = 1,
   selected = NULL,
   item_label = TRUE,
-  keep_last = NULL
+  keep_last = NULL,
+  bar_color = "#82143C"
 )
 }
 \arguments{
@@ -71,6 +72,10 @@ a warning, if any item lacks a label (as in \code{\link[=stem_battery]{stem_batt
 \item{keep_last}{Optional bars to keep at the end (the bottom) whatever the
 ordering, e.g. \code{c("Jiné", "Ostatní")}, in the order given. Refers to
 options, or in the yes/no layout to items (by label or variable name).}
+
+\item{bar_color}{Fill of single-series bars (ungrouped \code{\link[=stem_barplot]{stem_barplot()}} and
+\code{\link[=stem_multiselect]{stem_multiselect()}}). Defaults to the Stem brand burgundy \code{"#82143C"},
+whatever the \code{palette}.}
 }
 \value{
 A ggplot2 object.

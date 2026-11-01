@@ -304,7 +304,7 @@ test_that("ungrouped stem_barplot draws don't-know bars grey, as separate series
   expect_equal(nrow(built), 7)
   bar_fill <- stats::setNames(built$fill, levels(p$data$police)[8 - built$y])
   expect_equal(unname(bar_fill[c("Nevím", "Neodpověděl")]), as_hex(c("grey70", "grey50")))
-  expect_true(all(bar_fill[1:5] == stem_palette()[1]))
+  expect_true(all(bar_fill[1:5] == "#82143C"))
   expect_null(ggplot2::ggplot_build(p)$plot$guides$fill)
 
   # Native chart: the main series plus one grey series per DK level, fully
@@ -312,7 +312,7 @@ test_that("ungrouped stem_barplot draws don't-know bars grey, as separate series
   chart <- suppressMessages(stem_as_mschart(p))
   expect_equal(names(chart$series_settings$fill), c("%", "Nevím", "Neodpověděl"))
   expect_equal(unname(unlist(chart$series_settings$fill)),
-               c(stem_palette()[1], as_hex(c("grey70", "grey50"))))
+               c("#82143C", as_hex(c("grey70", "grey50"))))
   expect_equal(chart$options$grouping, "clustered")
   expect_equal(chart$options$overlap, 100)
   expect_equal(chart$theme$legend_position, "n")
@@ -323,7 +323,7 @@ test_that("ungrouped stem_barplot draws don't-know bars grey, as separate series
   # Without DK levels in the data the chart is unchanged: one series.
   chart <- stem_as_mschart(stem_barplot(trust, police, dk_levels = "Nevím"))
   expect_null(chart$group)
-  expect_equal(unname(unlist(chart$series_settings$fill)), stem_palette()[1])
+  expect_equal(unname(unlist(chart$series_settings$fill)), "#82143C")
 })
 
 test_that("several don't-know levels get distinguishable greys", {
@@ -497,4 +497,25 @@ test_that("stem_boxplot keeps the mean visible for a zero-width box", {
 test_that("stem_as_mschart refuses boxplots with a clear message", {
   expect_error(stem_as_mschart(stem_boxplot(trust, age)),
                "Boxplots can't be converted to native charts; save them as images")
+})
+
+# brand colour --------------------------------------------------------------
+
+test_that("single-series bars are burgundy whatever the palette, in ggplot and native charts", {
+  skip_if_not_installed("mschart")
+
+  for (pal in c("div1", "seq2")) {
+    p <- stem_barplot(trust, government, palette = pal)
+    expect_equal(unique(ggplot2::ggplot_build(p)$data[[1]]$fill), "#82143C")
+    expect_equal(unname(unlist(stem_as_mschart(p)$series_settings$fill)), "#82143C")
+  }
+  p <- stem_barplot(trust, government, bar_color = "navy")
+  expect_equal(unname(unlist(stem_as_mschart(p)$series_settings$fill)), "navy")
+
+  p <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
+  bars <- ggplot2::ggplot_build(p)$data[[2]] # layer 1 holds the background bars
+  expect_equal(unique(bars$fill), "#82143C")
+  expect_equal(unname(unlist(stem_as_mschart(p)$series_settings$fill)), "#82143C")
+
+  expect_equal(theme_stem()$geom$accent, "#82143C")
 })

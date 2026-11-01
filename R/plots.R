@@ -361,6 +361,9 @@ stem_stack <- function(
 #' @param dk_color Fill colour of the "don't know" categories. Defaults to
 #'   `"grey70"` (`#B3B3B3`). Give several colours for several "don't know"
 #'   levels; otherwise distinguishable darker greys are derived from the first.
+#' @param bar_color Fill of single-series bars (ungrouped [stem_barplot()] and
+#'   [stem_multiselect()]). Defaults to the Stem brand burgundy `"#82143C"`,
+#'   whatever the `palette`.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -394,7 +397,8 @@ stem_barplot <- function(
   title_quote = FALSE,
   title_wrap = 80,
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  bar_color = "#82143C"
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -451,7 +455,7 @@ stem_barplot <- function(
       plot_data,
       ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
     ) +
-      ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1])
+      ggplot2::geom_col(color = "white", fill = bar_color)
   } else {
     # Office charts colour whole series, not single bars, so "don't know"
     # bars form series of their own (`.series`), drawn grey. Each category
@@ -466,7 +470,7 @@ stem_barplot <- function(
       levels = series_levels
     )
     series_values <- stats::setNames(
-      c(stem_palette(palette)[1], dk_colors(length(dk_present), dk_color)),
+      c(bar_color, dk_colors(length(dk_present), dk_color)),
       series_levels
     )
     p <- ggplot2::ggplot(
@@ -920,7 +924,8 @@ stem_multiselect <- function(
   background_alpha = 1,
   selected = NULL,
   item_label = TRUE,
-  keep_last = NULL
+  keep_last = NULL,
+  bar_color = "#82143C"
 ) {
   group_quo <- rlang::enquo(group)
   has_group <- !rlang::quo_is_null(group_quo)
@@ -1034,7 +1039,7 @@ stem_multiselect <- function(
         )
     }
 
-    p <- p + ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1])
+    p <- p + ggplot2::geom_col(color = "white", fill = bar_color)
   }
 
   p <- p +

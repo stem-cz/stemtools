@@ -24,7 +24,8 @@ stem_barplot(
   title_quote = FALSE,
   title_wrap = 80,
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  bar_color = "#82143C"
 )
 }
 \arguments{
@@ -91,6 +92,10 @@ in the data are ignored. Defaults to \code{NULL}.}
 \item{dk_color}{Fill colour of the "don't know" categories. Defaults to
 \code{"grey70"} (\verb{#B3B3B3}). Give several colours for several "don't know"
 levels; otherwise distinguishable darker greys are derived from the first.}
+
+\item{bar_color}{Fill of single-series bars (ungrouped \code{\link[=stem_barplot]{stem_barplot()}} and
+\code{\link[=stem_multiselect]{stem_multiselect()}}). Defaults to the Stem brand burgundy \code{"#82143C"},
+whatever the \code{palette}.}
 }
 \value{
 A ggplot2 object.

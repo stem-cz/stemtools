@@ -22,7 +22,8 @@
 #'   exporting plots to be placed on a coloured surface).
 #' @param accent Accent colour passed to [ggplot2::element_geom()] as the
 #'   default geom accent colour (e.g. the fill of [ggplot2::geom_smooth()]).
-#'   Defaults to the primary Stem brand colour.
+#'   Defaults to the Stem brand burgundy `"#82143C"`, also the default fill of
+#'   single-series bars (`bar_color` in [stem_barplot()]).
 #' @param family Font family for all text. Defaults to `"Calibri"`, the Stem
 #'   house font. Pass `""` to use the graphics device's default family (useful
 #'   on machines where Calibri is not installed).
@@ -51,7 +52,7 @@
 theme_stem <- function(
   ink = "black",
   paper = "white",
-  accent = "#35978F",
+  accent = "#82143C",
   family = "Calibri",
   label_size = 12,
   base_size = 13,

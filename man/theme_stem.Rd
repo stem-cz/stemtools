@@ -7,7 +7,7 @@
 theme_stem(
   ink = "black",
   paper = "white",
-  accent = "#35978F",
+  accent = "#82143C",
   family = "Calibri",
   label_size = 12,
   base_size = 13,
@@ -25,7 +25,8 @@ exporting plots to be placed on a coloured surface).}
 
 \item{accent}{Accent colour passed to \code{\link[ggplot2:element_geom]{ggplot2::element_geom()}} as the
 default geom accent colour (e.g. the fill of \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}).
-Defaults to the primary Stem brand colour.}
+Defaults to the Stem brand burgundy \code{"#82143C"}, also the default fill of
+single-series bars (\code{bar_color} in \code{\link[=stem_barplot]{stem_barplot()}}).}
 
 \item{family}{Font family for all text. Defaults to \code{"Calibri"}, the Stem
 house font. Pass \code{""} to use the graphics device's default family (useful

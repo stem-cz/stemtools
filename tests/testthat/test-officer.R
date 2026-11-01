@@ -45,7 +45,7 @@ test_that("stem_as_mschart() converts an ungrouped bar plot", {
     levels(trust$government)
   )
   expect_equal(sum(chart$data[["%"]]), 100)
-  expect_equal(unname(unlist(chart$series_settings$fill)), stem_palette()[1])
+  expect_equal(unname(unlist(chart$series_settings$fill)), "#82143C")
 })
 
 test_that("stem_as_mschart() converts stacked plots with the right palette", {
