@@ -17,7 +17,8 @@ stem_summarise_cat(
   variance = "ci",
   conf_level = 0.95,
   n_weighted = FALSE,
-  min_cell_n = 30
+  min_cell_n = 30,
+  drop = FALSE
 )
 }
 \arguments{
@@ -52,7 +53,11 @@ Columns are named after the estimate, e.g. \code{freq_se}, \code{freq_low}/\code
 (the estimated population count). Equals \code{n} for unweighted data.}
 
 \item{min_cell_n}{Warn when any cell has fewer than this many unweighted observations. Defaults
-to \code{30}; \code{NULL} disables the warning.}
+to \code{30}; \code{NULL} disables the warning. Empty cells don't count.}
+
+\item{drop}{If \code{FALSE} (default), every level of a factor item is returned, levels nobody chose
+as 0 \% rows (within each group), so that colours and category counts follow the full scale.
+If \code{TRUE}, only observed categories are returned.}
 }
 \value{
 Tidy dataframe

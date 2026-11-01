@@ -78,7 +78,8 @@ label_values <- function(data, cols) {
 warn_small_cells <- function(n, min_cell_n) {
   if (is.null(min_cell_n)) return(invisible())
 
-  n_small <- sum(n < min_cell_n, na.rm = TRUE)
+  # Empty cells (n = 0, kept by `drop = FALSE`) carry no estimate to warn about.
+  n_small <- sum(n > 0 & n < min_cell_n, na.rm = TRUE)
   if (n_small > 0) {
     rlang::warn(
       c(sprintf("%d %s fewer than %d unweighted observations.",
@@ -116,7 +117,10 @@ warn_small_cells <- function(n, min_cell_n) {
 #' @param n_weighted If `TRUE`, adds an `n_weighted` column with the sum of weights in each cell
 #'   (the estimated population count). Equals `n` for unweighted data.
 #' @param min_cell_n Warn when any cell has fewer than this many unweighted observations. Defaults
-#'   to `30`; `NULL` disables the warning.
+#'   to `30`; `NULL` disables the warning. Empty cells don't count.
+#' @param drop If `FALSE` (default), every level of a factor item is returned, levels nobody chose
+#'   as 0 % rows (within each group), so that colours and category counts follow the full scale.
+#'   If `TRUE`, only observed categories are returned.
 #'
 #' @return Tidy dataframe
 #' @export
@@ -133,7 +137,7 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
                                collapse_item = NULL, collapse_group = NULL,
                                na.rm = TRUE, return_n = FALSE,
                                variance = "ci", conf_level = 0.95,
-                               n_weighted = FALSE, min_cell_n = 30) {
+                               n_weighted = FALSE, min_cell_n = 30, drop = FALSE) {
 
   check_variance(variance, conf_level)
   has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
@@ -184,6 +188,15 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
       ) |>
       dplyr::mutate(n_weighted = n) |>
       tibble::as_tibble()
+  }
+
+  # Empty levels as 0 % rows within each group (both paths drop them).
+  if (!drop) {
+    zero <- list(freq = 0, .se = 0, .deff = NA_real_, n = 0L, n_weighted = 0)
+    counts <- counts |>
+      dplyr::group_by({{ group }}) |>
+      tidyr::complete({{ item }}, fill = zero[intersect(names(zero), names(counts))]) |>
+      dplyr::ungroup()
   }
 
   counts <- add_uncertainty(counts, "freq", variance, conf_level)
@@ -478,7 +491,7 @@ stem_summarise <- function(data, item, group = NULL, weight = NULL, long = FALSE
                            collapse_item = NULL, collapse_group = NULL,
                            na.rm = TRUE, return_n = FALSE,
                            variance = "ci", conf_level = 0.95,
-                           n_weighted = FALSE, min_cell_n = 30) {
+                           n_weighted = FALSE, min_cell_n = 30, drop = FALSE) {
 
   item_vec <- data[[names(dplyr::select(data, {{ item }}))]]
 
@@ -487,7 +500,7 @@ stem_summarise <- function(data, item, group = NULL, weight = NULL, long = FALSE
                        collapse_item = collapse_item, collapse_group = collapse_group,
                        na.rm = na.rm, return_n = return_n,
                        variance = variance, conf_level = conf_level,
-                       n_weighted = n_weighted, min_cell_n = min_cell_n)
+                       n_weighted = n_weighted, min_cell_n = min_cell_n, drop = drop)
   } else if (is.numeric(item_vec)) {
     stem_summarise_num(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }}, long = long,
                        collapse_group = collapse_group, na.rm = na.rm, return_n = return_n,

@@ -519,3 +519,28 @@ test_that("single-series bars are burgundy whatever the palette, in ggplot and n
 
   expect_equal(theme_stem()$geom$accent, "#82143C")
 })
+
+# full scale ------------------------------------------------------------------
+
+test_that("an empty scale point does not shift the other colours", {
+  skip_if_not_installed("mschart")
+  div1 <- as.character(stem_palette("div1"))
+  df <- trust[trust$police != "Neither Agree nor Disagree", ]
+
+  plots <- list(
+    stem_inline(df, police),
+    stem_barplot(df, police, group = eu_index),
+    stem_battery(df, items = c(police, army), item_label = FALSE)
+  )
+  for (p in plots) {
+    fills <- fill_of(p)
+    expect_equal(unname(fills), div1)
+    expect_equal(fills[["Neither Agree nor Disagree"]], div1[3])
+    # Label colours come from the same full scale: white on the extremes only.
+    by_level <- vapply(split(p$data$.label_color, p$data[[stem_aes_name(p$mapping$fill, p$data)]]),
+                       `[`, "", 1)
+    expect_equal(unname(by_level), c("white", "black", "black", "black", "white"))
+    chart <- stem_as_mschart(p)
+    expect_equal(unname(unlist(chart$series_settings$fill)), div1)
+  }
+})

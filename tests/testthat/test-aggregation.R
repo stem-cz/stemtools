@@ -261,3 +261,35 @@ test_that("stem_box_stats gives quartiles, Tukey whiskers, outliers and the mean
                     out$stats$q3 <= out$stats$whisker_upp))
   expect_error(stem_box_stats(trust, police), "must be numeric")
 })
+
+# empty levels ----------------------------------------------------------------
+
+test_that("empty factor levels come back as 0 % rows, weighted or not", {
+  df <- trust[trust$police != "Neither Agree nor Disagree", ]
+  for (w in list(NULL, quote(W))) {
+    out <- if (is.null(w)) {
+      stem_summarise_cat(df, police, return_n = TRUE, n_weighted = TRUE)
+    } else {
+      stem_summarise_cat(df, police, weight = W, return_n = TRUE, n_weighted = TRUE,
+                         variance = c("se", "ci", "deff"))
+    }
+    expect_equal(as.character(out$police), levels(trust$police))
+    empty <- out[out$police == "Neither Agree nor Disagree", ]
+    expect_equal(c(empty$freq, empty$freq_low, empty$freq_upp, empty$n, empty$n_weighted),
+                 c(0, 0, 0, 0, 0))
+    expect_equal(sum(out$freq), 1)
+  }
+
+  # Within each group too, without inventing whole groups.
+  out <- stem_summarise_cat(df, police, group = eu_index, weight = W, min_cell_n = NULL)
+  expect_equal(nrow(out), nlevels(trust$eu_index) * nlevels(trust$police))
+  expect_true(all(out$freq[out$police == "Neither Agree nor Disagree"] == 0))
+
+  # drop = TRUE keeps only observed categories, as before 0.2.0.
+  expect_equal(nrow(stem_summarise_cat(df, police, drop = TRUE)), 4)
+})
+
+test_that("empty cells don't trigger the small-cell warning", {
+  df <- trust[trust$police != "Neither Agree nor Disagree", ]
+  expect_no_warning(stem_summarise_cat(df, police))
+})

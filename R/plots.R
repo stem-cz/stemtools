@@ -242,8 +242,9 @@ stem_stack <- function(
   dk_levels = NULL,
   dk_color = "grey70"
 ) {
-  # Only the levels present are coloured, as a discrete scale would.
-  fill_levels <- levels(droplevels(as.factor(plot_data[[fill_name]])))
+  # Colours follow the full scale: every level of the item, empty ones too
+  # (they reach the plot as 0 % rows), so an empty point shifts no colour.
+  fill_levels <- levels(as.factor(plot_data[[fill_name]]))
   fill_values <- stem_fill_values(
     fill_levels,
     palette = palette,

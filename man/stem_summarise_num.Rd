@@ -49,7 +49,7 @@ Columns are named after the estimate, e.g. \code{freq_se}, \code{freq_low}/\code
 (the estimated population count). Equals \code{n} for unweighted data.}
 
 \item{min_cell_n}{Warn when any cell has fewer than this many unweighted observations. Defaults
-to \code{30}; \code{NULL} disables the warning.}
+to \code{30}; \code{NULL} disables the warning. Empty cells don't count.}
 }
 \value{
 Tidy dataframe
