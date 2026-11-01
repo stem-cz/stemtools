@@ -10,7 +10,7 @@ stem_as_mschart(
   labels = NULL,
   legend = NULL,
   num_fmt = NULL,
-  axis_num_fmt = "0\\"\%\\"",
+  axis_num_fmt = "0\\" \%\\"",
   axis_show = TRUE,
   axis_major_unit = NULL,
   gap_width = 30,
@@ -42,7 +42,8 @@ Give a format to label the values from the worksheet instead, which keeps
 the labels live when the data are edited in Excel.}
 
 \item{axis_num_fmt}{Excel number format code for the value axis. Defaults to
-\verb{"0\\"\%\\""}, matching the percentage axis of the Stem plots.}
+\verb{"0\\" \%\\""}, which reads "50 \%" (with a space), matching the percentage
+axis of the Stem plots.}
 
 \item{axis_show}{If \code{TRUE} (default), draws the value axis.}
 

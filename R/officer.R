@@ -422,7 +422,8 @@ stem_mschart_theme <- function(spec, legend = TRUE) {
 #'   Give a format to label the values from the worksheet instead, which keeps
 #'   the labels live when the data are edited in Excel.
 #' @param axis_num_fmt Excel number format code for the value axis. Defaults to
-#'   `"0\"%\""`, matching the percentage axis of the Stem plots.
+#'   `"0\" %\""`, which reads "50 %" (with a space), matching the percentage
+#'   axis of the Stem plots.
 #' @param axis_show If `TRUE` (default), draws the value axis.
 #' @param axis_major_unit Spacing of the value axis ticks, in percentage
 #'   points. Defaults to `25` for stacked charts and `10` otherwise.
@@ -451,7 +452,7 @@ stem_as_mschart <- function(
   labels = NULL,
   legend = NULL,
   num_fmt = NULL,
-  axis_num_fmt = "0\"%\"",
+  axis_num_fmt = "0\" %\"",
   axis_show = TRUE,
   axis_major_unit = NULL,
   gap_width = 30,

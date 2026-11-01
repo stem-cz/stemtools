@@ -17,6 +17,7 @@
 * Single-series bars (ungrouped `stem_barplot()` and `stem_multiselect()`) are now filled with the Stem brand burgundy `#82143C`, whatever the `palette`; a new `bar_color` argument changes it. **This changes existing output**: they used to take the palette's first colour (teal `#4DA8A0` for `div1`). Native charts follow. The `theme_stem()` `accent` is burgundy too (previously teal `#35978F`).
 * Colours, label colours and category counts follow the factor's full set of levels: `stem_summarise_cat()` and `stem_summarise()` gain `drop = FALSE`, returning levels nobody chose as 0 % rows (within each group, weighted or not), and the stacked plots colour every level. **This changes existing output**: summaries now include those zero rows, and an empty scale point no longer shifts the colours of the others. Empty cells don't trigger the small-cell warning. Use `drop = TRUE` for the previous behaviour.
 * The default `title_wrap` of `stem_barplot()`, `stem_inline()`, `stem_battery()` and `stem_boxplot()` is 73 characters (previously 80), measured so that a line of the 15.6 pt bold title fits a chart 19 cm wide. **Long titles now wrap a little earlier.**
+* The value axis of native charts reads "50 %", with a space, as in the images: the default `axis_num_fmt` of `stem_as_mschart()` is `0\" %\"` (previously `0\"%\"`, which read "50%"). **This changes existing native charts.**
 
 ## Bug fixes
 

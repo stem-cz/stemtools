@@ -20,6 +20,14 @@ test_that("stem_num_fmt() reads accuracy and suffix off the labels", {
   expect_equal(stem_num_fmt(c("", NA)), "0")
 })
 
+test_that("the native value axis reads \"50 %\", with a space", {
+  skip_if_no_office()
+  for (p in list(stem_barplot(trust, government), stem_inline(trust, police))) {
+    chart <- stem_as_mschart(p)
+    expect_equal(chart$y_axis$num_fmt, "0\" %\"")
+  }
+})
+
 test_that("stem_levels() keeps factor levels and drops unused ones", {
   f <- factor(c("b", "a"), levels = c("a", "b", "c"))
   expect_equal(stem_levels(f), c("a", "b"))
