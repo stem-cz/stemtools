@@ -26,11 +26,14 @@
 #' @param family Font family for all text. Defaults to `"Calibri"`, the Stem
 #'   house font. Pass `""` to use the graphics device's default family (useful
 #'   on machines where Calibri is not installed).
+#' @param base_size Base font size in points. Defaults to `13`, sized for
+#'   charts exported 19 cm wide. Other text sizes are relative to it (e.g. the
+#'   title is 1.2 × `base_size`, 15.6 pt by default; axis and legend text
+#'   0.8 ×).
 #' @param label_size Point size of the numeric labels drawn inside the plot
 #'   (the `stem_label` values printed by [stem_barplot()] and friends). Passed
 #'   to [ggplot2::element_geom()] as `fontsize`, so it is given in points, like
-#'   the other text sizes of the theme. Defaults to `14`, matching the label
-#'   size used by the Stem apps.
+#'   the other text sizes of the theme. Defaults to `12`.
 #' @param ... Arguments to be passed to [ggplot2::theme()], overriding the Stem
 #'   defaults.
 #'
@@ -50,10 +53,18 @@ theme_stem <- function(
   paper = "white",
   accent = "#35978F",
   family = "Calibri",
-  label_size = 14,
+  label_size = 12,
+  base_size = 13,
   ...
 ) {
-  ggplot2::theme_grey(base_family = family) +
+  # Line widths stay at theme_grey()'s defaults (11 / 22), whatever the type
+  # size, so bar separators and native chart borders keep their width.
+  ggplot2::theme_grey(
+    base_size = base_size,
+    base_family = family,
+    base_line_size = 11 / 22,
+    base_rect_size = 11 / 22
+  ) +
     ggplot2::theme(
       geom = ggplot2::element_geom(
         ink = ink,
@@ -62,7 +73,7 @@ theme_stem <- function(
         fontsize = label_size
       ),
       rect = ggplot2::element_rect(fill = paper, colour = NA),
-      text = ggplot2::element_text(family = family, size = 18, colour = ink),
+      text = ggplot2::element_text(family = family, size = base_size, colour = ink),
       panel.background = ggplot2::element_rect(fill = paper),
       strip.background = ggplot2::element_rect(fill = paper),
       legend.position = "top",

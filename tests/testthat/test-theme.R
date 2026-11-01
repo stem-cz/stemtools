@@ -29,3 +29,19 @@ test_that("theme_stem can be added to a plot", {
     theme_stem(family = "")
   expect_s3_class(p, "ggplot")
 })
+
+test_that("theme_stem uses a 13 pt base, 15.6 pt titles and 12 pt labels", {
+  th <- theme_stem()
+  expect_equal(th$text$size, 13)
+  expect_equal(ggplot2::calc_element("plot.title", th)$size, 15.6)
+  expect_equal(ggplot2::calc_element("axis.text.y", th)$size, 13 * 0.8)
+  expect_equal(th$geom$fontsize * ggplot2::.pt, 12)
+
+  th <- theme_stem(base_size = 18)
+  expect_equal(ggplot2::calc_element("plot.title", th)$size, 18 * 1.2)
+})
+
+test_that("native charts keep their fixed type sizes with the new theme", {
+  spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
+  expect_equal(spec$label_size, 11)
+})

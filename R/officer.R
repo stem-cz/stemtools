@@ -268,10 +268,11 @@ stem_chart_spec <- function(plot) {
 }
 
 # PowerPoint renders chart text noticeably larger than the ggplot preview does
-# at the same nominal size, so the Stem apps draw the numeric labels at 14 pt on
-# screen and export them at 11 pt. `stem_label_export_scale` keeps that ratio
-# whatever `theme_stem(label_size = )` is set to.
-stem_label_export_scale <- 11 / 14
+# at the same nominal size. Native data labels are 11 pt for the default
+# `theme_stem(label_size = 12)`; `stem_label_export_scale` keeps that ratio
+# whatever `label_size` is set to. (Before 0.2.0 the default was 14 pt with a
+# scale of 11/14, giving the same 11 pt.)
+stem_label_export_scale <- 11 / 12
 
 # Typography of the exported charts, in points. These are pinned rather than
 # taken from the ggplot theme for the same reason as the label scale above: the

@@ -250,7 +250,7 @@ test_that("stem_label_size() reads the resolved label size in points", {
   local_stem_theme()
 
   p <- stem_barplot(trust, government)
-  expect_equal(stem_label_size(p, ggplot2::ggplot_build(p)), 14)
+  expect_equal(stem_label_size(p, ggplot2::ggplot_build(p)), 12)
 
   p18 <- stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
   expect_equal(stem_label_size(p18, ggplot2::ggplot_build(p18)), 18)
@@ -260,7 +260,7 @@ test_that("stem_label_size() reads the resolved label size in points", {
   expect_equal(stem_label_size(p0, ggplot2::ggplot_build(p0)), 11)
 })
 
-test_that("data labels are exported at 11/14 of their ggplot size", {
+test_that("data labels are exported at 11/12 of their ggplot size", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
   expect_equal(spec$label_size, 11)
 
@@ -268,9 +268,9 @@ test_that("data labels are exported at 11/14 of their ggplot size", {
   spec18 <- stem_chart_spec(
     stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
   )
-  expect_equal(spec18$label_size, 14)
+  expect_equal(spec18$label_size, 16.5)
 
-  expect_equal(spec$font_size, 18)
+  expect_equal(spec$font_size, 13)
 })
 
 test_that("stem_label_fp() sizes the labels with the export size", {
