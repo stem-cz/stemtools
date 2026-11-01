@@ -1,4 +1,4 @@
-# stemtools (development version)
+# stemtools 0.2.0
 
 * Weighted estimates are now computed with `{srvyr}` (Taylor-series linearization via `{survey}`) instead of the discontinued `{surveycore}` and `{surveytidy}`, which are no longer dependencies, so stemtools installs from CRAN packages again. Point estimates, standard errors and confidence intervals are unchanged: the intervals are still Wald intervals (estimate ± z × SE, with the normal quantile), with Taylor-linearized SEs for weighted data. The design effect (`"deff"`, new) is computed against simple random sampling with replacement.
 * `stem_summarise()`, `stem_summarise_cat()` and `stem_summarise_num()` gain:
