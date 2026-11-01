@@ -316,6 +316,98 @@ test_that("stem_multiselect builds, with and without a group", {
   ))
 })
 
+# Yes/no ("Ano"/"Ne") columns with labels, missing answers and weights.
+yes_no_data <- function() {
+  set.seed(1)
+  n <- 200
+  draw <- function(p) {
+    x <- ifelse(stats::runif(n) < p, "Ano", "Ne")
+    x[sample(n, 20)] <- NA
+    factor(x, levels = c("Ano", "Ne"))
+  }
+  df <- data.frame(
+    q5_1 = draw(0.2), q5_2 = draw(0.7), q5_3 = draw(0.5), q5_4 = draw(0.9),
+    w = stats::runif(n, 0.5, 1.5),
+    sex = factor(rep(c("Muž", "Žena"), n / 2))
+  )
+  attr(df$q5_1, "label") <- "Ceny"
+  attr(df$q5_2, "label") <- "Zdraví"
+  attr(df$q5_3, "label") <- "Bydlení"
+  attr(df$q5_4, "label") <- "Jiné"
+  df
+}
+
+test_that("stem_multiselect(selected =) draws one bar per yes/no item", {
+  skip_if_not_installed("mschart")
+  df <- yes_no_data()
+  p <- stem_multiselect(df, items = q5_1:q5_4, weight = w, selected = "Ano")
+
+  # One bar per item, named by its label; freq in 0-1.
+  expect_setequal(as.character(p$data$.response), c("Ceny", "Zdraví", "Bydlení", "Jiné"))
+  expect_true(all(p$data$freq >= 0 & p$data$freq <= 1))
+  # The share among valid answers, weighted.
+  ok <- !is.na(df$q5_2)
+  expect_equal(
+    p$data$freq[p$data$.response == "Zdraví"],
+    sum(df$w[ok & df$q5_2 == "Ano"]) / sum(df$w[ok])
+  )
+  # Sorted by share: the largest bar is the last level (drawn on top).
+  expect_equal(
+    levels(p$data$.response),
+    as.character(p$data$.response[order(p$data$freq)])
+  )
+
+  # keep_last pins items to the bottom (the first levels), by label or name.
+  p2 <- stem_multiselect(df, items = q5_1:q5_4, selected = "Ano", keep_last = "Jiné")
+  expect_equal(levels(p2$data$.response)[1], "Jiné")
+  p3 <- stem_multiselect(df, items = q5_1:q5_4, selected = "Ano",
+                         keep_last = c("q5_4", "Bydlení"))
+  expect_equal(levels(p3$data$.response)[1:2], c("Bydlení", "Jiné"))
+
+  chart <- stem_as_mschart(p2)
+  expect_s3_class(chart, "ms_barchart")
+  expect_equal(levels(chart$data[[chart$x]])[1], "Jiné")
+  expect_true(all(chart$data[["%"]] <= 100))
+})
+
+test_that("stem_multiselect(selected =) works with a group", {
+  skip_if_not_installed("mschart")
+  df <- yes_no_data()
+  # Nobody among men chose item 1: their share is 0, not missing.
+  df$q5_1[df$sex == "Muž"] <- "Ne"
+  p <- stem_multiselect(df, items = q5_1:q5_4, group = sex, selected = "Ano")
+  expect_equal(nrow(p$data), 8)
+  expect_equal(p$data$freq[p$data$sex == "Muž" & p$data$.response == "Ceny"], 0)
+  ok <- !is.na(df$q5_3) & df$sex == "Žena"
+  expect_equal(
+    p$data$freq[p$data$sex == "Žena" & p$data$.response == "Bydlení"],
+    mean(df$q5_3[ok] == "Ano")
+  )
+  chart <- stem_as_mschart(p)
+  expect_equal(chart$options$grouping, "clustered")
+})
+
+test_that("stem_multiselect(selected =) checks its input", {
+  df <- yes_no_data()
+  expect_error(stem_multiselect(df, items = q5_1:q5_4, selected = "Yes"),
+               "None of the items has the answer \"Yes\"")
+  attr(df$q5_4, "label") <- NULL
+  expect_warning(
+    p <- stem_multiselect(df, items = q5_1:q5_4, selected = "Ano"),
+    "no `label` attribute"
+  )
+  expect_true("q5_4" %in% levels(p$data$.response))
+})
+
+test_that("stem_multiselect mention mode is unchanged and accepts keep_last", {
+  p <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
+  lv <- levels(p$data$.response)
+  p2 <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"),
+                         keep_last = lv[length(lv)])
+  expect_equal(levels(p2$data$.response), c(lv[length(lv)], lv[-length(lv)]))
+  expect_equal(sort(p2$data$freq), sort(p$data$freq))
+})
+
 test_that("stem_multiselect can drop the background bars", {
   build_ok(stem_multiselect(
     trust,

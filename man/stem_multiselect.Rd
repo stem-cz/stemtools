@@ -18,7 +18,10 @@ stem_multiselect(
   infreq_order = TRUE,
   background = TRUE,
   background_fill = "grey85",
-  background_alpha = 1
+  background_alpha = 1,
+  selected = NULL,
+  item_label = TRUE,
+  keep_last = NULL
 )
 }
 \arguments{
@@ -56,19 +59,45 @@ background bar behind each option.}
 \item{background_fill}{Fill colour of the background bars.}
 
 \item{background_alpha}{Opacity of the background bars.}
+
+\item{selected}{The answer that marks an item as chosen, e.g. \code{"Ano"}.
+Switches to the yes/no layout described above. Defaults to \code{NULL} (mention
+columns).}
+
+\item{item_label}{Yes/no layout only. If \code{TRUE} (default), bars are named
+after the items' \code{"label"} attributes, falling back to variable names, with
+a warning, if any item lacks a label (as in \code{\link[=stem_battery]{stem_battery()}}).}
+
+\item{keep_last}{Optional bars to keep at the end (the bottom) whatever the
+ordering, e.g. \code{c("Jiné", "Ostatní")}, in the order given. Refers to
+options, or in the yes/no layout to items (by label or variable name).}
 }
 \value{
 A ggplot2 object.
 }
 \description{
 Plots a set of "select all that apply" items, showing the share of
-respondents that picked each option. The items are reshaped to long format
-and their (possibly weighted) frequencies are rescaled by the number of items
-so that the bars express percentages of respondents rather than of responses.
+respondents that picked each option. It supports two layouts of the data:
+}
+\details{
+\itemize{
+\item \strong{Mention columns} (default, \code{selected = NULL}), e.g. \code{biggest_concern1},
+\code{biggest_concern2}, ... each holding one chosen option. The items are
+reshaped to long format and their (possibly weighted) frequencies are
+rescaled by the number of items, so that the bars express percentages of
+respondents rather than of responses. One bar is drawn per option.
+\item \strong{Yes/no columns} (\code{selected} given), e.g. \code{q5_1} ... \code{q5_8}, each
+answered "Ano"/"Ne". One bar is drawn per item: the (possibly weighted)
+share of respondents with a valid answer on that item whose answer equals
+\code{selected}. Bars are named after the items' \code{"label"} attributes.
+}
 }
 \examples{
 \dontrun{
 stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
 stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"), weight = W)
+
+# Yes/no columns, one bar per item.
+stem_multiselect(survey, items = q5_1:q5_8, selected = "Ano", keep_last = "Jiné")
 }
 }

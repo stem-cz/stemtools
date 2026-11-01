@@ -571,6 +571,32 @@ column_labels <- function(data) {
   stats::setNames(labels, names(data))
 }
 
+#' Display names of a set of items
+#'
+#' Internal helper shared by [stem_battery()] and [stem_multiselect()]: the
+#' items' `"label"` attributes, or their variable names when `item_label` is
+#' `FALSE` or (with a warning) when any item lacks a label.
+#'
+#' @param item_data A data frame holding only the items.
+#' @param item_label If `TRUE`, use the labels.
+#'
+#' @return A character vector, one entry per item.
+#' @keywords internal
+item_display_names <- function(item_data, item_label = TRUE) {
+  item_names <- names(item_data)
+  if (!item_label) {
+    return(item_names)
+  }
+  labels_lookup <- column_labels(item_data)
+  if (anyNA(labels_lookup)) {
+    warning(
+      "At least one item has no `label` attribute; using variable names instead."
+    )
+    return(item_names)
+  }
+  unname(labels_lookup[item_names])
+}
+
 #' Shared response categories of a battery
 #'
 #' Internal helper checking that the items of a battery can be stacked into one
@@ -698,22 +724,10 @@ stem_battery <- function(
   }
 
   # Label or name the items.
-  item_levels <- item_names
-  item_labels <- item_names
-  if (item_label) {
-    labels_lookup <- column_labels(item_data)
-    if (anyNA(labels_lookup)) {
-      warning(
-        "At least one item has no `label` attribute; using variable names instead."
-      )
-    } else {
-      item_labels <- unname(labels_lookup[item_names])
-    }
-  }
   long$.battery_item <- factor(
     long$.battery_item,
-    levels = item_levels,
-    labels = item_labels
+    levels = item_names,
+    labels = item_display_names(item_data, item_label)
   )
 
   plot_data <- stem_plot_data(
@@ -764,12 +778,69 @@ stem_battery <- function(
   p
 }
 
+#' Share of respondents choosing each yes/no item
+#'
+#' Internal helper for the yes/no layout of [stem_multiselect()]. For each item,
+#' computes with [stem_summarise_cat()] the (possibly weighted) share of valid
+#' answers equal to `selected`, within `group` if given. Items or groups where
+#' nobody chose `selected` get a share of 0.
+#'
+#' @param data Data frame holding the items.
+#' @param item_names Names of the item columns.
+#' @param selected The answer that marks an item as chosen.
+#' @param group,weight Optional grouping variable and survey weights.
+#'
+#' @return A tibble with the group column (if any), `.response` (the item
+#'   name), `freq`, `freq_low` and `freq_upp`.
+#' @keywords internal
+selected_shares <- function(data, item_names, selected, group = NULL, weight = NULL) {
+  answers <- unique(unlist(lapply(data[item_names], function(x) as.character(x))))
+  if (!selected %in% answers) {
+    stop(
+      "None of the items has the answer \"", selected, "\" (`selected`). ",
+      "Answers found: ", paste0("\"", stats::na.omit(answers), "\"", collapse = ", "),
+      ".",
+      call. = FALSE
+    )
+  }
+
+  shares <- lapply(item_names, function(name) {
+    x <- as.character(data[[name]])
+    data$.answer <- factor(
+      ifelse(x == selected, "selected", "other"),
+      levels = c("selected", "other")
+    )
+    stem_summarise_cat(
+      data,
+      item = .answer,
+      group = {{ group }},
+      weight = {{ weight }},
+      min_cell_n = NULL
+    ) |>
+      dplyr::group_by(dplyr::across(-c(.answer, freq, freq_low, freq_upp))) |>
+      tidyr::complete(.answer, fill = list(freq = 0, freq_low = 0, freq_upp = 0)) |>
+      dplyr::ungroup() |>
+      dplyr::filter(.answer == "selected") |>
+      dplyr::mutate(.response = name, .answer = NULL)
+  })
+
+  dplyr::bind_rows(shares)
+}
+
 #' Bar plot for a set of multiple-choice items
 #'
 #' Plots a set of "select all that apply" items, showing the share of
-#' respondents that picked each option. The items are reshaped to long format
-#' and their (possibly weighted) frequencies are rescaled by the number of items
-#' so that the bars express percentages of respondents rather than of responses.
+#' respondents that picked each option. It supports two layouts of the data:
+#'
+#' * **Mention columns** (default, `selected = NULL`), e.g. `biggest_concern1`,
+#'   `biggest_concern2`, ... each holding one chosen option. The items are
+#'   reshaped to long format and their (possibly weighted) frequencies are
+#'   rescaled by the number of items, so that the bars express percentages of
+#'   respondents rather than of responses. One bar is drawn per option.
+#' * **Yes/no columns** (`selected` given), e.g. `q5_1` ... `q5_8`, each
+#'   answered "Ano"/"Ne". One bar is drawn per item: the (possibly weighted)
+#'   share of respondents with a valid answer on that item whose answer equals
+#'   `selected`. Bars are named after the items' `"label"` attributes.
 #'
 #' @inheritParams stem_barplot
 #' @param items Items to plot. Supports tidyselect helpers (e.g.
@@ -779,6 +850,15 @@ stem_battery <- function(
 #'   background bar behind each option.
 #' @param background_fill Fill colour of the background bars.
 #' @param background_alpha Opacity of the background bars.
+#' @param selected The answer that marks an item as chosen, e.g. `"Ano"`.
+#'   Switches to the yes/no layout described above. Defaults to `NULL` (mention
+#'   columns).
+#' @param item_label Yes/no layout only. If `TRUE` (default), bars are named
+#'   after the items' `"label"` attributes, falling back to variable names, with
+#'   a warning, if any item lacks a label (as in [stem_battery()]).
+#' @param keep_last Optional bars to keep at the end (the bottom) whatever the
+#'   ordering, e.g. `c("Jiné", "Ostatní")`, in the order given. Refers to
+#'   options, or in the yes/no layout to items (by label or variable name).
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -786,6 +866,9 @@ stem_battery <- function(
 #' @examples \dontrun{
 #' stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"))
 #' stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"), weight = W)
+#'
+#' # Yes/no columns, one bar per item.
+#' stem_multiselect(survey, items = q5_1:q5_8, selected = "Ano", keep_last = "Jiné")
 #' }
 stem_multiselect <- function(
   data,
@@ -801,35 +884,59 @@ stem_multiselect <- function(
   infreq_order = TRUE,
   background = TRUE,
   background_fill = "grey85",
-  background_alpha = 1
+  background_alpha = 1,
+  selected = NULL,
+  item_label = TRUE,
+  keep_last = NULL
 ) {
   group_quo <- rlang::enquo(group)
   has_group <- !rlang::quo_is_null(group_quo)
 
   data <- label_values(data, {{ items }})
-  item_names <- names(dplyr::select(data, {{ items }}))
+  item_data <- dplyr::select(data, {{ items }})
+  item_names <- names(item_data)
   n_items <- length(item_names)
 
-  long <- data |>
-    dplyr::select({{ items }}, {{ weight }}, {{ group }}) |>
-    tidyr::pivot_longer(
-      cols = dplyr::all_of(item_names),
-      names_to = ".item",
-      values_to = ".response"
+  if (is.null(selected)) {
+    long <- data |>
+      dplyr::select({{ items }}, {{ weight }}, {{ group }}) |>
+      tidyr::pivot_longer(
+        cols = dplyr::all_of(item_names),
+        names_to = ".item",
+        values_to = ".response"
+      )
+
+    plot_data <- stem_summarise_cat(
+      data = long,
+      item = .response,
+      group = {{ group }},
+      weight = {{ weight }},
+      min_cell_n = NULL
     )
 
-  plot_data <- stem_summarise_cat(
-    data = long,
-    item = .response,
-    group = {{ group }},
-    weight = {{ weight }},
-    min_cell_n = NULL
-  )
+    # Frequencies are shares of responses; rescale to shares of respondents.
+    plot_data$freq <- plot_data$freq * n_items
+    plot_data$freq_low <- plot_data$freq_low * n_items
+    plot_data$freq_upp <- plot_data$freq_upp * n_items
+  } else {
+    plot_data <- selected_shares(
+      data, item_names, selected,
+      group = {{ group }}, weight = {{ weight }}
+    )
+    display_names <- item_display_names(item_data, item_label)
+    plot_data$.response <- factor(
+      plot_data$.response,
+      levels = item_names,
+      labels = display_names
+    )
+    # keep_last may name items by variable name as well as by label.
+    keep_last <- ifelse(
+      keep_last %in% item_names,
+      display_names[match(keep_last, item_names)],
+      keep_last
+    )
+  }
 
-  # Frequencies are shares of responses; rescale to shares of respondents.
-  plot_data$freq <- plot_data$freq * n_items
-  plot_data$freq_low <- plot_data$freq_low * n_items
-  plot_data$freq_upp <- plot_data$freq_upp * n_items
   plot_data$stem_label <- format_pct(
     plot_data$freq,
     accuracy = label_accuracy,
@@ -841,6 +948,17 @@ stem_multiselect <- function(
     plot_data <- dplyr::mutate(
       plot_data,
       .response = forcats::fct_reorder(.response, freq, .fun = sum)
+    )
+  }
+
+  # The first level is drawn at the bottom, so bars kept last go first.
+  if (length(keep_last)) {
+    plot_data$.response <- as.factor(plot_data$.response)
+    keep_last <- intersect(keep_last, levels(plot_data$.response))
+    plot_data$.response <- forcats::fct_relevel(
+      plot_data$.response,
+      rev(keep_last),
+      after = 0
     )
   }
 
