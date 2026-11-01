@@ -16,7 +16,8 @@ stem_summarise_num(
   variance = "ci",
   conf_level = 0.95,
   n_weighted = FALSE,
-  min_cell_n = 30
+  min_cell_n = 30,
+  quantiles = FALSE
 )
 }
 \arguments{
@@ -50,6 +51,12 @@ Columns are named after the estimate, e.g. \code{freq_se}, \code{freq_low}/\code
 
 \item{min_cell_n}{Warn when any cell has fewer than this many unweighted observations. Defaults
 to \code{30}; \code{NULL} disables the warning. Empty cells don't count.}
+
+\item{quantiles}{If \code{TRUE}, adds the (weighted) first quartile, median and third quartile as
+columns \code{q1}, \code{median} and \code{q3}, defined as in \code{\link[=stem_boxplot]{stem_boxplot()}}: the first value whose
+cumulative weight share reaches the probability (with equal weights the same as
+\code{stats::quantile(type = 1)}). Together with \code{return_n}/\code{n_weighted} and \code{long = TRUE} this gives
+a summary table of numeric variables. Quantiles are \code{NA} where the mean is.}
 }
 \value{
 Tidy dataframe
@@ -64,4 +71,8 @@ trust |> stem_summarise_num(age,
                             group = eu_index,
                             weight = W,
          collapse_group = list(`Neutral or no opinion` = c("Neutral", "Doesn't Know")))
+
+# A summary table: mean, quartiles and N.
+trust |> stem_summarise_num(age, group = eu_index, weight = W,
+                            quantiles = TRUE, return_n = TRUE, n_weighted = TRUE)
 }

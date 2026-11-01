@@ -293,3 +293,31 @@ test_that("empty cells don't trigger the small-cell warning", {
   df <- trust[trust$police != "Neither Agree nor Disagree", ]
   expect_no_warning(stem_summarise_cat(df, police))
 })
+
+# numeric summary table ---------------------------------------------------------
+
+test_that("stem_summarise_num(quantiles = TRUE) adds quartiles defined as in stem_boxplot()", {
+  out <- stem_summarise_num(trust, age, quantiles = TRUE, return_n = TRUE)
+  expect_named(out, c("mean", "mean_low", "mean_upp", "q1", "median", "q3",
+                      "n", "group_n", "item_n"))
+  expect_equal(unlist(out[, c("q1", "median", "q3")]),
+               stats::quantile(trust$age, c(0.25, 0.5, 0.75), type = 1),
+               ignore_attr = TRUE)
+
+  out <- stem_summarise_num(trust, age, group = eu_index, weight = W, quantiles = TRUE,
+                            return_n = TRUE, n_weighted = TRUE)
+  box <- stem_box_stats(trust, age, group = eu_index, weight = W)$stats
+  expect_equal(out$median, box$median[match(out$eu_index, box$eu_index)])
+  expect_equal(out$q1, box$q1[match(out$eu_index, box$eu_index)])
+  expect_true(all(c("n", "n_weighted") %in% names(out)))
+
+  # Long format, ready to row-bind with other variables.
+  out <- stem_summarise_num(trust, age, group = eu_index, quantiles = TRUE, long = TRUE)
+  expect_true(all(c("group", "group_cat", "item", "q1", "median", "q3") %in% names(out)))
+
+  # Quantiles are NA where the mean is.
+  df <- trust
+  df$age[1] <- NA
+  out <- stem_summarise_num(df, age, quantiles = TRUE, na.rm = FALSE)
+  expect_true(is.na(out$median))
+})

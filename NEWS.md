@@ -22,6 +22,7 @@
 * `stem_battery()` gains `item_order` (a fixed item order by name or label, e.g. shared with a "master" battery), `items_per_chart` (splits a long battery, in sort order, into a list of plots titled "(1/2)", "(2/2)") and `collapse_item` (as in `stem_barplot()`). `order_by` now stops with an error when it matches no category.
 * `stem_barplot()` gains `other_levels` for "other" categories (e.g. "Jiné", "Ostatní"), kept last just before any `dk_levels`. `stem_multiselect()` gains `dk_levels` and `dk_color`: "don't know" bars go last and, in ungrouped plots, are drawn grey as separate native series, as in `stem_barplot()`.
 * In the yes/no layout, `stem_multiselect()` warns when every option comes out 0 % or every option 100 %, which usually means `selected` doesn't match the data.
+* `stem_summarise_num()` gains `quantiles = TRUE`, adding the weighted first quartile, median and third quartile (`q1`, `median`, `q3`), defined as in `stem_boxplot()`. With `return_n`/`n_weighted` and `long = TRUE` it gives a summary table of numeric variables.
 
 ## Bug fixes
 

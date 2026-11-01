@@ -240,6 +240,11 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 #' @param na.rm If `TRUE` (default), `NA` values in the item are dropped from the calculations and
 #'   observations with an `NA` group are excluded. If `FALSE`, `NA` item values are kept (so the
 #'   mean is `NA`) and `NA` group values form their own group.
+#' @param quantiles If `TRUE`, adds the (weighted) first quartile, median and third quartile as
+#'   columns `q1`, `median` and `q3`, defined as in [stem_boxplot()]: the first value whose
+#'   cumulative weight share reaches the probability (with equal weights the same as
+#'   `stats::quantile(type = 1)`). Together with `return_n`/`n_weighted` and `long = TRUE` this gives
+#'   a summary table of numeric variables. Quantiles are `NA` where the mean is.
 #'
 #' @return Tidy dataframe
 #' @export
@@ -249,10 +254,14 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 #'                             group = eu_index,
 #'                             weight = W,
 #'          collapse_group = list(`Neutral or no opinion` = c("Neutral", "Doesn't Know")))
+#'
+#' # A summary table: mean, quartiles and N.
+#' trust |> stem_summarise_num(age, group = eu_index, weight = W,
+#'                             quantiles = TRUE, return_n = TRUE, n_weighted = TRUE)
 stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = FALSE,
                                collapse_group = NULL, na.rm = TRUE, return_n = FALSE,
                                variance = "ci", conf_level = 0.95,
-                               n_weighted = FALSE, min_cell_n = 30) {
+                               n_weighted = FALSE, min_cell_n = 30, quantiles = FALSE) {
 
   check_variance(variance, conf_level)
   has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
@@ -311,6 +320,18 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 
   means <- add_uncertainty(means, "mean", variance, conf_level)
   warn_small_cells(means$n, min_cell_n)
+
+  # Weighted quartiles, from the same engine as stem_boxplot().
+  if (quantiles) {
+    box <- stem_box_stats(data, item = {{ item }}, group = {{ group }}, weight = {{ weight }})
+    quartiles <- dplyr::select(box$stats, -c(whisker_low, whisker_upp, mean, n))
+    means <- if (has_group) {
+      dplyr::left_join(means, quartiles, by = rlang::as_name(rlang::enquo(group)))
+    } else {
+      dplyr::bind_cols(means, quartiles)
+    }
+    means[is.na(means$mean), c("q1", "median", "q3")] <- NA_real_
+  }
 
   # For a numeric summary every size is the group size.
   means <- means |>
