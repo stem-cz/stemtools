@@ -431,3 +431,35 @@ test_that("column_labels returns labels and NA where missing", {
   expect_identical(unname(labs[["a"]]), "Alpha")
   expect_true(is.na(labs[["b"]]))
 })
+
+# stem_boxplot -------------------------------------------------------------
+
+test_that("stem_boxplot draws horizontal boxes with a mean mark", {
+  p <- stem_boxplot(trust, age)
+  build_ok(p)
+  geoms <- vapply(p$layers, function(l) class(l$geom)[1], character(1))
+  expect_true("GeomBoxplot" %in% geoms)
+  expect_equal(sum(geoms == "GeomPoint"), 1 + (nrow(stem_box_stats(trust, age)$outliers) > 0))
+
+  p <- stem_boxplot(trust, age, group = eu_index, weight = W, title_show = TRUE)
+  build_ok(p)
+  expect_equal(nrow(p$data), nlevels(trust$eu_index))
+  expect_identical(p$labels$title, attr(trust$age, "label") %||% "age")
+  built <- ggplot2::ggplot_build(p)$data[[1]]
+  expect_true(all(built$flipped_aes))
+})
+
+test_that("stem_boxplot keeps the mean visible for a zero-width box", {
+  df <- data.frame(x = c(rep(5, 20), 9))
+  p <- stem_boxplot(df, x)
+  build_ok(p)
+  expect_equal(p$data$q1, p$data$q3)
+  mean_layer <- ggplot2::ggplot_build(p)$data[[2]]
+  expect_equal(mean_layer$x, mean(df$x))
+  expect_equal(mean_layer$fill, "white")
+})
+
+test_that("stem_as_mschart refuses boxplots with a clear message", {
+  expect_error(stem_as_mschart(stem_boxplot(trust, age)),
+               "Boxplots can't be converted to native charts; save them as images")
+})

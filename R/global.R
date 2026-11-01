@@ -13,6 +13,8 @@ utils::globalVariables(c(
   "item", "item_cat", "group", "group_cat",
   # plotting helpers (R/plots.R)
   "stem_label", ".response", ".battery_item", "score", ".answer",
+  # box plot statistics (R/aggregation.R, R/plots.R)
+  ".x", ".w", "q1", "q3", "whisker_low", "whisker_upp", "value",
   # palette overview plot (R/color-palettes.R)
   "x", "palette", "color", "type"
 ))

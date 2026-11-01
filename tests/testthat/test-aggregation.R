@@ -212,3 +212,52 @@ test_that("haven value labels are applied to item and group", {
   out <- stem_summarise_num(df, q, group = g, min_cell_n = NULL)
   expect_equal(out$mean, c(1.5, 5 / 3))
 })
+
+# box plot statistics -----------------------------------------------------
+
+test_that("weighted_quantile with equal weights agrees with quantile(type = 1)", {
+  # The template this replaces gave 1/2/3 for 1:5.
+  expect_equal(weighted_quantile(1:5), c(2, 3, 4))
+
+  set.seed(42)
+  probs <- c(0, 0.1, 0.25, 0.5, 0.75, 0.9, 1)
+  for (n in c(1, 2, 3, 4, 7, 10, 11, 100, 333)) {
+    x <- round(stats::rnorm(n), 1)
+    expect_equal(
+      weighted_quantile(x, rep(2.5, n), probs),
+      unname(stats::quantile(x, probs, type = 1)),
+      info = paste("n =", n)
+    )
+  }
+})
+
+test_that("weighted_quantile takes the first value whose weight share reaches p", {
+  # Cumulative shares 0.25, 0.5, 1.
+  expect_equal(weighted_quantile(c(3, 1, 2), c(2, 1, 1), c(0.2, 0.25, 0.3, 0.5, 0.75)),
+               c(1, 1, 2, 2, 3))
+  # Zero weights don't count.
+  expect_equal(weighted_quantile(c(1, 2, 3), c(0, 1, 1), 0), 2)
+})
+
+test_that("stem_box_stats gives quartiles, Tukey whiskers, outliers and the mean", {
+  df <- data.frame(x = c(1:10, 50), g = rep(c("a", "b"), c(10, 1)))
+  out <- stem_box_stats(df, x)
+  expect_equal(unlist(out$stats[, c("q1", "median", "q3")]), c(q1 = 3, median = 6, q3 = 9))
+  # Fences at 3 - 9 and 9 + 9: 50 is an outlier, 10 the upper whisker end.
+  expect_equal(out$stats$whisker_low, 1)
+  expect_equal(out$stats$whisker_upp, 10)
+  expect_equal(out$outliers$value, 50)
+  expect_equal(out$stats$mean, mean(df$x))
+
+  w <- c(rep(1, 10), 3)
+  out <- stem_box_stats(cbind(df, w = w), x, weight = w)
+  expect_equal(out$stats$mean, sum(w * df$x) / sum(w))
+
+  out <- stem_box_stats(trust, age, group = eu_index, weight = W)
+  expect_equal(nrow(out$stats), nlevels(trust$eu_index))
+  expect_true(all(out$stats$whisker_low <= out$stats$q1 &
+                    out$stats$q1 <= out$stats$median &
+                    out$stats$median <= out$stats$q3 &
+                    out$stats$q3 <= out$stats$whisker_upp))
+  expect_error(stem_box_stats(trust, police), "must be numeric")
+})

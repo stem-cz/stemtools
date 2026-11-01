@@ -1025,3 +1025,119 @@ stem_multiselect <- function(
 
   p
 }
+
+# Numeric variables -------------------------------------------------------
+
+#' Horizontal box plot of a numeric variable
+#'
+#' Plots the (possibly weighted) distribution of a numeric variable as a
+#' horizontal box plot in the Stem look, one box per `group` category. The box
+#' spans the weighted first and third quartiles with a line at the weighted
+#' median; whiskers reach the most extreme values within 1.5 × IQR of the box,
+#' and values beyond them are drawn as outliers. The weighted mean is marked
+#' with a white diamond, which stays visible when the mean lies outside the box
+#' or the box has zero width.
+#'
+#' Weighted quartiles come from the weighted inverse empirical CDF: the first
+#' value whose cumulative weight share reaches the probability. With equal
+#' weights they agree with `stats::quantile(type = 1)`.
+#'
+#' Office charts have no box plot, so these plots cannot be converted with
+#' [stem_as_mschart()]; save them as images (e.g. with [ggplot2::ggsave()]).
+#'
+#' @inheritParams stem_barplot
+#' @param item Numeric variable to plot. A labelled numeric variable is plotted
+#'   on its codes.
+#' @param group Optional grouping variable; one box is drawn per category.
+#' @param palette Name of a Stem palette; the boxes use its first colour.
+#'
+#' @return A ggplot2 object.
+#' @export
+#'
+#' @examples \dontrun{
+#' stem_boxplot(trust, age)
+#' stem_boxplot(trust, age, group = eu_index, weight = W, title_show = TRUE)
+#' }
+stem_boxplot <- function(
+  data,
+  item,
+  group = NULL,
+  weight = NULL,
+  collapse_group = NULL,
+  palette = "div1",
+  title_show = FALSE,
+  title_quote = FALSE,
+  title_wrap = 80
+) {
+  item_name <- rlang::as_name(rlang::enquo(item))
+  group_quo <- rlang::enquo(group)
+  has_group <- !rlang::quo_is_null(group_quo)
+
+  box <- stem_box_stats(
+    data,
+    item = {{ item }},
+    group = {{ group }},
+    weight = {{ weight }},
+    collapse_group = collapse_group
+  )
+
+  y <- if (has_group) {
+    ggplot2::aes(y = .data[[rlang::as_name(group_quo)]])
+  } else {
+    ggplot2::aes(y = "")
+  }
+
+  p <- ggplot2::ggplot(
+    box$stats,
+    ggplot2::aes(
+      xmin = whisker_low,
+      xlower = q1,
+      xmiddle = median,
+      xupper = q3,
+      xmax = whisker_upp,
+      !!!y
+    )
+  ) +
+    ggplot2::geom_boxplot(
+      stat = "identity",
+      orientation = "y",
+      fill = stem_palette(palette)[1],
+      colour = "grey25",
+      width = 0.6
+    ) +
+    ggplot2::geom_point(
+      ggplot2::aes(x = mean),
+      shape = 23,
+      size = 3,
+      fill = "white",
+      colour = "grey10",
+      stroke = 0.8
+    ) +
+    ggplot2::scale_y_discrete(limits = rev) +
+    ggplot2::labs(x = NULL, y = NULL)
+
+  if (nrow(box$outliers)) {
+    outlier_y <- if (has_group) {
+      ggplot2::aes(x = value, y = .data[[rlang::as_name(group_quo)]])
+    } else {
+      ggplot2::aes(x = value, y = "")
+    }
+    p <- p +
+      ggplot2::geom_point(
+        data = box$outliers,
+        mapping = outlier_y,
+        inherit.aes = FALSE,
+        shape = 1,
+        colour = "grey25"
+      )
+  }
+
+  if (title_show) {
+    p <- p +
+      ggplot2::labs(
+        title = stem_plot_title(data, item_name, title_quote, title_wrap)
+      )
+  }
+
+  p
+}

@@ -322,6 +322,107 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
   means
 }
 
+# Box plot statistics -----------------------------------------------------
+
+#' Weighted quantiles
+#'
+#' Internal helper computing quantiles from the weighted inverse empirical
+#' CDF: the quantile at `p` is the first (smallest) value whose cumulative
+#' weight share reaches `p`. With equal weights this agrees with
+#' `stats::quantile(type = 1)`.
+#'
+#' @param x Numeric vector without `NA`s.
+#' @param w Non-negative weights, or `NULL` for equal weights.
+#' @param probs Probabilities in `[0, 1]`.
+#'
+#' @return Numeric vector of quantiles, one per `probs`.
+#' @keywords internal
+weighted_quantile <- function(x, w = NULL, probs = c(0.25, 0.5, 0.75)) {
+  if (is.null(w)) w <- rep(1, length(x))
+  keep <- w > 0
+  x <- x[keep]
+  w <- w[keep]
+  if (!length(x)) {
+    return(rep(NA_real_, length(probs)))
+  }
+
+  o <- order(x)
+  x <- x[o]
+  share <- cumsum(w[o]) / sum(w)
+  # Tolerance for floating-point sums landing just below `p`.
+  tol <- sqrt(.Machine$double.eps)
+  vapply(probs, function(p) x[which(share >= p - tol)[1]], numeric(1))
+}
+
+# Five-number summary, whisker ends and mean of one group (Tukey whiskers:
+# the most extreme values within 1.5 IQR of the box).
+box_summary <- function(x, w) {
+  q <- weighted_quantile(x, w, c(0.25, 0.5, 0.75))
+  fence <- q[c(1, 3)] + c(-1.5, 1.5) * (q[3] - q[1])
+  inside <- x >= fence[1] & x <= fence[2]
+  tibble::tibble(
+    whisker_low = min(x[inside]),
+    q1 = q[1],
+    median = q[2],
+    q3 = q[3],
+    whisker_upp = max(x[inside]),
+    mean = sum(w * x) / sum(w),
+    n = length(x)
+  )
+}
+
+# Distinct values beyond the whiskers of one group.
+box_outliers <- function(x, w) {
+  q <- weighted_quantile(x, w, c(0.25, 0.75))
+  fence <- q + c(-1.5, 1.5) * (q[2] - q[1])
+  sort(unique(x[x < fence[1] | x > fence[2]]))
+}
+
+#' Box plot statistics of a numeric variable
+#'
+#' Internal engine behind [stem_boxplot()]. Computes, within `group` if
+#' given, weighted quartiles ([weighted_quantile()]), Tukey whiskers, the
+#' weighted mean and the outlying values. `NA` items, weights and groups and
+#' zero weights are dropped.
+#'
+#' @inheritParams stem_summarise_num
+#'
+#' @return A list with `stats` (one row per group: `whisker_low`, `q1`,
+#'   `median`, `q3`, `whisker_upp`, `mean`, `n`) and `outliers` (the group
+#'   column and `value`).
+#' @keywords internal
+stem_box_stats <- function(data, item, group = NULL, weight = NULL, collapse_group = NULL) {
+  has_weight <- !rlang::quo_is_null(rlang::enquo(weight))
+  has_group  <- !rlang::quo_is_null(rlang::enquo(group))
+
+  data <- dplyr::mutate(
+    data,
+    dplyr::across(dplyr::all_of(labelled_cols(data, {{ item }})), haven::zap_labels)
+  )
+  data <- label_values(data, {{ group }})
+  if (has_group && !is.null(collapse_group)) {
+    data <- collapse_cats(data, {{ group }}, collapse_group)
+  }
+
+  data <- dplyr::mutate(data, .x = {{ item }}, .w = 1)
+  if (!is.numeric(data$.x)) {
+    stop("`item` must be numeric, not ", paste(class(data$.x), collapse = "/"), ".",
+         call. = FALSE)
+  }
+  if (has_weight) data <- dplyr::mutate(data, .w = {{ weight }})
+  data <- dplyr::filter(data, !is.na(.x), !is.na(.w), .w > 0)
+  if (has_group) data <- dplyr::filter(data, !is.na({{ group }}))
+
+  list(
+    stats = data |>
+      dplyr::summarise(box_summary(.x, .w), .by = {{ group }}) |>
+      tibble::as_tibble(),
+    outliers = data |>
+      dplyr::reframe(value = box_outliers(.x, .w), .by = {{ group }}) |>
+      tibble::as_tibble()
+  )
+}
+
 #' Summarise numeric or categorical variable (possibly segmented)
 #'
 #' Summarise either numeric or categerical variable, possible segment by another categorical variable.

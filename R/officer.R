@@ -127,6 +127,19 @@ stem_chart_spec <- function(plot) {
     stop("`plot` must be a ggplot2 object.", call. = FALSE)
   }
 
+  is_boxplot <- vapply(
+    plot$layers,
+    function(l) inherits(l$geom, "GeomBoxplot"),
+    logical(1)
+  )
+  if (any(is_boxplot)) {
+    stop(
+      "Boxplots can't be converted to native charts; save them as images ",
+      "(e.g. with ggplot2::ggsave()).",
+      call. = FALSE
+    )
+  }
+
   data <- plot$data
   if (!is.data.frame(data) || !"freq" %in% names(data)) {
     stop(
