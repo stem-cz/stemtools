@@ -736,3 +736,25 @@ test_that("stem_multiselect puts other and don't-know bars last, don't-know grey
                          other_levels = lv[length(lv)], dk_levels = lv[1])
   expect_equal(levels(m2$data$.response)[1:2], c(lv[1], lv[length(lv)]))
 })
+
+test_that("stem_multiselect(selected =) warns when every option is 0 % or 100 %", {
+  yn <- yes_no_data()
+  # Coded as the chosen answer or NA only: every valid answer is "Ano".
+  only_yes <- yn
+  for (v in c("q5_1", "q5_2", "q5_3", "q5_4")) {
+    only_yes[[v]] <- factor(ifelse(only_yes[[v]] == "Ano", "Ano", NA), levels = "Ano")
+    attr(only_yes[[v]], "label") <- attr(yn[[v]], "label")
+  }
+  expect_warning(stem_multiselect(only_yes, items = q5_1:q5_4, selected = "Ano"),
+                 "Every option is 100 %")
+
+  # "Ano" occurs only in a row that drops out (missing group): every option 0 %.
+  all_no <- yn
+  for (v in c("q5_1", "q5_2", "q5_3", "q5_4")) all_no[[v]][] <- "Ne"
+  all_no$q5_1[1] <- "Ano"
+  all_no$sex[1] <- NA
+  expect_warning(stem_multiselect(all_no, items = q5_1:q5_4, group = sex, selected = "Ano"),
+                 "Every option is 0 %")
+
+  expect_no_warning(stem_multiselect(yn, items = q5_1:q5_4, selected = "Ano"))
+})

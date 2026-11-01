@@ -21,6 +21,7 @@
 * Long category labels on the y axis wrap automatically (at 40 characters, about a third of a 19 cm chart at the 13 pt theme), as do legend entries (at 30 characters). The legend of stacked and grouped plots uses as many rows as it needs to fit 19 cm instead of a single row. Widths are based on measured Calibri text width. Wrapping only changes the displayed labels, so native charts, which wrap text themselves, get no line breaks. **This changes existing output** for long labels and wide legends.
 * `stem_battery()` gains `item_order` (a fixed item order by name or label, e.g. shared with a "master" battery), `items_per_chart` (splits a long battery, in sort order, into a list of plots titled "(1/2)", "(2/2)") and `collapse_item` (as in `stem_barplot()`). `order_by` now stops with an error when it matches no category.
 * `stem_barplot()` gains `other_levels` for "other" categories (e.g. "Jiné", "Ostatní"), kept last just before any `dk_levels`. `stem_multiselect()` gains `dk_levels` and `dk_color`: "don't know" bars go last and, in ungrouped plots, are drawn grey as separate native series, as in `stem_barplot()`.
+* In the yes/no layout, `stem_multiselect()` warns when every option comes out 0 % or every option 100 %, which usually means `selected` doesn't match the data.
 
 ## Bug fixes
 

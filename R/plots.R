@@ -1136,6 +1136,17 @@ stem_multiselect <- function(
       data, item_names, selected,
       group = {{ group }}, weight = {{ weight }}
     )
+    # All 0 % or all 100 % usually means `selected` didn't match the coding,
+    # e.g. items holding only the chosen answer and NA.
+    extreme <- if (all(plot_data$freq == 0)) "0 %" else if (all(plot_data$freq == 1)) "100 %"
+    if (!is.null(extreme)) {
+      warning(
+        "Every option is ", extreme, " with `selected = \"", selected, "\"`. ",
+        "Check that it matches the data: shares are taken among valid answers, ",
+        "so items coded only as the chosen answer and NA always give 100 %.",
+        call. = FALSE
+      )
+    }
     display_names <- item_display_names(item_data, item_label)
     plot_data$.response <- factor(
       plot_data$.response,
