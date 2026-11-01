@@ -29,7 +29,10 @@ the title.}
 whatever the ggplot does.}
 
 \item{legend}{If \code{TRUE}, shows a legend. Defaults to \code{TRUE} for plots with a
-fill variable and \code{FALSE} otherwise, matching the ggplot.}
+fill variable and \code{FALSE} otherwise, matching the ggplot. An ungrouped
+\code{\link[=stem_barplot]{stem_barplot()}} with \code{dk_levels} has no legend: its "don't know" bars form
+separate grey series (one worksheet column each) that overlap the main
+series, so every category still has a single bar.}
 
 \item{num_fmt}{Excel number format code for the data labels, e.g. \code{"0"},
 \code{"0.0"} or \verb{"0 \\"\%\\""}. By default the chart prints the plot's own label

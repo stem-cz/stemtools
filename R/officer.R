@@ -184,11 +184,15 @@ stem_chart_spec <- function(plot) {
     logical(1)
   ))
 
+  # "overlap": one bar per category whose series only separate the colours,
+  # e.g. the grey "don't know" bars of an ungrouped stem_barplot().
   type <- if (is.null(fill_name)) {
     "simple"
   } else if (inherits(layer$position, "PositionDodge2") ||
     inherits(layer$position, "PositionDodge")) {
     "dodged"
+  } else if (inherits(layer$position, "PositionIdentity")) {
+    "overlap"
   } else {
     "stacked"
   }
@@ -406,7 +410,10 @@ stem_mschart_theme <- function(spec, legend = TRUE) {
 #' @param labels If `TRUE`, prints a data label on every segment. Defaults to
 #'   whatever the ggplot does.
 #' @param legend If `TRUE`, shows a legend. Defaults to `TRUE` for plots with a
-#'   fill variable and `FALSE` otherwise, matching the ggplot.
+#'   fill variable and `FALSE` otherwise, matching the ggplot. An ungrouped
+#'   [stem_barplot()] with `dk_levels` has no legend: its "don't know" bars form
+#'   separate grey series (one worksheet column each) that overlap the main
+#'   series, so every category still has a single bar.
 #' @param num_fmt Excel number format code for the data labels, e.g. `"0"`,
 #'   `"0.0"` or `"0 \"%\""`. By default the chart prints the plot's own label
 #'   text instead of formatting the worksheet values, so the accuracy
@@ -462,7 +469,7 @@ stem_as_mschart <- function(
     labels <- spec$labels
   }
   if (is.null(legend)) {
-    legend <- !is.null(spec$series)
+    legend <- !is.null(spec$series) && spec$type != "overlap"
   }
   # With no explicit `num_fmt` the chart prints the plot's own label text, so
   # the accuracy and the `label_hide` blanks of the ggplot carry over.
@@ -531,6 +538,15 @@ stem_as_mschart <- function(
       grouping = "clustered",
       gap_width = gap_width,
       overlap = -10
+    ),
+    # Each category has a value in one series only; full overlap puts it in
+    # the middle of the category, like a single-series bar.
+    overlap = mschart::chart_settings(
+      chart,
+      dir = "horizontal",
+      grouping = "clustered",
+      gap_width = gap_width,
+      overlap = 100
     ),
     mschart::chart_settings(
       chart,

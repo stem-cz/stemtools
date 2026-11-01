@@ -444,12 +444,45 @@ stem_barplot <- function(
     return(p)
   }
 
-  # Ungrouped: one bar per item category.
-  p <- ggplot2::ggplot(
-    plot_data,
-    ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
-  ) +
-    ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1]) +
+  # Ungrouped: one bar per item category, all in one colour.
+  dk_present <- intersect(dk_levels, as.character(plot_data[[item_name]]))
+  if (!length(dk_present)) {
+    p <- ggplot2::ggplot(
+      plot_data,
+      ggplot2::aes(x = freq, y = .data[[item_name]], label = stem_label)
+    ) +
+      ggplot2::geom_col(color = "white", fill = stem_palette(palette)[1])
+  } else {
+    # Office charts colour whole series, not single bars, so "don't know"
+    # bars form series of their own (`.series`), drawn grey. Each category
+    # still has one bar: the series overlap rather than stack.
+    series_levels <- c("%", dk_present)
+    plot_data$.series <- factor(
+      ifelse(
+        as.character(plot_data[[item_name]]) %in% dk_present,
+        as.character(plot_data[[item_name]]),
+        "%"
+      ),
+      levels = series_levels
+    )
+    series_values <- stats::setNames(
+      c(stem_palette(palette)[1], dk_colors(length(dk_present), dk_color)),
+      series_levels
+    )
+    p <- ggplot2::ggplot(
+      plot_data,
+      ggplot2::aes(
+        x = freq,
+        y = .data[[item_name]],
+        fill = .data[[".series"]],
+        label = stem_label
+      )
+    ) +
+      ggplot2::geom_col(color = "white", position = ggplot2::position_identity()) +
+      ggplot2::scale_fill_manual(values = series_values, guide = "none")
+  }
+
+  p <- p +
     ggplot2::scale_y_discrete(limits = rev) +
     ggplot2::scale_x_continuous(
       labels = scales::label_percent(suffix = " %"),

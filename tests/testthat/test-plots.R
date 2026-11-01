@@ -292,6 +292,40 @@ test_that("don't-know levels move to the end even when listed first", {
   expect_equal(levels(p$data$police)[6], "Nevím")
 })
 
+test_that("ungrouped stem_barplot draws don't-know bars grey, as separate series", {
+  skip_if_not_installed("mschart")
+  df <- trust_dk(second = TRUE)
+  p <- stem_barplot(df, police, dk_levels = c("Nevím", "Neodpověděl"),
+                    dk_color = c("grey70", "grey50"), errorbar = TRUE)
+  build_ok(p)
+
+  # One bar per category; substantive bars keep the palette's first colour.
+  built <- ggplot2::ggplot_build(p)$data[[1]]
+  expect_equal(nrow(built), 7)
+  bar_fill <- stats::setNames(built$fill, levels(p$data$police)[8 - built$y])
+  expect_equal(unname(bar_fill[c("Nevím", "Neodpověděl")]), as_hex(c("grey70", "grey50")))
+  expect_true(all(bar_fill[1:5] == stem_palette()[1]))
+  expect_null(ggplot2::ggplot_build(p)$plot$guides$fill)
+
+  # Native chart: the main series plus one grey series per DK level, fully
+  # overlapping (one bar per category), no legend, same colours.
+  chart <- suppressMessages(stem_as_mschart(p))
+  expect_equal(names(chart$series_settings$fill), c("%", "Nevím", "Neodpověděl"))
+  expect_equal(unname(unlist(chart$series_settings$fill)),
+               c(stem_palette()[1], as_hex(c("grey70", "grey50"))))
+  expect_equal(chart$options$grouping, "clustered")
+  expect_equal(chart$options$overlap, 100)
+  expect_equal(chart$theme$legend_position, "n")
+  expect_equal(levels(chart$data[[chart$x]]), levels(p$data$police))
+  # Every category has exactly one value across the series.
+  expect_equal(nrow(chart$data), 7)
+
+  # Without DK levels in the data the chart is unchanged: one series.
+  chart <- stem_as_mschart(stem_barplot(trust, police, dk_levels = "Nevím"))
+  expect_null(chart$group)
+  expect_equal(unname(unlist(chart$series_settings$fill)), stem_palette()[1])
+})
+
 test_that("several don't-know levels get distinguishable greys", {
   df <- trust_dk(second = TRUE)
   fills <- fill_of(stem_inline(df, police, dk_levels = c("Nevím", "Neodpověděl")))
