@@ -111,6 +111,27 @@ test_that("stem_battery builds for a set of like items", {
   ))
 })
 
+test_that("stem_battery orders items by the plotted shares, ignoring missing answers", {
+  lv <- c("Agree", "Disagree")
+  df <- data.frame(
+    # 50 Agree + 50 missing: drawn as 100 % Agree.
+    a = factor(c(rep("Agree", 50), rep(NA, 50)), levels = lv),
+    # 60 Agree + 40 Disagree: drawn as 60 % Agree.
+    b = factor(c(rep("Agree", 60), rep("Disagree", 40)), levels = lv),
+    # 20 Agree + 30 Disagree + 50 missing: drawn as 40 % Agree.
+    c = factor(c(rep("Agree", 20), rep("Disagree", 30), rep(NA, 50)), levels = lv)
+  )
+  p <- stem_battery(df, items = c(a, b, c), item_label = FALSE, order_by = "Agree")
+  expect_equal(levels(p$data$.battery_item), c("a", "b", "c"))
+  agree <- p$data[p$data$.response == "Agree", ]
+  expect_equal(agree$freq[match(c("a", "b", "c"), agree$.battery_item)], c(1, 0.6, 0.4))
+
+  # The bar order survives the native conversion.
+  skip_if_not_installed("mschart")
+  chart <- stem_as_mschart(p)
+  expect_equal(levels(chart$data[[chart$x]]), c("a", "b", "c"))
+})
+
 test_that("stem_battery warns and falls back to names when a label is missing", {
   no_label <- trust
   attr(no_label$police, "label") <- NULL

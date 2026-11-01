@@ -498,23 +498,6 @@ stem_battery <- function(
     labels = item_labels
   )
 
-  # Optionally order items by their combined share of `order_by` categories.
-  if (!is.null(order_by)) {
-    order_levels <- long |>
-      dplyr::count(.battery_item, .response, wt = {{ weight }}) |>
-      dplyr::mutate(freq = n / sum(n), .by = .battery_item) |>
-      dplyr::summarise(
-        score = sum(freq[.response %in% order_by]),
-        .by = .battery_item
-      ) |>
-      dplyr::arrange(dplyr::desc(score)) |>
-      dplyr::pull(.battery_item)
-    long$.battery_item <- factor(
-      long$.battery_item,
-      levels = as.character(order_levels)
-    )
-  }
-
   plot_data <- stem_plot_data(
     data = long,
     item = .response,
@@ -524,6 +507,22 @@ stem_battery <- function(
     label_suffix = label_suffix,
     label_hide = label_hide
   )
+
+  # Optionally order items by their combined share of `order_by` categories,
+  # scored from the plotted shares (so missing answers don't count).
+  if (!is.null(order_by)) {
+    order_levels <- plot_data |>
+      dplyr::summarise(
+        score = sum(freq[.response %in% order_by]),
+        .by = .battery_item
+      ) |>
+      dplyr::arrange(dplyr::desc(score)) |>
+      dplyr::pull(.battery_item)
+    plot_data$.battery_item <- factor(
+      plot_data$.battery_item,
+      levels = as.character(order_levels)
+    )
+  }
 
   stem_stack(
     plot_data = plot_data,

@@ -8,6 +8,10 @@
   * `min_cell_n` (default `30`): a warning of class `stemtools_warning_small_cell` is raised when any cell has fewer unweighted observations. The plotting functions do not raise it.
 * Variables with `{haven}` value labels are converted to factors using their labels, in the summary functions and in all plotting functions. haven is only a suggested dependency, needed only when labelled data is present. `stem_summarise()` treats a labelled item as categorical.
 
+## Bug fixes
+
+* `stem_battery(order_by = )` scores items from the plotted shares, so missing answers no longer lower an item's score. Items with missing answers may now be ordered differently.
+
 # stemtools 0.1.3
 
 * `theme_stem()` gains a `label_size` argument setting the point size of the numeric labels drawn inside the plot, defaulting to the `14` used by the Stem apps.
