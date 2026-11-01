@@ -232,6 +232,81 @@ test_that("every plotting function accepts SPSS-labelled input", {
   expect_setequal(levels(p$data$.response), c("Police", "Army"))
 })
 
+# don't-know levels --------------------------------------------------------
+
+# trust with "Nevím" (and optionally a second DK level) added to `police`.
+trust_dk <- function(second = FALSE) {
+  df <- trust
+  extra <- c("Nevím", if (second) "Neodpověděl")
+  df$police <- forcats::fct_expand(df$police, extra)
+  df$police[1:80] <- "Nevím"
+  if (second) df$police[81:100] <- "Neodpověděl"
+  df
+}
+
+fill_of <- function(p) {
+  built <- ggplot2::ggplot_build(p)$data[[1]]
+  fill_name <- stem_aes_name(p$mapping$fill, p$data)
+  levels_ <- levels(droplevels(as.factor(p$data[[fill_name]])))
+  stats::setNames(built$fill[match(seq_along(levels_), built$group)], levels_)
+}
+
+test_that("don't-know levels go last, grey, outside the palette (stacked plots)", {
+  skip_if_not_installed("mschart")
+  df <- trust_dk()
+  div1 <- as.character(stem_palette("div1"))
+
+  plots <- list(
+    inline  = stem_inline(df, police, dk_levels = "Nevím"),
+    grouped = stem_barplot(df, police, group = eu_index, dk_levels = "Nevím"),
+    battery = {
+      df$army <- forcats::fct_expand(df$army, "Nevím")
+      df$army[200:240] <- "Nevím"
+      stem_battery(df, items = c(police, army), dk_levels = "Nevím")
+    }
+  )
+
+  for (p in plots) {
+    fills <- fill_of(p)
+    # A 5-point scale plus "Nevím" uses the 5-colour palette plus grey.
+    expect_equal(names(fills)[6], "Nevím")
+    expect_equal(unname(fills), c(div1, "#B3B3B3"))
+    # The native chart gets the same series, order and colours.
+    chart <- stem_as_mschart(p)
+    expect_equal(names(chart$series_settings$fill), names(fills))
+    expect_equal(unname(unlist(chart$series_settings$fill)), unname(fills))
+  }
+
+  # Without dk_levels the sixth category still overflows the palette.
+  expect_error(ggplot2::ggplot_build(stem_inline(df, police)), "Not enough colours")
+})
+
+test_that("don't-know levels move to the end even when listed first", {
+  df <- trust_dk()
+  df$police <- forcats::fct_relevel(df$police, "Nevím")
+  p <- stem_inline(df, police, dk_levels = c("Nevím", "Not present"))
+  expect_equal(levels(p$data$police)[6], "Nevím")
+  # Single-colour bar plots put them at the bottom (last level).
+  p <- stem_barplot(df, police, dk_levels = "Nevím")
+  expect_equal(levels(p$data$police)[6], "Nevím")
+})
+
+test_that("several don't-know levels get distinguishable greys", {
+  df <- trust_dk(second = TRUE)
+  fills <- fill_of(stem_inline(df, police, dk_levels = c("Nevím", "Neodpověděl")))
+  expect_equal(unname(fills[6]), "#B3B3B3")
+  expect_false(fills[6] == fills[7])
+
+  fills <- fill_of(stem_inline(df, police, dk_levels = c("Nevím", "Neodpověděl"),
+                               dk_color = c("grey80", "grey60")))
+  expect_equal(unname(fills[6:7]), as_hex(c("grey80", "grey60")))
+})
+
+test_that("without dk_levels the stacked colours are unchanged", {
+  fills <- fill_of(stem_barplot(trust, police, group = eu_index, direction = -1))
+  expect_equal(unname(fills), rev(as.character(stem_palette("div1"))))
+})
+
 test_that("stem_multiselect builds, with and without a group", {
   build_ok(stem_multiselect(trust, items = dplyr::starts_with("biggest_concern")))
   build_ok(stem_multiselect(

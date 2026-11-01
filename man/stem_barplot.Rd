@@ -22,7 +22,9 @@ stem_barplot(
   errorbar = FALSE,
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80
+  title_wrap = 80,
+  dk_levels = NULL,
+  dk_color = "grey70"
 )
 }
 \arguments{
@@ -78,6 +80,16 @@ marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
 \item{title_wrap}{Maximum number of characters per title line; longer titles
 are wrapped onto several lines so they do not overflow the plot. Use \code{NULL}
 or \code{Inf} to disable wrapping. Defaults to \code{80}.}
+
+\item{dk_levels}{Optional character vector of "don't know" categories of the
+item (e.g. \code{"Nevím"}). They are moved to the end (the right end of stacked
+bars and of the legend, the bottom of single-colour bar charts) and drawn
+grey, and they do not count towards the palette size. Levels not present
+in the data are ignored. Defaults to \code{NULL}.}
+
+\item{dk_color}{Fill colour of the "don't know" categories. Defaults to
+\code{"grey70"} (\verb{#B3B3B3}). Give several colours for several "don't know"
+levels; otherwise distinguishable darker greys are derived from the first.}
 }
 \value{
 A ggplot2 object.
@@ -93,5 +105,10 @@ within each group, so every bar sums to 100\%.
 \dontrun{
 stem_barplot(trust, government)
 stem_barplot(trust, police, group = eu_index, weight = W)
+
+# A "don't know" answer is drawn grey at the end of the bar.
+trust$police_dk <- forcats::fct_expand(trust$police, "Don't know")
+trust$police_dk[1:80] <- "Don't know"
+stem_inline(trust, police_dk, dk_levels = "Don't know")
 }
 }

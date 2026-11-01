@@ -8,7 +8,7 @@
   * `min_cell_n` (default `30`): a warning of class `stemtools_warning_small_cell` is raised when any cell has fewer unweighted observations. The plotting functions do not raise it.
 * Variables with `{haven}` value labels are converted to factors using their labels, in the summary functions and in all plotting functions. haven is only a suggested dependency, needed only when labelled data is present. `stem_summarise()` treats a labelled item as categorical.
 * `stem_battery()` gains `title`, `title_quote` and `title_wrap`. A battery's title is usually the wording its items share, so it is given as a string rather than read from an item label. Like the other titles, it carries over to native charts.
-
+* `stem_inline()`, `stem_battery()` and `stem_barplot()` gain `dk_levels` for "don't know" categories (e.g. `"Nevím"`) and `dk_color` (default `"grey70"`). These categories move to the end (the right end of stacked bars and of the legend; the bottom of single-colour bar plots), are drawn grey and do not count towards the palette size, so a 5-point scale plus "Nevím" no longer runs out of colours. Several "don't know" levels get distinguishable greys. Native charts keep the same series and colours.
 
 ## Bug fixes
 

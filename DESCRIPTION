@@ -25,7 +25,8 @@ Imports:
     spreadview,
     mschart,
     officer,
-    stats
+    stats,
+    grDevices
 Remotes:
     alesvomacka/spreadview
 Suggests:

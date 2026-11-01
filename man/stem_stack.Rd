@@ -12,7 +12,9 @@ stem_stack(
   direction = 1,
   labels = TRUE,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  dk_levels = NULL,
+  dk_color = "grey70"
 )
 }
 \arguments{
@@ -36,6 +38,16 @@ Defaults to \code{"black"}.}
 labels of the two side (extreme) item categories are drawn in white, while
 all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
 with \code{label_color}.}
+
+\item{dk_levels}{Optional character vector of "don't know" categories of the
+item (e.g. \code{"Nevím"}). They are moved to the end (the right end of stacked
+bars and of the legend, the bottom of single-colour bar charts) and drawn
+grey, and they do not count towards the palette size. Levels not present
+in the data are ignored. Defaults to \code{NULL}.}
+
+\item{dk_color}{Fill colour of the "don't know" categories. Defaults to
+\code{"grey70"} (\verb{#B3B3B3}). Give several colours for several "don't know"
+levels; otherwise distinguishable darker greys are derived from the first.}
 }
 \value{
 A ggplot2 object.

@@ -13,7 +13,8 @@ stem_plot_data(
   collapse_group = NULL,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0
+  label_hide = 0,
+  dk_levels = NULL
 )
 }
 \arguments{
@@ -41,6 +42,12 @@ categories.}
 \item{label_hide}{Proportions below this threshold are left unlabelled.
 Defaults to \code{0.05} when a \code{group} is supplied (to keep small stacked
 segments unlabelled) and \code{0} otherwise.}
+
+\item{dk_levels}{Optional character vector of "don't know" categories of the
+item (e.g. \code{"Nevím"}). They are moved to the end (the right end of stacked
+bars and of the legend, the bottom of single-colour bar charts) and drawn
+grey, and they do not count towards the palette size. Levels not present
+in the data are ignored. Defaults to \code{NULL}.}
 }
 \value{
 A tidy data frame with the item (and group) variable and columns

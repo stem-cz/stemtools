@@ -87,8 +87,11 @@ stem_plot_data <- function(
   collapse_group = NULL,
   label_accuracy = 1,
   label_suffix = "",
-  label_hide = 0
+  label_hide = 0,
+  dk_levels = NULL
 ) {
+  item_name <- rlang::as_name(rlang::enquo(item))
+
   plot_data <- stem_summarise_cat(
     data = data,
     item = {{ item }},
@@ -100,6 +103,10 @@ stem_plot_data <- function(
     min_cell_n = NULL
   )
 
+  if (!is.null(dk_levels)) {
+    plot_data[[item_name]] <- move_dk_last(plot_data[[item_name]], dk_levels)
+  }
+
   plot_data$stem_label <- format_pct(
     plot_data$freq,
     accuracy = label_accuracy,
@@ -108,6 +115,85 @@ stem_plot_data <- function(
   )
 
   plot_data
+}
+
+#' Move "don't know" levels to the end
+#'
+#' Internal helper. Levels of `x` named in `dk_levels` are moved after all
+#' other levels; `dk_levels` absent from `x` are ignored.
+#'
+#' @param x A factor or character vector.
+#' @param dk_levels Character vector of "don't know" levels.
+#'
+#' @return A factor.
+#' @keywords internal
+move_dk_last <- function(x, dk_levels) {
+  x <- as.factor(x)
+  dk <- intersect(dk_levels, levels(x))
+  if (!length(dk)) {
+    return(x)
+  }
+  forcats::fct_relevel(x, dk, after = Inf)
+}
+
+#' Greys for "don't know" levels
+#'
+#' Internal helper returning `n` fill colours for "don't know" levels. When
+#' `dk_color` holds fewer than `n` colours, shades are derived from its first
+#' colour towards a darker tone, so that several levels can be told apart.
+#'
+#' @param n Number of "don't know" levels.
+#' @param dk_color Colour, or vector of colours, for the "don't know" levels.
+#'
+#' @return Character vector of `n` hex colours.
+#' @keywords internal
+dk_colors <- function(n, dk_color = "grey70") {
+  if (n == 0) {
+    return(character())
+  }
+  colors <- if (length(dk_color) >= n) {
+    dk_color[seq_len(n)]
+  } else {
+    darker <- grDevices::colorRampPalette(c(dk_color[1], "black"))(21)[8]
+    grDevices::colorRampPalette(c(dk_color[1], darker))(n)
+  }
+  as_hex(colors)
+}
+
+#' Convert colours to hex codes
+#'
+#' @param x Character vector of colour names or hex codes.
+#' @return Character vector of `#RRGGBB` codes.
+#' @keywords internal
+as_hex <- function(x) {
+  grDevices::rgb(t(grDevices::col2rgb(x)), maxColorValue = 255)
+}
+
+#' Fill colours of the categories of a stacked bar
+#'
+#' Internal helper. The palette is spread over the substantive levels only;
+#' "don't know" levels are drawn grey and do not count towards the palette
+#' size.
+#'
+#' @param levels Character vector of fill levels, in plotting order.
+#' @inheritParams stem_barplot
+#'
+#' @return Named character vector of colours, one per level.
+#' @keywords internal
+stem_fill_values <- function(
+  levels,
+  palette = "div1",
+  direction = 1,
+  dk_levels = NULL,
+  dk_color = "grey70"
+) {
+  is_dk <- levels %in% dk_levels
+  colors <- character(length(levels))
+  if (any(!is_dk)) {
+    colors[!is_dk] <- stem_palette_gen(palette, direction)(sum(!is_dk))
+  }
+  colors[is_dk] <- dk_colors(sum(is_dk), dk_color)
+  stats::setNames(colors, levels)
 }
 
 #' Build a stacked horizontal bar plot
@@ -132,13 +218,25 @@ stem_stack <- function(
   direction = 1,
   labels = TRUE,
   label_color = "black",
-  label_bicolor = TRUE
+  label_bicolor = TRUE,
+  dk_levels = NULL,
+  dk_color = "grey70"
 ) {
-  # Colour the labels of the two side (extreme) fill categories white, all
-  # others with `label_color`.
+  # Only the levels present are coloured, as a discrete scale would.
+  fill_levels <- levels(droplevels(as.factor(plot_data[[fill_name]])))
+  fill_values <- stem_fill_values(
+    fill_levels,
+    palette = palette,
+    direction = direction,
+    dk_levels = dk_levels,
+    dk_color = dk_color
+  )
+
+  # Colour the labels of the two side (extreme) substantive categories white,
+  # all others with `label_color`.
   if (label_bicolor) {
-    fill_levels <- levels(as.factor(plot_data[[fill_name]]))
-    side_levels <- fill_levels[c(1, length(fill_levels))]
+    side_levels <- setdiff(fill_levels, dk_levels)
+    side_levels <- side_levels[c(1, length(side_levels))]
     plot_data$.label_color <- ifelse(
       as.character(plot_data[[fill_name]]) %in% side_levels,
       "white",
@@ -174,7 +272,7 @@ stem_stack <- function(
       expand = ggplot2::expansion(mult = c(0, 0))
     ) +
     ggplot2::scale_y_discrete(limits = rev) +
-    scale_fill_stem(palette = palette, direction = direction) +
+    ggplot2::scale_fill_manual(values = fill_values, breaks = fill_levels) +
     ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1))
 
   if (labels) {
@@ -237,6 +335,14 @@ stem_stack <- function(
 #' @param title_wrap Maximum number of characters per title line; longer titles
 #'   are wrapped onto several lines so they do not overflow the plot. Use `NULL`
 #'   or `Inf` to disable wrapping. Defaults to `80`.
+#' @param dk_levels Optional character vector of "don't know" categories of the
+#'   item (e.g. `"Nevím"`). They are moved to the end (the right end of stacked
+#'   bars and of the legend, the bottom of single-colour bar charts) and drawn
+#'   grey, and they do not count towards the palette size. Levels not present
+#'   in the data are ignored. Defaults to `NULL`.
+#' @param dk_color Fill colour of the "don't know" categories. Defaults to
+#'   `"grey70"` (`#B3B3B3`). Give several colours for several "don't know"
+#'   levels; otherwise distinguishable darker greys are derived from the first.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -244,6 +350,11 @@ stem_stack <- function(
 #' @examples \dontrun{
 #' stem_barplot(trust, government)
 #' stem_barplot(trust, police, group = eu_index, weight = W)
+#'
+#' # A "don't know" answer is drawn grey at the end of the bar.
+#' trust$police_dk <- forcats::fct_expand(trust$police, "Don't know")
+#' trust$police_dk[1:80] <- "Don't know"
+#' stem_inline(trust, police_dk, dk_levels = "Don't know")
 #' }
 stem_barplot <- function(
   data,
@@ -263,7 +374,9 @@ stem_barplot <- function(
   errorbar = FALSE,
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80
+  title_wrap = 80,
+  dk_levels = NULL,
+  dk_color = "grey70"
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -284,7 +397,8 @@ stem_barplot <- function(
     collapse_group = collapse_group,
     label_accuracy = label_accuracy,
     label_suffix = label_suffix,
-    label_hide = label_hide
+    label_hide = label_hide,
+    dk_levels = dk_levels
   )
 
   # With a grouping variable, draw one stacked horizontal bar per group
@@ -299,7 +413,9 @@ stem_barplot <- function(
       direction = direction,
       labels = labels,
       label_color = label_color,
-      label_bicolor = label_bicolor
+      label_bicolor = label_bicolor,
+      dk_levels = dk_levels,
+      dk_color = dk_color
     )
     if (title_show) {
       p <- p +
@@ -376,7 +492,9 @@ stem_inline <- function(
   label_bicolor = TRUE,
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 80
+  title_wrap = 80,
+  dk_levels = NULL,
+  dk_color = "grey70"
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
 
@@ -387,7 +505,8 @@ stem_inline <- function(
     collapse_item = collapse_item,
     label_accuracy = label_accuracy,
     label_suffix = label_suffix,
-    label_hide = label_hide
+    label_hide = label_hide,
+    dk_levels = dk_levels
   )
 
   p <- stem_stack(
@@ -398,7 +517,9 @@ stem_inline <- function(
     direction = direction,
     labels = labels,
     label_color = label_color,
-    label_bicolor = label_bicolor
+    label_bicolor = label_bicolor,
+    dk_levels = dk_levels,
+    dk_color = dk_color
   )
 
   if (title_show) {
@@ -535,7 +656,9 @@ stem_battery <- function(
   label_bicolor = TRUE,
   title = NULL,
   title_quote = FALSE,
-  title_wrap = 80
+  title_wrap = 80,
+  dk_levels = NULL,
+  dk_color = "grey70"
 ) {
   # Value labels become factor levels before the items are stacked.
   data <- label_values(data, {{ items }})
@@ -582,7 +705,8 @@ stem_battery <- function(
     weight = {{ weight }},
     label_accuracy = label_accuracy,
     label_suffix = label_suffix,
-    label_hide = label_hide
+    label_hide = label_hide,
+    dk_levels = dk_levels
   )
 
   # Optionally order items by their combined share of `order_by` categories,
@@ -609,7 +733,9 @@ stem_battery <- function(
     direction = direction,
     labels = labels,
     label_color = label_color,
-    label_bicolor = label_bicolor
+    label_bicolor = label_bicolor,
+    dk_levels = dk_levels,
+    dk_color = dk_color
   )
 
   if (!is.null(title)) {
