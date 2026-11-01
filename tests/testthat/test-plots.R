@@ -196,6 +196,42 @@ test_that("stem_battery uses haven value labels as response categories", {
   expect_equal(levels(p$data$.response), c("Yes", "No"))
 })
 
+test_that("every plotting function accepts SPSS-labelled input", {
+  skip_if_not_installed("haven")
+  skip_if_not_installed("mschart")
+  scale <- c(Agree = 1, Neutral = 2, Disagree = 3)
+  df <- data.frame(
+    q  = haven::labelled(rep(1:3, 20), scale, label = "Trust in the police"),
+    q2 = haven::labelled(rep(3:1, 20), scale, label = "Trust in the army"),
+    m1 = haven::labelled(rep(c(1, 2), 30), c(Police = 1, Army = 2)),
+    m2 = haven::labelled(rep(c(2, NA), 30), c(Police = 1, Army = 2)),
+    g  = haven::labelled(rep(1:2, each = 30), c(Men = 1, Women = 2)),
+    w  = rep(c(0.5, 1.5), 30)
+  )
+  native <- function(p) {
+    build_ok(p)
+    expect_s3_class(stem_as_mschart(p), "ms_barchart")
+    p
+  }
+
+  # Ungrouped bar plot: labels become categories, the title the variable label.
+  p <- native(stem_barplot(df, q, weight = w, title_show = TRUE))
+  expect_equal(levels(p$data$q), names(scale))
+  expect_identical(p$labels$title, "Trust in the police")
+  # collapse_item refers to the value labels.
+  p <- native(stem_barplot(df, q, collapse_item = list(Other = c("Neutral", "Disagree"))))
+  expect_equal(levels(p$data$q), c("Agree", "Other"))
+  # Grouped bar plot: the group's labels too.
+  p <- native(stem_barplot(df, q, group = g, collapse_group = list(All = c("Men", "Women"))))
+  expect_equal(levels(p$data$g), "All")
+  p <- native(stem_inline(df, q, title_show = TRUE))
+  expect_equal(levels(p$data$q), names(scale))
+  p <- native(stem_battery(df, items = c(q, q2), weight = w))
+  expect_equal(levels(p$data$.battery_item), c("Trust in the police", "Trust in the army"))
+  p <- native(stem_multiselect(df, items = c(m1, m2), group = g))
+  expect_setequal(levels(p$data$.response), c("Police", "Army"))
+})
+
 test_that("stem_multiselect builds, with and without a group", {
   build_ok(stem_multiselect(trust, items = dplyr::starts_with("biggest_concern")))
   build_ok(stem_multiselect(
