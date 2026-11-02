@@ -58,16 +58,14 @@ diverging_extended <- function(colors, dark) {
 #'
 #' @keywords internal
 .stem_palettes <- list(
-  # Nominal palettes
-  nom1 = stem_colors(
-    name = "nom1",
+  # Nominal palette, for unordered categories, in order of use: no greys (so
+  # the "don't know" grey stays unique), no good/bad meaning, distinguishable
+  # with colour-vision deficiency; the brand burgundy comes last.
+  nom = stem_colors(
+    name = "nom",
     type = "nominal",
-    colors = c("#FFEB38", "#FF9800", "#F44336", "#9B4363", "#996633")
-  ),
-  nom2 = stem_colors(
-    name = "nom2",
-    type = "nominal",
-    colors = c("#8BC34A", "#3D918A", "#6094D5", "#3F51B3", "#BCBCBC", "#3C3C3C")
+    colors = c("#56B4E9", "#E69F00", "#009E73", "#3F51B3",
+               "#CC79A7", "#A6761D", "#F0E442", "#82143C")
   ),
 
   # Sequential palettes
@@ -134,6 +132,23 @@ diverging_extended <- function(colors, dark) {
 
 # Palette accessors -------------------------------------------------------
 
+# Deprecated palette names and their replacements (kept for one release).
+.stem_palettes_deprecated <- c(nom1 = "nom", nom2 = "nom")
+
+# Map a deprecated palette name to its replacement, with a warning.
+resolve_palette <- function(palette) {
+  if (palette %in% names(.stem_palettes_deprecated)) {
+    new <- .stem_palettes_deprecated[[palette]]
+    warning(
+      "Palette '", palette, "' is deprecated and now gives the '", new,
+      "' palette; use '", new, "' instead.",
+      call. = FALSE
+    )
+    return(new)
+  }
+  palette
+}
+
 #' Retrieve a stem colour palette
 #'
 #' @description
@@ -143,7 +158,10 @@ diverging_extended <- function(colors, dark) {
 #'
 #' @param palette Name of the palette. One of:
 #'
-#' **Nominal** (categorical, unordered data): `"nom1"`, `"nom2"`.
+#' **Nominal** (categorical, unordered data, e.g. stacked bars of an unordered
+#' distribution such as heating type, or the groups of a grouped
+#' [stem_multiselect()]): `"nom"` (8 colours, no greys, colour-vision-deficiency
+#' friendly). `"nom1"` and `"nom2"` are deprecated aliases of `"nom"`.
 #'
 #' **Sequential** (ordered data from low to high): `"seq1"`, `"seq2"`, `"seq3"`, `"seq4"`.
 #'
@@ -164,9 +182,9 @@ diverging_extended <- function(colors, dark) {
 #' attr(stem_palette("modern"), "type")
 #'
 #' # Use with scales package for inspection
-#' scales::show_col(stem_palette("nom1"))
+#' scales::show_col(stem_palette("nom"))
 stem_palette <- function(palette = "div1") {
-  pal <- .stem_palettes[[palette]]
+  pal <- .stem_palettes[[resolve_palette(palette)]]
 
   if (is.null(pal)) {
     stop("Unknown palette '", palette, "'. See `?stem_palette` for available palettes.",
@@ -210,6 +228,7 @@ stem_palette <- function(palette = "div1") {
 #' # Reversed order
 #' stem_palette_gen("div1", direction = -1)(5)
 stem_palette_gen <- function(palette = "div1", direction = 1) {
+  palette <- resolve_palette(palette)
   function(n) {
     all_colors <- stem_palette(palette)
     extended <- .stem_palettes[[palette]]@extended

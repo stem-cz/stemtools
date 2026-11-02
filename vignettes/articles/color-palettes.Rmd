@@ -31,7 +31,7 @@ Every palette lives in a single registry, and each one is tagged with a *type* t
 
 -   **Nominal** -- for variables whose categories have no inherent order (gender, country of origin, occupation).
 
-    -   Available nominal palettes: `nom1`, `nom2`.
+    -   Available nominal palette: `nom` (`nom1` and `nom2` are deprecated aliases).
 
 -   **Sequential** -- for ordered variables where higher values mean *more* of something (level of unemployment, share with tertiary education, socioeconomic class).
 
@@ -82,7 +82,7 @@ Because these are ordinary discrete scales, any argument accepted by `ggplot2::d
 ```{r ggplot-fill}
 ggplot(mpg, aes(x = drv, fill = drv)) +
   geom_bar() +
-  scale_fill_stem(palette = "nom2") +
+  scale_fill_stem(palette = "nom") +
   guides(fill = "none")
 ```
 
@@ -112,7 +112,7 @@ You can also add the theme to a single plot with `+ theme_stem()`, and override 
 ```{r theme-custom}
 ggplot(mpg, aes(x = drv, fill = drv)) +
   geom_bar() +
-  scale_fill_stem(palette = "nom2") +
+  scale_fill_stem(palette = "nom") +
   labs(title = "Vehicles by drivetrain") +
   theme_stem(family = "", legend.position = "none")
 ```

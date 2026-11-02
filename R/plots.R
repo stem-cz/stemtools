@@ -1055,6 +1055,9 @@ selected_shares <- function(data, item_names, selected, group = NULL, weight = N
 #'   background bar behind each option.
 #' @param background_fill Fill colour of the background bars.
 #' @param background_alpha Opacity of the background bars.
+#' @param palette Name of a Stem palette for the group colours of grouped
+#'   plots. Defaults to the nominal `"nom"`, as groups have no order.
+#'   Ungrouped plots draw every bar in `bar_color`.
 #' @param selected The answer that marks an item as chosen, e.g. `"Ano"`.
 #'   Switches to the yes/no layout described above. Defaults to `NULL` (mention
 #'   columns).
@@ -1085,7 +1088,7 @@ stem_multiselect <- function(
   items,
   group = NULL,
   weight = NULL,
-  palette = "div1",
+  palette = "nom",
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,

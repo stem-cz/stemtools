@@ -9,7 +9,10 @@ stem_palette(palette = "div1")
 \arguments{
 \item{palette}{Name of the palette. One of:
 
-\strong{Nominal} (categorical, unordered data): \code{"nom1"}, \code{"nom2"}.
+\strong{Nominal} (categorical, unordered data, e.g. stacked bars of an unordered
+distribution such as heating type, or the groups of a grouped
+\code{\link[=stem_multiselect]{stem_multiselect()}}): \code{"nom"} (8 colours, no greys, colour-vision-deficiency
+friendly). \code{"nom1"} and \code{"nom2"} are deprecated aliases of \code{"nom"}.
 
 \strong{Sequential} (ordered data from low to high): \code{"seq1"}, \code{"seq2"}, \code{"seq3"}, \code{"seq4"}.
 
@@ -33,7 +36,7 @@ stem_palette("modern")
 attr(stem_palette("modern"), "type")
 
 # Use with scales package for inspection
-scales::show_col(stem_palette("nom1"))
+scales::show_col(stem_palette("nom"))
 }
 \seealso{
 \code{\link[=stem_palette_gen]{stem_palette_gen()}}, \code{\link[=scale_colour_stem]{scale_colour_stem()}}, \code{\link[=scale_fill_stem]{scale_fill_stem()}}

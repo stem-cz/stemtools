@@ -9,7 +9,7 @@ stem_multiselect(
   items,
   group = NULL,
   weight = NULL,
-  palette = "div1",
+  palette = "nom",
   direction = 1,
   labels = TRUE,
   label_accuracy = 1,
@@ -39,7 +39,9 @@ and proportions are computed within each group.}
 
 \item{weight}{Optional survey weights.}
 
-\item{palette}{Name of a Stem palette. See \code{\link[=stem_palette]{stem_palette()}}.}
+\item{palette}{Name of a Stem palette for the group colours of grouped
+plots. Defaults to the nominal \code{"nom"}, as groups have no order.
+Ungrouped plots draw every bar in \code{bar_color}.}
 
 \item{direction}{Palette direction. Use \code{-1} to reverse the colours.}
 

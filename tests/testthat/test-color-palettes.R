@@ -58,8 +58,8 @@ test_that("stem_palette_gen returns a generator that yields n colours", {
 })
 
 test_that("stem_palette_gen direction = -1 reverses the colours", {
-  gen_fwd <- stem_palette_gen("nom1", direction = 1)
-  gen_rev <- stem_palette_gen("nom1", direction = -1)
+  gen_fwd <- stem_palette_gen("nom", direction = 1)
+  gen_rev <- stem_palette_gen("nom", direction = -1)
   expect_identical(gen_rev(3), rev(gen_fwd(3)))
 })
 
@@ -135,4 +135,35 @@ test_that("scale_colour_stem maps to the colour aesthetic and fill to fill", {
 
 test_that("stem_palettes_all returns a ggplot", {
   expect_s3_class(stem_palettes_all(), "ggplot")
+})
+
+# nominal palette -------------------------------------------------------------
+
+test_that("the nominal palette has 8 colours, no greys, burgundy last", {
+  nom <- as.character(stem_palette("nom"))
+  expect_equal(nom, c("#56B4E9", "#E69F00", "#009E73", "#3F51B3",
+                      "#CC79A7", "#A6761D", "#F0E442", "#82143C"))
+  expect_identical(attr(stem_palette("nom"), "type"), "nominal")
+  # No greys: every colour has a clearly unequal R, G, B.
+  rgb <- grDevices::col2rgb(nom)
+  expect_true(all(apply(rgb, 2, function(x) diff(range(x))) > 40))
+  expect_equal(stem_palette_gen("nom")(3), nom[1:3])
+  expect_error(stem_palette_gen("nom")(9), "has 8).*collapse_item")
+})
+
+test_that("nom1 and nom2 are deprecated aliases of nom", {
+  expect_warning(pal <- stem_palette("nom1"), "deprecated.*'nom'")
+  expect_identical(pal, stem_palette("nom"))
+  expect_warning(gen <- stem_palette_gen("nom2"), "deprecated")
+  expect_identical(gen(4), stem_palette_gen("nom")(4))
+  expect_false(any(c("nom1", "nom2") %in% names(.stem_palettes)))
+})
+
+test_that("grouped multiselects default to the nominal palette, also natively", {
+  skip_if_not_installed("mschart")
+  p <- stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"),
+                        group = eu_index)
+  chart <- stem_as_mschart(p)
+  expect_equal(unname(unlist(chart$series_settings$fill)),
+               as.character(stem_palette("nom"))[1:4])
 })
