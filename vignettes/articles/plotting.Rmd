@@ -29,13 +29,13 @@ head(trust)
 
 ## Setting the Stem theme
 
-`theme_stem()` is a *complete* theme carrying the Stem look. Because it is complete, the plotting functions do not apply it themselves -- instead we switch it on once with `theme_set()` and every plot from here on picks it up automatically:
+Every plotting function attaches `theme_stem()`, the Stem look, by itself. Pass a variant with the `theme` argument (e.g. `theme = theme_stem(base_size = 18)`), add tweaks with `+ theme(...)`, or use `theme = NULL` to fall back on a theme set with `theme_set()`.
+
+The theme uses the Stem house font, Calibri. It may not be installed on every machine (the server building this page lacks it), so here we switch the whole session to the graphics device's default font:
 
 ```{r theme}
-theme_set(theme_stem(family = ""))
+options(stemtools.family = "")
 ```
-
-We pass `family = ""` so the plots fall back to the graphics device's default font (the Stem house font, Calibri, may not be installed on every machine). In normal use you would just call `theme_set(theme_stem())`.
 
 The theme is sized for charts exported 19 cm wide: a 13 pt base, 15.6 pt titles and 12 pt data labels. Titles wrap at 73 characters, long category labels on the y axis and in the legend wrap automatically, and the legend uses as many rows as it needs (most 5-point scales fit one). Numbers use the Czech decimal comma.
 
@@ -243,7 +243,7 @@ stem_barplot(trust, item = government, weight = W)
 
 ## Further customization
 
-Every function returns a standard `{ggplot2}` object, so you can keep adding layers, scales and theme tweaks. The global `theme_stem()` is already applied, so this just layers a title on top:
+Every function returns a standard `{ggplot2}` object, so you can keep adding layers, scales and theme tweaks. `theme_stem()` is already attached, so this just layers a title on top:
 
 ```{r customize}
 stem_barplot(trust, item = government) +

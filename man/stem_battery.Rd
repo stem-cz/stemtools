@@ -25,7 +25,8 @@ stem_battery(
   dk_color = "grey70",
   item_order = NULL,
   items_per_chart = NULL,
-  collapse_item = NULL
+  collapse_item = NULL,
+  theme = theme_stem()
 )
 }
 \arguments{
@@ -102,6 +103,11 @@ any) when there is more than one.}
 
 \item{collapse_item}{Optional named list collapsing (or renaming) the
 categories of every item, as in \code{\link[=stem_barplot]{stem_barplot()}}.}
+
+\item{theme}{The theme attached to the plot. Defaults to \code{\link[=theme_stem]{theme_stem()}}, whose
+19 cm layout the label wrapping and legend rows are measured for. Use
+\code{NULL} to attach none, so that the session theme set with
+\code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} applies; themes added with \code{+} still override it.}
 }
 \value{
 A ggplot2 object, or a list of them when \code{items_per_chart} is given.

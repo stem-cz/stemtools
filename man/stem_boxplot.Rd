@@ -13,7 +13,8 @@ stem_boxplot(
   bar_color = "#82143C",
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 73
+  title_wrap = 73,
+  theme = theme_stem()
 )
 }
 \arguments{
@@ -43,6 +44,11 @@ marks (\verb{„} and \verb{“}). Defaults to \code{FALSE}.}
 are wrapped onto several lines so they do not overflow the plot. Use \code{NULL}
 or \code{Inf} to disable wrapping. Defaults to \code{73}, measured so that a line of
 15.6 pt bold Calibri (the \code{\link[=theme_stem]{theme_stem()}} title) fits a chart 19 cm wide.}
+
+\item{theme}{The theme attached to the plot. Defaults to \code{\link[=theme_stem]{theme_stem()}}, whose
+19 cm layout the label wrapping and legend rows are measured for. Use
+\code{NULL} to attach none, so that the session theme set with
+\code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} applies; themes added with \code{+} still override it.}
 }
 \value{
 A ggplot2 object.

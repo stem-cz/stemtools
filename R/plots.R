@@ -38,6 +38,20 @@ stem_char_pt <- 4.5
 stem_legend_key_pt <- 20
 stem_legend_box_pt <- 8
 
+#' Attach a theme to a plot
+#'
+#' Internal helper used by every plotting function: adds `theme` unless it is
+#' `NULL`, in which case the session theme ([ggplot2::theme_set()]) applies.
+#'
+#' @param p A ggplot2 object.
+#' @param theme A ggplot2 theme, or `NULL`.
+#'
+#' @return `p`, with `theme` added.
+#' @keywords internal
+add_theme <- function(p, theme) {
+  if (is.null(theme)) p else p + theme
+}
+
 #' Wrap labels to a number of characters
 #'
 #' Internal helper returning a labelling function for ggplot2 scales. Wrapping
@@ -450,6 +464,10 @@ stem_stack <- function(
 #'   `c("Jiné", "Ostatní")`), kept last in the order given, just before any
 #'   `dk_levels`: at the bottom of single-colour bar charts, at the right end of
 #'   stacked bars. They keep their palette colour. Defaults to `NULL`.
+#' @param theme The theme attached to the plot. Defaults to [theme_stem()], whose
+#'   19 cm layout the label wrapping and legend rows are measured for. Use
+#'   `NULL` to attach none, so that the session theme set with
+#'   [ggplot2::theme_set()] applies; themes added with `+` still override it.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -485,7 +503,8 @@ stem_barplot <- function(
   dk_levels = NULL,
   dk_color = "grey70",
   bar_color = "#82143C",
-  other_levels = NULL
+  other_levels = NULL,
+  theme = theme_stem()
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -533,7 +552,7 @@ stem_barplot <- function(
           title = stem_plot_title(data, item_name, title_quote, title_wrap)
         )
     }
-    return(p)
+    return(add_theme(p, theme))
   }
 
   # Ungrouped: one bar per item category, all in one colour.
@@ -602,7 +621,7 @@ stem_barplot <- function(
       )
   }
 
-  p
+  add_theme(p, theme)
 }
 
 #' Inline stacked bar plot
@@ -637,7 +656,8 @@ stem_inline <- function(
   title_quote = FALSE,
   title_wrap = 73,
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  theme = theme_stem()
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
 
@@ -672,7 +692,7 @@ stem_inline <- function(
       )
   }
 
-  p
+  add_theme(p, theme)
 }
 
 # Multi-item plots --------------------------------------------------------
@@ -858,7 +878,8 @@ stem_battery <- function(
   dk_color = "grey70",
   item_order = NULL,
   items_per_chart = NULL,
-  collapse_item = NULL
+  collapse_item = NULL,
+  theme = theme_stem()
 ) {
   if (!is.null(order_by) && !is.null(item_order)) {
     stop("Give either `order_by` or `item_order`, not both.", call. = FALSE)
@@ -970,7 +991,7 @@ stem_battery <- function(
       p <- p +
         ggplot2::labs(title = format_title(chart_title, title_quote, title_wrap))
     }
-    p
+    add_theme(p, theme)
   }
 
   if (is.null(items_per_chart)) {
@@ -1109,7 +1130,8 @@ stem_multiselect <- function(
   other_levels = NULL,
   bar_color = "#82143C",
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  theme = theme_stem()
 ) {
   group_quo <- rlang::enquo(group)
   has_group <- !rlang::quo_is_null(group_quo)
@@ -1290,7 +1312,7 @@ stem_multiselect <- function(
       )
   }
 
-  p
+  add_theme(p, theme)
 }
 
 # Numeric variables -------------------------------------------------------
@@ -1335,7 +1357,8 @@ stem_boxplot <- function(
   bar_color = "#82143C",
   title_show = FALSE,
   title_quote = FALSE,
-  title_wrap = 73
+  title_wrap = 73,
+  theme = theme_stem()
 ) {
   item_name <- rlang::as_name(rlang::enquo(item))
   group_quo <- rlang::enquo(group)
@@ -1413,5 +1436,5 @@ stem_boxplot <- function(
       )
   }
 
-  p
+  add_theme(p, theme)
 }

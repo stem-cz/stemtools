@@ -2,17 +2,15 @@
 
 #' Complete ggplot2 theme for Stem.
 #'
-#' A *complete* ggplot2 theme carrying the Stem look. Because it is complete,
-#' the Stem plotting functions do not apply it themselves; instead activate it
-#' globally with [ggplot2::theme_set()] so every plot picks it up:
+#' A *complete* ggplot2 theme carrying the Stem look. The Stem plotting
+#' functions attach it to every plot themselves (their `theme` argument), so
+#' you only call it to change it, e.g. `stem_barplot(..., theme =
+#' theme_stem(base_size = 18))` or `+ theme_stem(paper = NA)`. With `theme =
+#' NULL` the plotting functions attach no theme, and one activated with
+#' [ggplot2::theme_set()] applies instead. It also works on any other ggplot.
 #'
-#' ```r
-#' ggplot2::theme_set(theme_stem())
-#' ```
-#'
-#' It can still be added to an individual plot with `+ theme_stem()` in the
-#' usual way. The theme is built on [ggplot2::theme_grey()] with the Stem
-#' overrides layered on top.
+#' The theme is built on [ggplot2::theme_grey()] with the Stem overrides
+#' layered on top.
 #'
 #' @param ink Foreground colour used for text, titles and axis lines. Also
 #'   passed to [ggplot2::element_geom()] as the default geom foreground colour.
@@ -25,8 +23,10 @@
 #'   Defaults to the Stem brand burgundy `"#82143C"`, also the default fill of
 #'   single-series bars (`bar_color` in [stem_barplot()]).
 #' @param family Font family for all text. Defaults to `"Calibri"`, the Stem
-#'   house font. Pass `""` to use the graphics device's default family (useful
-#'   on machines where Calibri is not installed).
+#'   house font, or to the `stemtools.family` option when set. Pass `""` to use
+#'   the graphics device's default family (useful on machines where Calibri is
+#'   not installed); `options(stemtools.family = "")` does that for every plot
+#'   of the session.
 #' @param base_size Base font size in points. Defaults to `13`, sized for
 #'   charts exported 19 cm wide. Other text sizes are relative to it (e.g. the
 #'   title is 1.2 × `base_size`, 15.6 pt by default; axis and legend text
@@ -42,18 +42,23 @@
 #' @export
 #'
 #' @examples \dontrun{
-#' # Activate globally for the whole session.
-#' ggplot2::theme_set(theme_stem())
+#' # The Stem plotting functions attach it themselves.
 #' stem_barplot(trust, government)
 #'
-#' # Or add it to a single plot.
-#' stem_barplot(trust, government) + theme_stem()
+#' # A variant, for one plot.
+#' stem_barplot(trust, government, theme = theme_stem(base_size = 18))
+#'
+#' # No Calibri on this machine: use the device's font for the whole session.
+#' options(stemtools.family = "")
+#'
+#' # Any other ggplot.
+#' ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) + ggplot2::geom_point() + theme_stem()
 #'}
 theme_stem <- function(
   ink = "black",
   paper = "white",
   accent = "#82143C",
-  family = "Calibri",
+  family = getOption("stemtools.family", "Calibri"),
   label_size = 12,
   base_size = 13,
   ...

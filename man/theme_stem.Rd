@@ -8,7 +8,7 @@ theme_stem(
   ink = "black",
   paper = "white",
   accent = "#82143C",
-  family = "Calibri",
+  family = getOption("stemtools.family", "Calibri"),
   label_size = 12,
   base_size = 13,
   ...
@@ -29,8 +29,10 @@ Defaults to the Stem brand burgundy \code{"#82143C"}, also the default fill of
 single-series bars (\code{bar_color} in \code{\link[=stem_barplot]{stem_barplot()}}).}
 
 \item{family}{Font family for all text. Defaults to \code{"Calibri"}, the Stem
-house font. Pass \code{""} to use the graphics device's default family (useful
-on machines where Calibri is not installed).}
+house font, or to the \code{stemtools.family} option when set. Pass \code{""} to use
+the graphics device's default family (useful on machines where Calibri is
+not installed); \code{options(stemtools.family = "")} does that for every plot
+of the session.}
 
 \item{label_size}{Point size of the numeric labels drawn inside the plot
 (the \code{stem_label} values printed by \code{\link[=stem_barplot]{stem_barplot()}} and friends). Passed
@@ -49,25 +51,27 @@ defaults.}
 A complete ggplot2 \code{\link[ggplot2:theme]{ggplot2::theme()}} object.
 }
 \description{
-A \emph{complete} ggplot2 theme carrying the Stem look. Because it is complete,
-the Stem plotting functions do not apply it themselves; instead activate it
-globally with \code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} so every plot picks it up:
+A \emph{complete} ggplot2 theme carrying the Stem look. The Stem plotting
+functions attach it to every plot themselves (their \code{theme} argument), so
+you only call it to change it, e.g. \code{stem_barplot(..., theme = theme_stem(base_size = 18))} or \code{+ theme_stem(paper = NA)}. With \code{theme = NULL} the plotting functions attach no theme, and one activated with
+\code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} applies instead. It also works on any other ggplot.
 }
 \details{
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{ggplot2::theme_set(theme_stem())
-}\if{html}{\out{</div>}}
-
-It can still be added to an individual plot with \code{+ theme_stem()} in the
-usual way. The theme is built on \code{\link[ggplot2:theme_grey]{ggplot2::theme_grey()}} with the Stem
-overrides layered on top.
+The theme is built on \code{\link[ggplot2:theme_grey]{ggplot2::theme_grey()}} with the Stem overrides
+layered on top.
 }
 \examples{
 \dontrun{
-# Activate globally for the whole session.
-ggplot2::theme_set(theme_stem())
+# The Stem plotting functions attach it themselves.
 stem_barplot(trust, government)
 
-# Or add it to a single plot.
-stem_barplot(trust, government) + theme_stem()
+# A variant, for one plot.
+stem_barplot(trust, government, theme = theme_stem(base_size = 18))
+
+# No Calibri on this machine: use the device's font for the whole session.
+options(stemtools.family = "")
+
+# Any other ggplot.
+ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) + ggplot2::geom_point() + theme_stem()
 }
 }

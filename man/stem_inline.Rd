@@ -21,7 +21,8 @@ stem_inline(
   title_quote = FALSE,
   title_wrap = 73,
   dk_levels = NULL,
-  dk_color = "grey70"
+  dk_color = "grey70",
+  theme = theme_stem()
 )
 }
 \arguments{
@@ -79,6 +80,11 @@ in the data are ignored. Defaults to \code{NULL}.}
 \item{dk_color}{Fill colour of the "don't know" categories. Defaults to
 \code{"grey70"} (\verb{#B3B3B3}). Give several colours for several "don't know"
 levels; otherwise distinguishable darker greys are derived from the first.}
+
+\item{theme}{The theme attached to the plot. Defaults to \code{\link[=theme_stem]{theme_stem()}}, whose
+19 cm layout the label wrapping and legend rows are measured for. Use
+\code{NULL} to attach none, so that the session theme set with
+\code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} applies; themes added with \code{+} still override it.}
 }
 \value{
 A ggplot2 object.

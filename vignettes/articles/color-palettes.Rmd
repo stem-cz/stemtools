@@ -88,7 +88,7 @@ ggplot(mpg, aes(x = drv, fill = drv)) +
 
 ## The Stem theme
 
-`theme_stem()` is a *complete* `{ggplot2}` theme carrying the Stem look: no gridlines, a top legend, bold titles and the Stem house font. Because it is complete, you activate it once with `ggplot2::theme_set()` and every subsequent plot picks it up:
+`theme_stem()` is a *complete* `{ggplot2}` theme carrying the Stem look: no gridlines, a top legend, bold titles and the Stem house font. The `stem_*` plotting functions attach it themselves; for any other plot, activate it once with `ggplot2::theme_set()` and every subsequent plot picks it up:
 
 ```{r theme-set}
 theme_set(theme_stem(family = ""))
@@ -117,4 +117,4 @@ ggplot(mpg, aes(x = drv, fill = drv)) +
   theme_stem(family = "", legend.position = "none")
 ```
 
-Palettes and the theme are designed to be used together: the `stem_*` plotting functions rely on the same palettes, and pair naturally with `theme_stem()` set for the whole session.
+Palettes and the theme are designed to be used together: the `stem_*` plotting functions rely on the same palettes, and attach `theme_stem()` to every plot themselves.

@@ -52,3 +52,35 @@ test_that("theme_stem left-aligns the legend and leaves room for \"100 %\"", {
   expect_identical(th$legend.justification.top, "left")
   expect_gte(as.numeric(th$plot.margin[2]), 18)
 })
+
+test_that("plotting functions attach theme_stem() unless theme = NULL", {
+  plots <- list(
+    stem_barplot(trust, police),
+    stem_barplot(trust, police, group = eu_index),
+    stem_inline(trust, police),
+    stem_battery(trust, items = c(police, army)),
+    stem_battery(trust, items = c(police, army, eu), items_per_chart = 2)[[1]],
+    stem_multiselect(trust, items = dplyr::starts_with("biggest_concern")),
+    stem_boxplot(trust, age)
+  )
+  for (p in plots) {
+    expect_equal(p$theme$text$size, 13)
+    expect_identical(p$theme$legend.location, "plot")
+  }
+
+  # theme = NULL leaves the session theme in charge.
+  bare <- stem_barplot(trust, police, theme = NULL)
+  expect_length(bare$theme, 0)
+
+  # A variant passed in, or added afterwards, wins.
+  expect_equal(stem_inline(trust, police, theme = theme_stem(base_size = 18))$theme$text$size, 18)
+  expect_equal((stem_inline(trust, police) + theme_stem(base_size = 10))$theme$text$size, 10)
+})
+
+test_that("the stemtools.family option sets the default font", {
+  withr::local_options(stemtools.family = "")
+  expect_identical(theme_stem()$text$family, "")
+  expect_identical(stem_barplot(trust, police)$theme$text$family, "")
+  withr::local_options(stemtools.family = NULL)
+  expect_identical(theme_stem()$text$family, "Calibri")
+})

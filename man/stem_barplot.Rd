@@ -26,7 +26,8 @@ stem_barplot(
   dk_levels = NULL,
   dk_color = "grey70",
   bar_color = "#82143C",
-  other_levels = NULL
+  other_levels = NULL,
+  theme = theme_stem()
 )
 }
 \arguments{
@@ -103,6 +104,11 @@ whatever the \code{palette}.}
 \code{c("Jiné", "Ostatní")}), kept last in the order given, just before any
 \code{dk_levels}: at the bottom of single-colour bar charts, at the right end of
 stacked bars. They keep their palette colour. Defaults to \code{NULL}.}
+
+\item{theme}{The theme attached to the plot. Defaults to \code{\link[=theme_stem]{theme_stem()}}, whose
+19 cm layout the label wrapping and legend rows are measured for. Use
+\code{NULL} to attach none, so that the session theme set with
+\code{\link[ggplot2:theme_set]{ggplot2::theme_set()}} applies; themes added with \code{+} still override it.}
 }
 \value{
 A ggplot2 object.
