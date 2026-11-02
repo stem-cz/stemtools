@@ -807,3 +807,16 @@ test_that("stem_boxplot boxes are burgundy by default", {
   built <- ggplot2::ggplot_build(stem_boxplot(trust, age, bar_color = "navy"))
   expect_equal(unique(built$data[[1]]$fill), "navy")
 })
+
+test_that("typical 5-point legends get one row, 7-point ones two", {
+  one_row <- list(
+    c("Definitely Agree", "Rather Agree", "Neither Agree nor Disagree", "Rather Disagree", "Definitely Disagree"),
+    c("Rozhodně souhlasím", "Spíše souhlasím", "Ani souhlas, ani nesouhlas", "Spíše nesouhlasím", "Rozhodně nesouhlasím"),
+    c("Rozhodně ano", "Spíše ano", "Ani ano, ani ne", "Spíše ne", "Rozhodně ne"),
+    c("Rozhodně souhlasím", "Spíše souhlasím", "Spíše nesouhlasím", "Rozhodně nesouhlasím", "Nevím")
+  )
+  for (lv in one_row) expect_equal(stem_legend_guide(lv)$params$ncol, 5)
+  cz7 <- c("Zcela souhlasím", "Souhlasím", "Spíše souhlasím", "Nevím",
+           "Spíše nesouhlasím", "Nesouhlasím", "Zcela nesouhlasím")
+  expect_lt(stem_legend_guide(cz7)$params$ncol, 7)
+})

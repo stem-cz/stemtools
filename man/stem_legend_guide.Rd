@@ -4,7 +4,7 @@
 \alias{stem_legend_guide}
 \title{Legend guide fitting a 19 cm chart}
 \usage{
-stem_legend_guide(levels, width_pt = stem_canvas_pt)
+stem_legend_guide(levels, width_pt = stem_canvas_pt - stem_legend_box_pt)
 }
 \arguments{
 \item{levels}{Legend entries, in order.}

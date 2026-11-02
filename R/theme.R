@@ -89,6 +89,13 @@ theme_stem <- function(
         colour = "grey"
       ),
       legend.key = ggplot2::element_rect(fill = paper),
+      # A compact legend, so that most 5-point scales fit one row of a 19 cm
+      # chart (measured in Calibri: about 20 pt per entry besides its text).
+      legend.key.width = ggplot2::unit(10, "pt"),
+      legend.key.height = ggplot2::unit(10, "pt"),
+      legend.key.spacing.x = ggplot2::unit(6, "pt"),
+      legend.text = ggplot2::element_text(margin = ggplot2::margin(l = 3)),
+      legend.margin = ggplot2::margin(3, 4, 3, 4),
       panel.grid = ggplot2::element_blank(),
       axis.ticks.y = ggplot2::element_blank(),
       title = ggplot2::element_text(face = "bold", colour = ink),

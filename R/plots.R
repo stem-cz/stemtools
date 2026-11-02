@@ -24,13 +24,19 @@ format_pct <- function(x, accuracy = 1, suffix = " %", hide = 0) {
 # Wrap widths for a chart exported 19 cm wide at the theme_stem() 13 pt type
 # scale. Measured with systemfonts on Czech survey wording: axis and legend
 # text (10.4 pt Calibri) averages 3.94 pt per character, so a 40-character
-# y-axis label takes at most about a third of the width, and a legend entry
-# keeps the usual Likert labels on one line.
+# y-axis label takes at most about a third of the width. Legend entries wrap
+# at 22 characters, so that a long middle category ("Ani souhlas, ani
+# nesouhlas") takes two lines and a 5-point legend still fits one row.
 stem_axis_wrap <- 40
-stem_legend_wrap <- 30
+stem_legend_wrap <- 22
 stem_canvas_pt <- 19 / 2.54 * 72 - 6.5 - 18 # 19 cm minus the plot margins
-stem_char_pt <- 3.94 * 1.1                  # with 10 % headroom
-stem_legend_key_pt <- 16 + 6.5 + 6.5        # key, gap to text, spacing
+# Legend layout, measured on one-row legends of Likert scales rendered in
+# Calibri with theme_stem() at export resolution: legend text averages 4.5 pt
+# per character (Czech labels run wider than running text) and each entry adds
+# about 20 pt (key, gap to the text, spacing); the box adds 8 pt of margins.
+stem_char_pt <- 4.5
+stem_legend_key_pt <- 20
+stem_legend_box_pt <- 8
 
 #' Wrap labels to a number of characters
 #'
@@ -66,7 +72,7 @@ wrap_labels <- function(width) {
 #'
 #' @return A [ggplot2::guide_legend()].
 #' @keywords internal
-stem_legend_guide <- function(levels, width_pt = stem_canvas_pt) {
+stem_legend_guide <- function(levels, width_pt = stem_canvas_pt - stem_legend_box_pt) {
   wrapped <- wrap_labels(stem_legend_wrap)(levels)
   entry_pt <- vapply(
     strsplit(wrapped, "\n"),
