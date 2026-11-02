@@ -36,17 +36,22 @@ The path(s) written, invisibly.
 Saves a plot at the size the Stem charts are designed for (19 cm wide), with
 a graphics device that renders the house font. \code{\link[ggplot2:ggsave]{ggplot2::ggsave()}} picks the
 ragg device whenever it is installed, and ragg has been seen to draw plots in
-Calibri as blank images on Windows; \code{stem_save()} uses R's Cairo devices
-instead, which render Calibri (Czech diacritics included).
+Calibri as blank images on Windows; \code{stem_save()} uses the system's own
+devices instead, which render Calibri (Czech diacritics included).
 }
 \details{
 The format follows the file extension:
 \itemize{
-\item \code{.png}: \code{\link[grDevices:png]{grDevices::png()}} with \code{type = "cairo"},
+\item \code{.png}: \code{\link[grDevices:png]{grDevices::png()}}, with \code{type = "quartz"} on macOS and
+\code{type = "cairo"} elsewhere,
 \item \code{.svg}: \code{\link[svglite:svglite]{svglite::svglite()}} when installed (text stays text, so the
 viewer needs the font), otherwise \code{\link[grDevices:svg]{grDevices::svg()}} (text as outlines),
-\item \code{.pdf}: \code{\link[grDevices:cairo_pdf]{grDevices::cairo_pdf()}}, which embeds the fonts.
+\item \code{.pdf}: \code{\link[grDevices:quartz]{grDevices::quartz()}} on macOS and \code{\link[grDevices:cairo_pdf]{grDevices::cairo_pdf()}}
+elsewhere, both embedding the fonts.
 }
+
+On macOS the Cairo devices need XQuartz, which most Macs lack, so the native
+Quartz devices are used there.
 
 Box plots and other charts that cannot become native Office charts (see
 \code{\link[=stem_as_mschart]{stem_as_mschart()}}) are meant to go into decks this way.
