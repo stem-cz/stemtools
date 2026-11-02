@@ -10,7 +10,7 @@ stem_boxplot(
   group = NULL,
   weight = NULL,
   collapse_group = NULL,
-  palette = "div1",
+  bar_color = "#82143C",
   title_show = FALSE,
   title_quote = FALSE,
   title_wrap = 73
@@ -29,7 +29,8 @@ on its codes.}
 \item{collapse_group}{Optional named list to collapse (or rename) group
 categories.}
 
-\item{palette}{Name of a Stem palette; the boxes use its first colour.}
+\item{bar_color}{Fill of the boxes. Defaults to the Stem brand burgundy
+\code{"#82143C"}, as for single-series bars.}
 
 \item{title_show}{If \code{TRUE}, adds a plot title taken from the item's \code{"label"}
 attribute, falling back to the variable name when no label is present. The

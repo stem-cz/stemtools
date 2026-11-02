@@ -800,3 +800,10 @@ test_that("numbers use the Czech decimal comma", {
   box <- ggplot2::ggplot_build(stem_boxplot(df, x))
   expect_true(any(grepl(",", box$layout$panel_params[[1]]$x$get_labels())))
 })
+
+test_that("stem_boxplot boxes are burgundy by default", {
+  built <- ggplot2::ggplot_build(stem_boxplot(trust, age, group = eu_index))
+  expect_equal(unique(built$data[[1]]$fill), "#82143C")
+  built <- ggplot2::ggplot_build(stem_boxplot(trust, age, bar_color = "navy"))
+  expect_equal(unique(built$data[[1]]$fill), "navy")
+})

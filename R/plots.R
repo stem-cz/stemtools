@@ -1310,7 +1310,8 @@ stem_multiselect <- function(
 #' @param item Numeric variable to plot. A labelled numeric variable is plotted
 #'   on its codes.
 #' @param group Optional grouping variable; one box is drawn per category.
-#' @param palette Name of a Stem palette; the boxes use its first colour.
+#' @param bar_color Fill of the boxes. Defaults to the Stem brand burgundy
+#'   `"#82143C"`, as for single-series bars.
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -1325,7 +1326,7 @@ stem_boxplot <- function(
   group = NULL,
   weight = NULL,
   collapse_group = NULL,
-  palette = "div1",
+  bar_color = "#82143C",
   title_show = FALSE,
   title_quote = FALSE,
   title_wrap = 73
@@ -1362,7 +1363,7 @@ stem_boxplot <- function(
     ggplot2::geom_boxplot(
       stat = "identity",
       orientation = "y",
-      fill = stem_palette(palette)[1],
+      fill = bar_color,
       colour = "grey25",
       width = 0.6
     ) +
