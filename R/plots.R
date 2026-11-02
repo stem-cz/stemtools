@@ -1371,6 +1371,9 @@ stem_boxplot <- function(
       orientation = "y",
       fill = bar_color,
       colour = "grey25",
+      # White, so the median stays visible on the dark brand fill.
+      median.colour = "white",
+      median.linewidth = 1,
       width = 0.6
     ) +
     ggplot2::geom_point(

@@ -26,7 +26,8 @@ Imports:
     mschart,
     officer,
     stats,
-    grDevices
+    grDevices,
+    tools
 Remotes:
     alesvomacka/spreadview
 Suggests:
@@ -35,6 +36,7 @@ Suggests:
     zip,
     rmarkdown,
     survey,
+    svglite,
     testthat (>= 3.0.0),
     withr
 Depends:
