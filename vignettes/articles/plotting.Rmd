@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette showcases every plotting function in `{stemtools}`: `stem_barplot()`, `stem_barstack()`, `stem_inline()`, `stem_battery()` and `stem_multiselect()`. We'll use the simulated `trust` dataset that ships with the package.
+This vignette showcases every plotting function in `{stemtools}`: `stem_barplot()`, `stem_inline()`, `stem_battery()`, `stem_multiselect()` and `stem_boxplot()`, and how to save the results as images or native PowerPoint charts. We'll use the simulated `trust` dataset that ships with the package.
 
 ```{r setup}
 library(stemtools)
@@ -36,6 +36,8 @@ theme_set(theme_stem(family = ""))
 ```
 
 We pass `family = ""` so the plots fall back to the graphics device's default font (the Stem house font, Calibri, may not be installed on every machine). In normal use you would just call `theme_set(theme_stem())`.
+
+The theme is sized for charts exported 19 cm wide: a 13 pt base, 15.6 pt titles and 12 pt data labels. Titles wrap at 73 characters, long category labels on the y axis and in the legend wrap automatically, and the legend uses as many rows as it needs (most 5-point scales fit one). Numbers use the Czech decimal comma.
 
 ## How the plotting functions are built
 
@@ -64,7 +66,7 @@ Every plotting function accepts the same core arguments:
 
 ## Simple bar plot
 
-`stem_barplot()` draws the distribution of a single categorical variable as horizontal bars, one bar per category.
+`stem_barplot()` draws the distribution of a single categorical variable as horizontal bars, one bar per category. Single-colour bars use the Stem brand burgundy; `bar_color` changes it.
 
 ```{r barplot}
 stem_barplot(trust, item = government)
@@ -101,7 +103,29 @@ stem_battery(trust,
              order_by = c("Definitely Agree", "Rather Agree"))
 ```
 
-Item labels (the `"label"` attribute) are used automatically when present; set `item_label = FALSE` to use the bare variable names.
+Item labels (the `"label"` attribute) are used automatically when present; set `item_label = FALSE` to use the bare variable names. The items must share the same categories in the same order, and no two items may have the same label; otherwise `stem_battery()` stops with an error saying which items differ.
+
+To give several batteries the same order, pass the order of a "master" battery to `item_order` (as variable names or labels):
+
+```{r battery-order}
+stem_battery(trust,
+             items = c(police, eu, government, army, scientists),
+             item_order = c("scientists", "army"))
+```
+
+A long battery can be split into several charts with `items_per_chart`. The items are sorted first, and a list of plots titled "(1/2)", "(2/2)" is returned:
+
+```{r battery-split, fig.height = 3}
+parts <- stem_battery(trust,
+                      items = c(police, eu, government, army, scientists),
+                      order_by = "Definitely Agree",
+                      items_per_chart = 3,
+                      title = "Trust in institutions")
+parts[[1]]
+parts[[2]]
+```
+
+`collapse_item` collapses the categories of every item at once, as in `stem_barplot()`.
 
 ## Multiple-choice items
 
@@ -111,11 +135,29 @@ Item labels (the `"label"` attribute) are used automatically when present; set `
 stem_multiselect(trust, items = dplyr::starts_with("biggest_concern"), weight = W)
 ```
 
-Supplying a `group` variable draws dodged bars for a within-group comparison.
+Supplying a `group` variable draws dodged bars for a within-group comparison, coloured with the nominal palette `"nom"`.
+
+Questions stored as one yes/no column per option (`q5_1` ... `q5_8`, each "Ano"/"Ne") use the yes/no layout: give the answer that marks an option as chosen in `selected`. Each item becomes one bar, named after its label, showing the share of respondents with a valid answer who chose it. `other_levels` keeps options such as "Jiné" at the bottom.
+
+```{r multiselect-yesno}
+set.seed(1)
+yes_no <- function(p) factor(ifelse(runif(500) < p, "Ano", "Ne"), levels = c("Ano", "Ne"))
+media <- data.frame(q5_1 = yes_no(0.7), q5_2 = yes_no(0.45), q5_3 = yes_no(0.3),
+                    q5_4 = yes_no(0.6), q5_5 = yes_no(0.1))
+attr(media$q5_1, "label") <- "Televize"
+attr(media$q5_2, "label") <- "Rozhlas"
+attr(media$q5_3, "label") <- "Noviny"
+attr(media$q5_4, "label") <- "Internet"
+attr(media$q5_5, "label") <- "Jiné"
+
+stem_multiselect(media, items = q5_1:q5_5, selected = "Ano", other_levels = "Jiné")
+```
+
+If every option comes out 0 % or every option 100 %, you get a warning: that usually means `selected` doesn't match how the data are coded.
 
 ## Customizing labels
 
-By default the plots print a percentage label on each bar (set `labels = FALSE` to hide them). `label_accuracy` controls rounding (`1` for whole numbers, `0.1` for one decimal place), `label_suffix` sets the text appended to each label and `label_hide` suppresses labels for proportions below a threshold.
+By default the plots print a percentage label on each bar (set `labels = FALSE` to hide them). `label_accuracy` controls rounding (`1` for whole numbers, `0.1` for one decimal place), `label_suffix` sets the text appended to each label and `label_hide` suppresses labels for proportions below a threshold (3 % on stacked segments by default; separate bars show every label). On stacked bars each label is white or dark depending on how dark its segment is.
 
 ```{r labels}
 stem_barplot(trust,
@@ -127,10 +169,22 @@ stem_barplot(trust,
 
 ## Colours
 
-Use `palette` to pick one of the [Stem palettes][stem_palette] and `direction = -1` to reverse it.
+Use `palette` to pick one of the [Stem palettes][stem_palette] and `direction = -1` to reverse it. The diverging palettes also cover 6- and 7-point scales. Colours follow the item's full set of levels, so a scale point nobody chose stays in the legend (as 0 %) and doesn't shift the other colours.
 
 ```{r palette}
 stem_barplot(trust, item = police, group = eu_index, palette = "div2")
+```
+
+For a distribution whose categories have no order (e.g. "What do you heat with?"), use the nominal palette `"nom"`:
+
+```{r palette-nominal}
+set.seed(2)
+heating <- data.frame(
+  source = factor(sample(c("Plyn", "Elektřina", "Dřevo", "Uhlí", "Tepelné čerpadlo"), 600, TRUE,
+                         prob = c(0.35, 0.25, 0.2, 0.1, 0.1))),
+  region = sample(c("Praha", "Morava", "Čechy"), 600, TRUE)
+)
+stem_barplot(heating, item = source, group = region, palette = "nom")
 ```
 
 ## Collapsing categories
@@ -144,6 +198,37 @@ stem_barplot(trust,
              collapse_item = list(`Ano` = c("Definitely Agree", "Rather Agree"),
                                   `Ani ano, ani ne` = "Neither Agree nor Disagree",
                                   `Ne` = c("Rather Disagree", "Definitely Disagree")))
+```
+
+## "Don't know" and "other" answers
+
+Name the "don't know" categories in `dk_levels` (in `stem_inline()`, `stem_battery()`, `stem_barplot()` and `stem_multiselect()`). They move to the end, are drawn grey and don't use up a palette colour, so a 5-point scale plus "Nevím" keeps the 5-colour palette. "Other" categories (`other_levels`, in `stem_barplot()` and `stem_multiselect()`) go last too, just before "don't know".
+
+```{r dk, fig.height = 2.5}
+trust_dk <- trust
+trust_dk$police <- forcats::fct_expand(trust_dk$police, "Nevím")
+trust_dk$police[1:80] <- "Nevím"
+
+stem_inline(trust_dk, item = police, dk_levels = "Nevím")
+```
+
+```{r dk-bars}
+stem_barplot(trust_dk, item = police, dk_levels = "Nevím")
+```
+
+## Numeric variables
+
+`stem_boxplot()` draws a numeric variable as horizontal box plots, one per group. Quartiles are weighted: the first value whose cumulative weight share reaches the probability (with equal weights, the same as `quantile(type = 1)`). Whiskers reach the most extreme values within 1.5 × IQR, points beyond them are outliers, and the white diamond marks the weighted mean.
+
+```{r boxplot, fig.height = 3}
+stem_boxplot(trust, item = age, group = eu_index, weight = W)
+```
+
+The same numbers as a table, ready to be combined with other variables (`long = TRUE`):
+
+```{r boxplot-table}
+stem_summarise_num(trust, item = age, group = eu_index, weight = W,
+                   quantiles = TRUE, return_n = TRUE, n_weighted = TRUE)
 ```
 
 ## Weights
@@ -163,6 +248,25 @@ Every function returns a standard `{ggplot2}` object, so you can keep adding lay
 ```{r customize}
 stem_barplot(trust, item = government) +
   labs(title = "Trust in the government")
+```
+
+## Saving charts
+
+`stem_save()` writes a plot as PNG, SVG or PDF, 19 cm wide by default, with a graphics device that renders Calibri. (`ggsave()` picks the ragg device when it is installed, and ragg has been seen to draw Calibri plots as blank images on Windows.) A list of plots, such as a split battery, is saved as numbered files.
+
+```{r save, eval = FALSE}
+stem_save(stem_barplot(trust, item = police, group = eu_index), "police.png")
+stem_save(parts, "battery.png") # battery_1.png, battery_2.png
+```
+
+Bar charts can also go into PowerPoint or Word as *native* charts, whose data can be edited in Excel; box plots, which Office cannot draw, go in as images.
+
+```{r export, eval = FALSE}
+stem_export_pptx(
+  stem_barplot(trust, item = police, group = eu_index),
+  stem_battery(trust, items = c(police, eu, government, army)),
+  path = "charts.pptx"
+)
 ```
 
 [stem_palette]: ../reference/stem_palette.html
