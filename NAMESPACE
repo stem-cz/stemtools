@@ -27,12 +27,8 @@ export(stem_summarise_cat)
 export(stem_summarise_num)
 export(theme_stem)
 import(utils)
-importFrom(rlang,
-  "%||%",
-  ":=",
-  .data
-)
-importFrom(spreadview,
-  compose_spreadsheet,
-  get_categorical_vars
-)
+importFrom(rlang,"%||%")
+importFrom(rlang,":=")
+importFrom(rlang,.data)
+importFrom(spreadview,compose_spreadsheet)
+importFrom(spreadview,get_categorical_vars)

@@ -1,3 +1,7 @@
+# stemtools 0.2.0
+
+* Weighted estimates are now computed with `{srvyr}`/`{survey}` instead of `{surveycore}`/`{surveytidy}`, which were removed from CRAN. Results are unchanged.
+
 # stemtools 0.1.3
 
 * `theme_stem()` gains a `label_size` argument setting the point size of the numeric labels drawn inside the plot, defaulting to the `14` used by the Stem apps.

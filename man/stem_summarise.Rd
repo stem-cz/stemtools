@@ -48,7 +48,7 @@ Actually a wrapper for \code{\link[=stem_summarise_cat]{stem_summarise_cat()}} a
 Apart from either point estimates (proportions or means), the function also returns 95\% confidence interval bounds.
 If unweighted, the intervals are computed using the basic \code{sqrt((p * (1-p)) / n)} formula, where \code{n} is the size of the
 (possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
-of the (0;1) bounds. If weights are used, the confidence intervals come from \code{surveycore} (Taylor-series linearization).
+of the (0;1) bounds. If weights are used, the confidence intervals come from \code{srvyr}/\code{survey} (Taylor-series linearization).
 
 If \code{long = TRUE}, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 multiple variables and bind the results into a single data frame. See online vignettes for details.

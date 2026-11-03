@@ -11,18 +11,19 @@
 #   * `n`, `group_n`, `item_n` ... absolute sizes (only when `return_n = TRUE`)
 #
 # Unweighted intervals use the parametric formulas in R/utils.R; weighted
-# intervals come from surveycore (Taylor-series linearization). surveytidy
-# provides the dplyr-compatible verbs (e.g. `group_by()`) used on the survey
-# design, so the weighted and unweighted code paths read almost identically.
+# intervals come from srvyr/survey (Taylor-series linearization, normal
+# quantiles). srvyr provides the dplyr-compatible verbs (e.g. `group_by()`) used
+# on the survey design, so the weighted and unweighted code paths read almost
+# identically.
 
-# Silence surveycore's small-cell (AAPOR) advisory: `stem_summarise_*()` are
-# used to build plots, where cells below the reporting threshold are common and
-# the warning would just be noise. Other surveycore conditions still surface.
-mute_small_cell <- function(expr) {
-  withCallingHandlers(
-    expr,
-    surveycore_warning_small_cell = function(w) invokeRestart("muffleWarning")
-  )
+# Weighted results do not carry the variables' `"label"` attributes over from
+# the survey design.
+drop_label_attr <- function(df) {
+  df[] <- lapply(df, function(x) {
+    attr(x, "label") <- NULL
+    x
+  })
+  df
 }
 
 #' Summarise categorical variable (possibly segmented)
@@ -64,17 +65,40 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
 
   # Point estimates and 95% CI (within group, if a group is supplied).
   if (has_weight) {
-    design <- surveycore::as_survey(data, weights = {{ weight }})
-    if (has_group) design <- surveytidy::group_by(design, {{ group }})
+    design <- srvyr::as_survey_design(data, weights = {{ weight }})
 
-    counts <- mute_small_cell(
-      surveycore::get_freqs(design, {{ item }}, variance = "ci", na.rm = na.rm)
-    ) |>
-      dplyr::rename(freq = pct, freq_low = ci_low, freq_upp = ci_high) |>
-      tibble::as_tibble()
+    # Drop NA item (and NA group) observations as a domain of the design, so
+    # the variance still accounts for the full sample. Otherwise NA is kept as
+    # its own category / group.
+    if (na.rm) {
+      design <- dplyr::filter(design, !is.na({{ item }}))
+      if (has_group) design <- dplyr::filter(design, !is.na({{ group }}))
+    }
+
+    counts <- design |>
+      dplyr::group_by({{ group }}, {{ item }}) |>
+      dplyr::summarise(
+        freq = srvyr::survey_prop(vartype = "ci", proportion = FALSE, df = Inf),
+        n    = srvyr::unweighted(dplyr::n())
+      ) |>
+      dplyr::ungroup() |>
+      tibble::as_tibble() |>
+      drop_label_attr()
+
+    # Every group reports every observed item category, with zeros where the
+    # category does not occur in that group.
+    if (has_group) {
+      counts <- tidyr::expand_grid(
+        dplyr::distinct(counts, {{ group }}),
+        dplyr::distinct(counts, {{ item }})
+      ) |>
+        dplyr::left_join(counts, by = names(dplyr::select(counts, {{ group }}, {{ item }}))) |>
+        tidyr::replace_na(list(freq = 0, freq_low = 0, freq_upp = 0, n = 0L)) |>
+        dplyr::arrange({{ group }}, {{ item }})
+    }
   } else {
-    # Match get_freqs()'s NA handling: drop NA item (and NA group) when na.rm,
-    # otherwise dplyr::count() keeps NA as its own category / group.
+    # Drop NA item (and NA group) when na.rm, otherwise dplyr::count() keeps
+    # NA as its own category / group.
     if (na.rm) {
       data <- dplyr::filter(data, !is.na({{ item }}))
       if (has_group) data <- dplyr::filter(data, !is.na({{ group }}))
@@ -153,17 +177,27 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
   }
 
   if (has_weight) {
-    design <- surveycore::as_survey(data, weights = {{ weight }})
-    if (has_group) design <- surveytidy::group_by(design, {{ group }})
+    design <- srvyr::as_survey_design(data, weights = {{ weight }})
 
-    means <- mute_small_cell(
-      surveycore::get_means(design, {{ item }}, variance = "ci", na.rm = na.rm)
-    ) |>
-      dplyr::rename(mean_low = ci_low, mean_upp = ci_high) |>
-      tibble::as_tibble()
+    # When na.rm, drop NA item observations (so `n` reflects the non-NA basis)
+    # and exclude NA groups as domains of the design; otherwise keep them.
+    if (na.rm) {
+      design <- dplyr::filter(design, !is.na({{ item }}))
+      if (has_group) design <- dplyr::filter(design, !is.na({{ group }}))
+    }
+
+    means <- design |>
+      dplyr::group_by({{ group }}) |>
+      dplyr::summarise(
+        mean = srvyr::survey_mean({{ item }}, vartype = "ci", df = Inf),
+        n    = srvyr::unweighted(dplyr::n())
+      ) |>
+      dplyr::ungroup() |>
+      tibble::as_tibble() |>
+      drop_label_attr()
   } else {
-    # Match get_means()'s NA handling: when na.rm, drop NA item observations (so
-    # `n` reflects the non-NA basis) and exclude NA groups; otherwise keep them.
+    # When na.rm, drop NA item observations (so `n` reflects the non-NA basis)
+    # and exclude NA groups; otherwise keep them.
     if (na.rm) {
       data <- dplyr::filter(data, !is.na({{ item }}))
       if (has_group) data <- dplyr::filter(data, !is.na({{ group }}))
@@ -228,7 +262,7 @@ stem_summarise_num <- function(data, item, group = NULL, weight = NULL, long = F
 #'Apart from either point estimates (proportions or means), the function also returns 95% confidence interval bounds.
 #'If unweighted, the intervals are computed using the basic `sqrt((p * (1-p)) / n)` formula, where `n` is the size of the
 #'(possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
-#'of the (0;1) bounds. If weights are used, the confidence intervals come from `surveycore` (Taylor-series linearization).
+#'of the (0;1) bounds. If weights are used, the confidence intervals come from `srvyr`/`survey` (Taylor-series linearization).
 #'
 #'If `long = TRUE`, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 #'multiple variables and bind the results into a single data frame. See online vignettes for details.

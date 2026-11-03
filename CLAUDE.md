@@ -22,7 +22,7 @@ Roxygen version is pinned (`Config/roxygen2/version` in DESCRIPTION); NAMESPACE 
 ## Architecture
 
 **Aggregation is the engine; plotting sits on top of it.** `R/aggregation.R` defines `stem_summarise_cat()` / `stem_summarise_num()` (dispatched by `stem_summarise()`), the single source of survey estimates. Each has two code paths:
-- **weighted** — builds a `surveycore::as_survey()` design (optionally `surveytidy::group_by()`), computes estimates with Taylor-series confidence intervals, then renames surveycore's `pct`/`ci_low`/`ci_high` to the package-wide `freq`/`freq_low`/`freq_upp`.
+- **weighted** — builds a `srvyr::as_survey_design()` design, drops NAs with `filter()` on the design (domain estimation), and computes `survey_prop()`/`survey_mean()` with Taylor-series confidence intervals (`df = Inf`, i.e. normal quantiles) directly into the package-wide `freq`/`freq_low`/`freq_upp` (or `mean`/`mean_low`/`mean_upp`).
 - **unweighted** — falls back to `dplyr::count()` with normal-approximation CIs.
 
 The plotting functions in `R/plots.R` (`stem_barplot`, `stem_battery`, `stem_multiselect`, `stem_inline`) never compute statistics themselves — they call the internal `stem_plot_data()`, which wraps `stem_summarise_cat()` and adds a preformatted `stem_label` column. So estimation logic lives in exactly one place; changes to how frequencies/CIs are computed belong in `R/aggregation.R`, not the plot functions.
