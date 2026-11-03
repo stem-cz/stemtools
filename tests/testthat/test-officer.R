@@ -188,6 +188,44 @@ test_that("chart sizes are given in centimetres", {
   expect_match(paste(slide, collapse = ""), "<a:ext cx=\"8640000\" cy=\"4320000\"/>")
 })
 
+test_that("exported legends get a thin black box", {
+  skip_if_no_office()
+  skip_if_not_installed("zip")
+  local_stem_theme()
+
+  pptx <- withr::local_tempfile(fileext = ".pptx")
+  stem_export_pptx(
+    stem_barplot(trust, police, group = eu_index),
+    stem_barplot(trust, government),
+    path = pptx
+  )
+  dir <- withr::local_tempfile()
+  utils::unzip(pptx, exdir = dir)
+  charts <- list.files(
+    file.path(dir, "ppt", "charts"),
+    pattern = "^chart[0-9a-f]*\\.xml$",
+    full.names = TRUE
+  )
+  xml <- vapply(
+    charts,
+    function(f) paste(readLines(f, warn = FALSE), collapse = ""),
+    character(1)
+  )
+  legends <- unlist(regmatches(
+    xml,
+    gregexpr("<c:legend>.*?</c:legend>", xml, perl = TRUE)
+  ))
+
+  # Only the grouped plot has a legend; the other chart is left alone.
+  expect_length(charts, 2L)
+  expect_length(legends, 1L)
+  expect_match(
+    legends,
+    "<c:spPr><a:ln w=\"9525\"><a:solidFill><a:srgbClr val=\"000000\"/></a:solidFill></a:ln></c:spPr><c:txPr ",
+    fixed = TRUE
+  )
+})
+
 test_that("stem_add_chart() adds to both document types", {
   skip_if_no_office()
   local_stem_theme()
@@ -203,37 +241,23 @@ test_that("stem_add_chart() adds to both document types", {
   expect_error(stem_add_chart(list(), chart), "officer")
 })
 
-test_that("stem_label_size() reads the resolved label size in points", {
-  local_stem_theme()
-
-  p <- stem_barplot(trust, government)
-  expect_equal(stem_label_size(p, ggplot2::ggplot_build(p)), 14)
-
-  p18 <- stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
-  expect_equal(stem_label_size(p18, ggplot2::ggplot_build(p18)), 18)
-
-  # No text layer at all: fall back rather than error.
-  p0 <- stem_barplot(trust, government, labels = FALSE)
-  expect_equal(stem_label_size(p0, ggplot2::ggplot_build(p0)), 11)
-})
-
-test_that("data labels are exported at 11/14 of their ggplot size", {
+test_that("data labels are exported at a fixed 12 pt", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
-  expect_equal(spec$label_size, 11)
+  expect_equal(spec$label_size, 12)
 
-  # The scale follows a custom `label_size`, rounded to half points.
+  # Independent of the on-screen `label_size`.
   spec18 <- stem_chart_spec(
     stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
   )
-  expect_equal(spec18$label_size, 14)
+  expect_equal(spec18$label_size, 12)
 
-  expect_equal(spec$font_size, 18)
+  expect_equal(spec$font_size, 14)
 })
 
 test_that("stem_label_fp() sizes the labels with the export size", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
   fp <- stem_label_fp(spec, "x")
-  expect_equal(fp[["x"]]$font.size, 11)
+  expect_equal(fp[["x"]]$font.size, 12)
 })
 
 test_that("the mschart theme uses the pinned export type sizes", {
@@ -242,9 +266,9 @@ test_that("the mschart theme uses the pinned export type sizes", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
   theme <- stem_mschart_theme(spec)
 
-  expect_equal(theme$axis_text_x$font.size, 11)
-  expect_equal(theme$axis_text_y$font.size, 11)
-  expect_equal(theme$legend_text$font.size, 11)
+  expect_equal(theme$axis_text_x$font.size, 14)
+  expect_equal(theme$axis_text_y$font.size, 14)
+  expect_equal(theme$legend_text$font.size, 14)
   expect_equal(theme$axis_title_x$font.size, 12)
   expect_equal(theme$main_title$font.size, 14)
 
@@ -258,7 +282,7 @@ test_that("the mschart theme uses the pinned export type sizes", {
       theme_stem(family = "", text = ggplot2::element_text(size = 24))
   )
   expect_equal(big$font_size, 24)
-  expect_equal(stem_mschart_theme(big)$axis_text_x$font.size, 11)
+  expect_equal(stem_mschart_theme(big)$axis_text_x$font.size, 14)
 })
 
 test_that("charts follow the app's bar geometry and axis steps", {

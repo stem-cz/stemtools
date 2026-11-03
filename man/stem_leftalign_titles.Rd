@@ -2,26 +2,21 @@
 % Please edit documentation in R/officer.R
 \name{stem_leftalign_titles}
 \alias{stem_leftalign_titles}
-\title{Left-align the titles of the charts in an Office file}
+\title{Left-align the title of a chart}
 \usage{
-stem_leftalign_titles(path)
+stem_leftalign_titles(xml)
 }
 \arguments{
-\item{path}{Path of the Office file to patch.}
+\item{xml}{The chart XML, as a single string.}
 }
 \value{
-The path, invisibly.
+The patched XML.
 }
 \description{
-Internal helper patching the chart parts of a written \code{.pptx}/\code{.docx}.
-Office centres a chart title, whereas \code{\link[=theme_stem]{theme_stem()}} sets
-\code{plot.title.position = "plot"}, which flushes it left above the whole plot.
-mschart exposes no alignment setting, so the paragraph property is written
-into the chart XML afterwards, as the Stem apps do.
-}
-\details{
-Silently leaves the file untouched when the \code{zip} package is missing or the
-file cannot be rewritten: the alignment is cosmetic and never worth failing
-an export over.
+Internal helper used by \code{\link[=stem_patch_charts]{stem_patch_charts()}}. Office centres a chart
+title, whereas \code{\link[=theme_stem]{theme_stem()}} sets \code{plot.title.position = "plot"}, which
+flushes it left above the whole plot. mschart exposes no alignment setting,
+so the paragraph property is written into the chart XML, as the Stem apps
+do.
 }
 \keyword{internal}

@@ -9,7 +9,7 @@ theme_stem(
   paper = "white",
   accent = "#35978F",
   family = "Calibri",
-  label_size = 14,
+  label_size = 12,
   ...
 )
 }
@@ -33,8 +33,8 @@ on machines where Calibri is not installed).}
 \item{label_size}{Point size of the numeric labels drawn inside the plot
 (the \code{stem_label} values printed by \code{\link[=stem_barplot]{stem_barplot()}} and friends). Passed
 to \code{\link[ggplot2:element_geom]{ggplot2::element_geom()}} as \code{fontsize}, so it is given in points, like
-the other text sizes of the theme. Defaults to \code{14}, matching the label
-size used by the Stem apps.}
+the other text sizes of the theme. Defaults to \code{12}, the size the labels
+are exported at by \code{\link[=stem_export_pptx]{stem_export_pptx()}} and \code{\link[=stem_export_docx]{stem_export_docx()}}.}
 
 \item{...}{Arguments to be passed to \code{\link[ggplot2:theme]{ggplot2::theme()}}, overriding the Stem
 defaults.}

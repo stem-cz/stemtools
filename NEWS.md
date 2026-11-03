@@ -1,3 +1,9 @@
+# stemtools 0.2.1
+
+* `theme_stem()` now uses a 14 pt base text size (previously 18 pt) and draws the axis and legend text at 14 pt, and `label_size` defaults to `12` instead of `14`, so plots on screen match their Office exports.
+* `stem_export_pptx()` and `stem_export_docx()` export the axis and legend text at 14 pt (previously 11 pt) and the numeric labels at a fixed 12 pt. The labels no longer scale with `theme_stem(label_size = )`, which now only affects the plot on screen.
+* `stem_export_pptx()` and `stem_export_docx()` draw a thin black box around the chart legend, when there is one.
+
 # stemtools 0.2.0
 
 * Weighted estimates are now computed with `{srvyr}`/`{survey}` instead of `{surveycore}`/`{surveytidy}`, which were removed from CRAN. Results are unchanged.

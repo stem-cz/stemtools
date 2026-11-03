@@ -173,8 +173,10 @@ stem_chart_spec <- function(plot) {
 
   type <- if (is.null(fill_name)) {
     "simple"
-  } else if (inherits(layer$position, "PositionDodge2") ||
-    inherits(layer$position, "PositionDodge")) {
+  } else if (
+    inherits(layer$position, "PositionDodge2") ||
+      inherits(layer$position, "PositionDodge")
+  ) {
     "dodged"
   } else {
     "stacked"
@@ -240,29 +242,22 @@ stem_chart_spec <- function(plot) {
     has_errorbar = has_errorbar,
     font_family = family,
     font_size = theme$text$size %||% 12,
-    # Half-point steps, as PowerPoint itself uses.
-    label_size = round(
-      2 * stem_label_size(plot, built) * stem_label_export_scale
-    ) / 2,
+    label_size = stem_export_label_size,
     ink = theme$text$colour %||% "black",
     paper = theme$plot.background$fill %||% "transparent",
     legend_position = theme$legend.position %||% "top"
   )
 }
 
-# PowerPoint renders chart text noticeably larger than the ggplot preview does
-# at the same nominal size, so the Stem apps draw the numeric labels at 14 pt on
-# screen and export them at 11 pt. `stem_label_export_scale` keeps that ratio
-# whatever `theme_stem(label_size = )` is set to.
-stem_label_export_scale <- 11 / 14
-
 # Typography of the exported charts, in points. These are pinned rather than
-# taken from the ggplot theme for the same reason as the label scale above: the
-# theme's base size is chosen for an on-screen plot, and carrying it into Office
-# makes the axis and legend text far larger than the deck needs.
-stem_export_axis_size <- 11
+# taken from the ggplot theme: the theme's sizes are chosen for an on-screen
+# plot, and Office renders chart text at a different scale than the ggplot
+# preview does, so carrying them over gives inconsistent sizes in the deck.
+stem_export_axis_size <- 14
+stem_export_legend_size <- 14
 stem_export_axis_title_size <- 12
 stem_export_title_size <- 14
+stem_export_label_size <- 12
 
 #' Border width of the bars of a Stem plot
 #'
@@ -284,45 +279,13 @@ stem_border_width <- function(built, layer_idx) {
   linewidth * ggplot2::.pt
 }
 
-#' Point size of the numeric labels of a Stem plot
-#'
-#' Internal helper reading back the size ggplot2 resolved for the in-plot
-#' numeric labels. The built layer data carries the value in millimetres,
-#' including the default that [theme_stem()] supplies through
-#' [ggplot2::element_geom()], so the export follows a custom `label_size`
-#' without the caller having to repeat it.
-#'
-#' @param plot A ggplot object.
-#' @param built The result of [ggplot2::ggplot_build()] for `plot`.
-#'
-#' @return The label size in points. Falls back to `11` when the plot draws no
-#'   labels at all.
-#' @keywords internal
-stem_label_size <- function(plot, built) {
-  text_layers <- which(vapply(
-    plot$layers,
-    function(l) inherits(l$geom, "GeomText") || inherits(l$geom, "GeomLabel"),
-    logical(1)
-  ))
-
-  for (i in text_layers) {
-    size <- built$data[[i]]$size
-    size <- size[!is.na(size)]
-    if (length(size)) {
-      return(size[[1]] * ggplot2::.pt)
-    }
-  }
-
-  11
-}
-
 #' Translate a ggplot theme into an mschart theme
 #'
 #' Internal helper turning the typography and the "no gridlines, no ticks" look
 #' of [theme_stem()] into the equivalent [mschart::mschart_theme()]. The font
 #' family and the colours follow the plot's theme; the font *sizes* are the
-#' fixed export sizes (11 pt axis and legend text, 12 pt axis titles, 14 pt
-#' chart title), matching the decks produced by the Stem apps.
+#' fixed export sizes (14 pt axis and legend text, 12 pt axis titles,
+#' 14 pt chart title).
 #'
 #' @param spec A specification produced by [stem_chart_spec()].
 #' @param legend If `TRUE`, the legend is shown.
@@ -330,7 +293,11 @@ stem_label_size <- function(plot, built) {
 #' @return An mschart theme.
 #' @keywords internal
 stem_mschart_theme <- function(spec, legend = TRUE) {
-  base <- function(size = stem_export_axis_size, bold = FALSE, color = spec$ink) {
+  base <- function(
+    size = stem_export_axis_size,
+    bold = FALSE,
+    color = spec$ink
+  ) {
     officer::fp_text(
       font.family = spec$font_family,
       font.size = size,
@@ -359,7 +326,7 @@ stem_mschart_theme <- function(spec, legend = TRUE) {
     main_title = base(size = stem_export_title_size, bold = TRUE),
     axis_title = base(size = stem_export_axis_title_size, bold = TRUE),
     axis_text = base(),
-    legend_text = base(),
+    legend_text = base(size = stem_export_legend_size),
     grid_major_line = officer::fp_border(width = 0),
     grid_minor_line = officer::fp_border(width = 0),
     axis_ticks = officer::fp_border(width = 0),
@@ -533,7 +500,11 @@ stem_as_mschart <- function(
   } else {
     as.list(spec$colors)
   }
-  chart <- mschart::chart_data_fill(chart, values = fills, update_stroke = FALSE)
+  chart <- mschart::chart_data_fill(
+    chart,
+    values = fills,
+    update_stroke = FALSE
+  )
   if (!is.na(spec$border)) {
     strokes <- lapply(fills, function(x) spec$border)
     chart <- mschart::chart_data_stroke(chart, values = strokes)
@@ -610,10 +581,12 @@ stem_label_fp <- function(spec, series_names) {
   colours <- stats::setNames(rep(spec$ink, length(series_names)), series_names)
 
   # Mirror stem_stack()'s `label_bicolor`: white on the first and last series.
-  if (!is.null(spec$series) &&
-    identical(spec$type, "stacked") &&
-    !is.null(spec$label_color) &&
-    any(spec$label_color == "white")) {
+  if (
+    !is.null(spec$series) &&
+      identical(spec$type, "stacked") &&
+      !is.null(spec$label_color) &&
+      any(spec$label_color == "white")
+  ) {
     side <- series_names[c(1L, length(series_names))]
     colours[side] <- "white"
   }
@@ -627,23 +600,21 @@ stem_label_fp <- function(spec, series_names) {
   })
 }
 
-#' Left-align the titles of the charts in an Office file
+#' Patch the charts of an Office file
 #'
-#' Internal helper patching the chart parts of a written `.pptx`/`.docx`.
-#' Office centres a chart title, whereas [theme_stem()] sets
-#' `plot.title.position = "plot"`, which flushes it left above the whole plot.
-#' mschart exposes no alignment setting, so the paragraph property is written
-#' into the chart XML afterwards, as the Stem apps do.
+#' Internal helper rewriting the chart parts of a written `.pptx`/`.docx` for
+#' the bits of the Stem look that mschart exposes no setting for: it applies
+#' [stem_leftalign_titles()] and [stem_box_legends()] to every chart XML.
 #'
 #' Silently leaves the file untouched when the `zip` package is missing or the
-#' file cannot be rewritten: the alignment is cosmetic and never worth failing
+#' file cannot be rewritten: the patches are cosmetic and never worth failing
 #' an export over.
 #'
 #' @param path Path of the Office file to patch.
 #'
 #' @return The path, invisibly.
 #' @keywords internal
-stem_leftalign_titles <- function(path) {
+stem_patch_charts <- function(path) {
   if (!requireNamespace("zip", quietly = TRUE)) {
     return(invisible(path))
   }
@@ -668,15 +639,9 @@ stem_leftalign_titles <- function(path) {
           readLines(chart, warn = FALSE, encoding = "UTF-8"),
           collapse = "\n"
         )
-        # The first <a:pPr> inside <c:title> is the title's own paragraph.
-        aligned <- sub(
-          "(?s)(<c:title[ >].*?)<a:pPr>",
-          "\\1<a:pPr algn=\"l\">",
-          xml,
-          perl = TRUE
-        )
-        if (!identical(xml, aligned)) {
-          writeLines(aligned, chart, useBytes = TRUE)
+        new_xml <- stem_box_legends(stem_leftalign_titles(xml))
+        if (!identical(xml, new_xml)) {
+          writeLines(new_xml, chart, useBytes = TRUE)
           patched <- TRUE
         }
       }
@@ -685,7 +650,12 @@ stem_leftalign_titles <- function(path) {
         rezipped <- tempfile(fileext = ".zip")
         zip::zip(
           zipfile = rezipped,
-          files = list.files(dir, recursive = TRUE, all.files = TRUE, no.. = TRUE),
+          files = list.files(
+            dir,
+            recursive = TRUE,
+            all.files = TRUE,
+            no.. = TRUE
+          ),
           root = dir,
           include_directories = FALSE
         )
@@ -697,6 +667,52 @@ stem_leftalign_titles <- function(path) {
   )
 
   invisible(path)
+}
+
+#' Left-align the title of a chart
+#'
+#' Internal helper used by [stem_patch_charts()]. Office centres a chart
+#' title, whereas [theme_stem()] sets `plot.title.position = "plot"`, which
+#' flushes it left above the whole plot. mschart exposes no alignment setting,
+#' so the paragraph property is written into the chart XML, as the Stem apps
+#' do.
+#'
+#' @param xml The chart XML, as a single string.
+#'
+#' @return The patched XML.
+#' @keywords internal
+stem_leftalign_titles <- function(xml) {
+  # The first <a:pPr> inside <c:title> is the title's own paragraph.
+  sub(
+    "(?s)(<c:title[ >].*?)<a:pPr>",
+    "\\1<a:pPr algn=\"l\">",
+    xml,
+    perl = TRUE
+  )
+}
+
+#' Draw a thin black box around the legend of a chart
+#'
+#' Internal helper used by [stem_patch_charts()]. [theme_stem()] outlines the
+#' legend; mschart has no legend border setting, so a 0.75 pt black outline is
+#' written into the legend's shape properties. The schema wants `<c:spPr>`
+#' right before `<c:txPr>`, which mschart always writes for the legend text.
+#' Legends that already carry shape properties are left alone.
+#'
+#' @param xml The chart XML, as a single string.
+#'
+#' @return The patched XML.
+#' @keywords internal
+stem_box_legends <- function(xml) {
+  gsub(
+    "(?s)(<c:legend>(?:(?!</c:legend>|<c:spPr>).)*?)(<c:txPr[ >])",
+    paste0(
+      "\\1<c:spPr><a:ln w=\"9525\"><a:solidFill>",
+      "<a:srgbClr val=\"000000\"/></a:solidFill></a:ln></c:spPr>\\2"
+    ),
+    xml,
+    perl = TRUE
+  )
 }
 
 # Office documents --------------------------------------------------------
@@ -900,7 +916,7 @@ stem_export_pptx <- function(
   }
 
   print(doc, target = path)
-  stem_leftalign_titles(path)
+  stem_patch_charts(path)
   invisible(path)
 }
 
@@ -957,7 +973,7 @@ stem_export_docx <- function(
   }
 
   print(doc, target = path)
-  stem_leftalign_titles(path)
+  stem_patch_charts(path)
   invisible(path)
 }
 
@@ -972,7 +988,9 @@ stem_export_docx <- function(
 #' @keywords internal
 stem_plot_list <- function(...) {
   plots <- list(...)
-  if (length(plots) == 1L && is.list(plots[[1]]) && !inherits(plots[[1]], "gg")) {
+  if (
+    length(plots) == 1L && is.list(plots[[1]]) && !inherits(plots[[1]], "gg")
+  ) {
     plots <- plots[[1]]
   }
   if (!length(plots)) {
