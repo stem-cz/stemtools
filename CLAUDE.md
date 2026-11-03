@@ -34,12 +34,13 @@ NAMESPACE and `man/*.Rd` are generated — never edit them by hand.
 [`stem_summarise()`](https://stem-cz.github.io/stemtools/reference/stem_summarise.md)),
 the single source of survey estimates. Each has two code paths: -
 **weighted** — builds a
-[`surveycore::as_survey()`](https://jdenn0514.github.io/surveycore/reference/as_survey.html)
-design (optionally
-[`surveytidy::group_by()`](https://dplyr.tidyverse.org/reference/group_by.html)),
-computes estimates with Taylor-series confidence intervals, then renames
-surveycore’s `pct`/`ci_low`/`ci_high` to the package-wide
-`freq`/`freq_low`/`freq_upp`. - **unweighted** — falls back to
+[`srvyr::as_survey_design()`](http://gdfe.co/srvyr/reference/as_survey_design.md)
+design, drops NAs with [`filter()`](https://rdrr.io/r/stats/filter.html)
+on the design (domain estimation), and computes
+`survey_prop()`/`survey_mean()` with Taylor-series confidence intervals
+(`df = Inf`, i.e. normal quantiles) directly into the package-wide
+`freq`/`freq_low`/`freq_upp` (or `mean`/`mean_low`/`mean_upp`). -
+**unweighted** — falls back to
 [`dplyr::count()`](https://dplyr.tidyverse.org/reference/count.html)
 with normal-approximation CIs.
 

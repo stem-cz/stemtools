@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -163,7 +163,7 @@ themselves:</p>
 <code>group</code> – an optional grouping variable,</li>
 <li>
 <code>weight</code> – optional survey weights (passed to
-<a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a>),</li>
+<a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a>),</li>
 <li>
 <code>palette</code> and <code>direction</code> – the <a href="../reference/stem_palette.html">Stem colour palette</a> to
 use,</li>
@@ -278,17 +278,18 @@ proportions below a threshold.</p>
 <h2 id="weights">Weights<a class="anchor" aria-label="anchor" href="#weights"></a>
 </h2>
 <p>If a <code>weight</code> variable is specified, weights are treated
-as survey weights and passed into <a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a>, which
-builds a Taylor-series survey design. Manipulating that design uses
-<a href="https://jdenn0514.github.io/surveytidy/" class="external-link">surveytidy</a>, whose verbs mirror <a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a>, so
-weighted and unweighted code read the same way.</p>
+as survey weights and passed into <a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a>, which builds a
+Taylor-series survey design using the <a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a> package.
+<a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a> verbs mirror <a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a>, so weighted and
+unweighted code read the same way.</p>
 <p>With unweighted data, the confidence intervals are computed using the
 basic
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mfrac><mrow><mi>p</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac></msqrt><annotation encoding="application/x-tex">\sqrt{\frac{p \cdot (1-p)}{n}}</annotation></semantics></math>
 formula. With very small proportions and small samples this can lead to
 bounds outside of the <code>(0, 1)</code> range. With weighted data, the
-confidence intervals come from <a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a> using
-Taylor-series linearization.</p>
+confidence intervals come from
+<a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a>/<a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a> using Taylor-series
+linearization.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/stem_barplot.html">stem_barplot</a></span><span class="op">(</span><span class="va">trust</span>, item <span class="op">=</span> <span class="va">government</span>, weight <span class="op">=</span> <span class="va">W</span><span class="op">)</span></span></code></pre></div>
 <p><img src="plotting_files/figure-html/weights-1.png" class="r-plt" alt="" width="1050"></p>

@@ -9,7 +9,7 @@ Actually a wrapper for stem_summarise_cat() and stem_summarise_num()."></head><b
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,7 +111,7 @@ or yielding an <code>NA</code> mean for numeric items) and <code>NA</code> group
     <p>Apart from either point estimates (proportions or means), the function also returns 95% confidence interval bounds.
 If unweighted, the intervals are computed using the basic <code>sqrt((p * (1-p)) / n)</code> formula, where <code>n</code> is the size of the
 (possibly segmented) sample. If the estimated proportions are very high/low, this may lead to interval estimates outside
-of the (0;1) bounds. If weights are used, the confidence intervals come from <code>surveycore</code> (Taylor-series linearization).</p>
+of the (0;1) bounds. If weights are used, the confidence intervals come from <code>srvyr</code>/<code>survey</code> (Taylor-series linearization).</p>
 <p>If <code>long = TRUE</code>, new column is added holding name of the item (and group) variable. This is useful if you need to loop through
 multiple variables and bind the results into a single data frame. See online vignettes for details.</p>
 <p><code>collapse_item</code> and <code>collapse_group</code> can be used to collapse categories of item and group variable. The named list should include

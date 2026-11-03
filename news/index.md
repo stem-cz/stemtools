@@ -1,5 +1,12 @@
 # Changelog
 
+## stemtools 0.2.0
+
+- Weighted estimates are now computed with
+  [srvyr](http://gdfe.co/srvyr/)/[survey](http://r-survey.r-forge.r-project.org/survey/)
+  instead of `{surveycore}`/`{surveytidy}`, which were removed from
+  CRAN. Results are unchanged.
+
 ## stemtools 0.1.3
 
 - [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)

@@ -109,7 +109,7 @@ Every plotting function accepts the same core arguments:
 - `item` – the categorical variable to plot,
 - `group` – an optional grouping variable,
 - `weight` – optional survey weights (passed to
-  [surveycore](https://github.com/JDenn0514/surveycore)),
+  [srvyr](http://gdfe.co/srvyr/)),
 - `palette` and `direction` – the [Stem colour
   palette](https://stem-cz.github.io/stemtools/reference/stem_palette.md)
   to use,
@@ -253,19 +253,19 @@ stem_barplot(trust,
 ## Weights
 
 If a `weight` variable is specified, weights are treated as survey
-weights and passed into
-[surveycore](https://github.com/JDenn0514/surveycore), which builds a
-Taylor-series survey design. Manipulating that design uses
-[surveytidy](https://jdenn0514.github.io/surveytidy/), whose verbs
-mirror [dplyr](https://dplyr.tidyverse.org), so weighted and unweighted
-code read the same way.
+weights and passed into [srvyr](http://gdfe.co/srvyr/), which builds a
+Taylor-series survey design using the
+[survey](http://r-survey.r-forge.r-project.org/survey/) package.
+[srvyr](http://gdfe.co/srvyr/) verbs mirror
+[dplyr](https://dplyr.tidyverse.org), so weighted and unweighted code
+read the same way.
 
 With unweighted data, the confidence intervals are computed using the
 basic $`\sqrt{\frac{p \cdot (1-p)}{n}}`$ formula. With very small
 proportions and small samples this can lead to bounds outside of the
 `(0, 1)` range. With weighted data, the confidence intervals come from
-[surveycore](https://github.com/JDenn0514/surveycore) using
-Taylor-series linearization.
+[srvyr](http://gdfe.co/srvyr/)/[survey](http://r-survey.r-forge.r-project.org/survey/)
+using Taylor-series linearization.
 
 ``` r
 

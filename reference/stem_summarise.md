@@ -79,7 +79,7 @@ intervals are computed using the basic `sqrt((p * (1-p)) / n)` formula,
 where `n` is the size of the (possibly segmented) sample. If the
 estimated proportions are very high/low, this may lead to interval
 estimates outside of the (0;1) bounds. If weights are used, the
-confidence intervals come from `surveycore` (Taylor-series
+confidence intervals come from `srvyr`/`survey` (Taylor-series
 linearization).
 
 If `long = TRUE`, new column is added holding name of the item (and
