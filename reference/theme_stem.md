@@ -14,7 +14,7 @@ theme_stem(
   paper = "white",
   accent = "#35978F",
   family = "Calibri",
-  label_size = 14,
+  label_size = 12,
   ...
 )
 ```
@@ -58,8 +58,10 @@ theme_stem(
   and friends). Passed to
   [`ggplot2::element_geom()`](https://ggplot2.tidyverse.org/reference/element.html)
   as `fontsize`, so it is given in points, like the other text sizes of
-  the theme. Defaults to `14`, matching the label size used by the Stem
-  apps.
+  the theme. Defaults to `12`, the size the labels are exported at by
+  [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
+  and
+  [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md).
 
 - ...:
 

@@ -27,6 +27,7 @@
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_barplot.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_battery.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_border_width.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_box_legends.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_chart_from.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_chart_spec.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_colors.html</loc></url>
@@ -34,7 +35,6 @@
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_export_pptx.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_inline.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_label_fp.html</loc></url>
-<url><loc>https://stem-cz.github.io/stemtools/reference/stem_label_size.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_leftalign_titles.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_levels.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_mschart_theme.html</loc></url>
@@ -43,6 +43,7 @@
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_palette.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_palette_gen.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_palettes_all.html</loc></url>
+<url><loc>https://stem-cz.github.io/stemtools/reference/stem_patch_charts.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_ph_location.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot_data.html</loc></url>
 <url><loc>https://stem-cz.github.io/stemtools/reference/stem_plot_list.html</loc></url>

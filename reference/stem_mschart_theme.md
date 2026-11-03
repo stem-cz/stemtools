@@ -6,9 +6,8 @@ look of
 into the equivalent
 [`mschart::mschart_theme()`](https://ardata-fr.github.io/mschart/reference/set_theme.html).
 The font family and the colours follow the plot's theme; the font
-*sizes* are the fixed export sizes (11 pt axis and legend text, 12 pt
-axis titles, 14 pt chart title), matching the decks produced by the Stem
-apps.
+*sizes* are the fixed export sizes (14 pt axis and legend text, 12 pt
+axis titles, 14 pt chart title).
 
 ## Usage
 

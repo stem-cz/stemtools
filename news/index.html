@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">stemtools</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,8 +38,17 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.1" id="stemtools-021">stemtools 0.2.1<a class="anchor" aria-label="anchor" href="#stemtools-021"></a></h2>
+<ul><li>
+<code><a href="../reference/theme_stem.html">theme_stem()</a></code> now uses a 14 pt base text size (previously 18 pt) and draws the axis and legend text at 14 pt, and <code>label_size</code> defaults to <code>12</code> instead of <code>14</code>, so plots on screen match their Office exports.</li>
+<li>
+<code><a href="../reference/stem_export_pptx.html">stem_export_pptx()</a></code> and <code><a href="../reference/stem_export_docx.html">stem_export_docx()</a></code> export the axis and legend text at 14 pt (previously 11 pt) and the numeric labels at a fixed 12 pt. The labels no longer scale with <code>theme_stem(label_size = )</code>, which now only affects the plot on screen.</li>
+<li>
+<code><a href="../reference/stem_export_pptx.html">stem_export_pptx()</a></code> and <code><a href="../reference/stem_export_docx.html">stem_export_docx()</a></code> draw a thin black box around the chart legend, when there is one.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="stemtools-020">stemtools 0.2.0<a class="anchor" aria-label="anchor" href="#stemtools-020"></a></h2>
-<ul><li>Weighted estimates are now computed with <a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a>/<a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a> instead of <code>{surveycore}</code>/<code>{surveytidy}</code>, which were removed from CRAN. Results are unchanged.</li>
+<ul><li>Weighted estimates are now computed with <a href="http://gdfe.co/srvyr/" class="external-link">srvyr</a>/<a href="http://r-survey.r-forge.r-project.org/survey/" class="external-link">survey</a> instead of <a href="https://github.com/JDenn0514/surveycore" class="external-link">surveycore</a>/<code>{surveytidy}</code>, which were removed from CRAN. Results are unchanged.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.3" id="stemtools-013">stemtools 0.1.3<a class="anchor" aria-label="anchor" href="#stemtools-013"></a></h2>
