@@ -3,6 +3,7 @@
 * `theme_stem()` now uses a 14 pt base text size (previously 18 pt) and draws the axis and legend text at 14 pt, and `label_size` defaults to `12` instead of `14`, so plots on screen match their Office exports.
 * `stem_export_pptx()` and `stem_export_docx()` export the axis and legend text at 14 pt (previously 11 pt) and the numeric labels at a fixed 12 pt. The labels no longer scale with `theme_stem(label_size = )`, which now only affects the plot on screen.
 * `stem_export_pptx()` and `stem_export_docx()` draw a thin black box around the chart legend, when there is one.
+* With `label_bicolor = TRUE` (default), the labels of stacked plots are white on dark segments and `label_color` on light ones, judged from each segment's final fill. Previously the first and last categories got white labels whatever their colour, so a fill scale replaced after the plot was built (e.g. a grey "don't know" category added with `scale_fill_manual()`) got white labels on light grey and dark labels on dark colours. With the Stem diverging palettes the labels are unchanged. Native Office charts take the label colours from the plot.
 
 # stemtools 0.2.0
 

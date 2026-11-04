@@ -12,7 +12,7 @@ utils::globalVariables(c(
   # long-format helper columns (R/aggregation.R)
   "item", "item_cat", "group", "group_cat",
   # plotting helpers (R/plots.R)
-  "stem_label", ".response", ".battery_item", "score",
+  "stem_label", ".response", ".battery_item", "score", "fill",
   # palette overview plot (R/color-palettes.R)
   "x", "palette", "color", "type"
 ))

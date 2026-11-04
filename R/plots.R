@@ -118,20 +118,6 @@ stem_stack <- function(
   label_color = "black",
   label_bicolor = TRUE
 ) {
-  # Colour the labels of the two side (extreme) fill categories white, all
-  # others with `label_color`.
-  if (label_bicolor) {
-    fill_levels <- levels(as.factor(plot_data[[fill_name]]))
-    side_levels <- fill_levels[c(1, length(fill_levels))]
-    plot_data$.label_color <- ifelse(
-      as.character(plot_data[[fill_name]]) %in% side_levels,
-      "white",
-      label_color
-    )
-  } else {
-    plot_data$.label_color <- label_color
-  }
-
   mapping <- if (is.null(y_name)) {
     ggplot2::aes(
       x = freq,
@@ -162,18 +148,49 @@ stem_stack <- function(
     ggplot2::guides(fill = ggplot2::guide_legend(nrow = 1))
 
   if (labels) {
-    p <- p +
+    position <- ggplot2::position_stack(vjust = 0.5, reverse = TRUE)
+    p <- p + if (label_bicolor) {
+      # The label colour follows the segment's final fill (after_scale), so it
+      # stays readable when the fill scale is replaced after the plot is built,
+      # e.g. by a grey "don't know" colour. (`label_color` is injected as a
+      # value: aes() would rename the symbol to `label_colour`.)
       ggplot2::geom_text(
         ggplot2::aes(
-          colour = .data[[".label_color"]],
+          colour = ggplot2::after_scale(contrast_label_color(fill, light = !!label_color)),
           group = .data[[fill_name]]
         ),
-        position = ggplot2::position_stack(vjust = 0.5, reverse = TRUE)
-      ) +
-      ggplot2::scale_colour_identity()
+        position = position
+      )
+    } else {
+      ggplot2::geom_text(
+        ggplot2::aes(group = .data[[fill_name]]),
+        colour = label_color,
+        position = position
+      )
+    }
   }
 
   p
+}
+
+#' Label colour that contrasts with a fill
+#'
+#' Internal helper. A fill whose Rec. 601 luma (`0.299 R + 0.587 G + 0.114 B`,
+#' on a 0-255 scale) is below `threshold` counts as dark and gets a white
+#' label; lighter fills get `light`. With the threshold of 150 the Stem
+#' diverging palettes keep their labels (white on the dark extremes, dark on
+#' the light middle colours).
+#'
+#' @param fill Character vector of fill colours.
+#' @param light Label colour used on light fills.
+#' @param threshold Luma below which a fill counts as dark.
+#'
+#' @return Character vector of label colours.
+#' @keywords internal
+contrast_label_color <- function(fill, light = "black", threshold = 150) {
+  rgb <- grDevices::col2rgb(fill)
+  luma <- colSums(rgb * c(0.299, 0.587, 0.114))
+  ifelse(luma < threshold, "white", light)
 }
 
 # Plotting functions ------------------------------------------------------
@@ -207,10 +224,11 @@ stem_stack <- function(
 #'   segments unlabelled) and `0` otherwise.
 #' @param label_color Colour of the segment labels in grouped (stacked) plots.
 #'   Defaults to `"black"`.
-#' @param label_bicolor If `TRUE` (default), in grouped (stacked) plots the
-#'   labels of the two side (extreme) item categories are drawn in white, while
-#'   all other labels use `label_color`. Set to `FALSE` to colour every label
-#'   with `label_color`.
+#' @param label_bicolor If `TRUE` (default), in grouped (stacked) plots each
+#'   label's colour follows the final fill of its segment: white on dark fills,
+#'   `label_color` on light ones. It follows the fill even when the fill scale
+#'   is replaced later (e.g. `+ scale_fill_manual()`). Set to `FALSE` to colour
+#'   every label with `label_color`.
 #' @param errorbar If `TRUE`, adds 95% confidence interval error bars (ungrouped
 #'   plots only).
 #' @param title_show If `TRUE`, adds a plot title taken from the item's `"label"`

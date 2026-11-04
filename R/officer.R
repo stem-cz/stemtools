@@ -203,6 +203,19 @@ stem_chart_spec <- function(plot) {
     names(colors) <- series_levels
   }
 
+  # Label colours per series, read from the built text layer, so the chart
+  # gets exactly the label colours the plot shows.
+  label_colors <- NULL
+  if (!is.null(fill_name) && any(text_layers)) {
+    text_data <- built$data[[max(which(text_layers))]]
+    if (all(c("fill", "colour") %in% names(text_data))) {
+      label_colors <- stats::setNames(
+        text_data$colour[match(colors, text_data$fill)],
+        series_levels
+      )
+    }
+  }
+
   # `stem_stack()` and `stem_barplot()` reverse the discrete y scale so the
   # first category sits at the top; `stem_multiselect()` does not. The panel's
   # y labels run bottom-to-top, so comparing them with the natural category
@@ -236,7 +249,7 @@ stem_chart_spec <- function(plot) {
     # The preformatted ggplot labels, so the exported chart prints exactly the
     # text the plot shows, blanks for `label_hide` included.
     label_text = as.character(data$stem_label %||% NA_character_),
-    label_color = data[[".label_color"]],
+    label_colors = label_colors,
     num_fmt = stem_num_fmt(data$stem_label),
     title = plot$labels$title,
     has_errorbar = has_errorbar,
@@ -580,15 +593,11 @@ stem_as_mschart <- function(
 stem_label_fp <- function(spec, series_names) {
   colours <- stats::setNames(rep(spec$ink, length(series_names)), series_names)
 
-  # Mirror stem_stack()'s `label_bicolor`: white on the first and last series.
-  if (
-    !is.null(spec$series) &&
-      identical(spec$type, "stacked") &&
-      !is.null(spec$label_color) &&
-      any(spec$label_color == "white")
-  ) {
-    side <- series_names[c(1L, length(series_names))]
-    colours[side] <- "white"
+  # The label colours the plot draws (e.g. white on dark segments).
+  if (!is.null(spec$label_colors)) {
+    known <- intersect(series_names, names(spec$label_colors))
+    known <- known[!is.na(spec$label_colors[known])]
+    colours[known] <- spec$label_colors[known]
   }
 
   lapply(colours, function(col) {
