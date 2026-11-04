@@ -17,6 +17,12 @@
   and
   [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
   draw a thin black box around the chart legend, when there is one.
+- [`stem_summarise_cat()`](https://stem-cz.github.io/stemtools/reference/stem_summarise_cat.md)
+  with a `group` now reports every observed item category in every group
+  also for unweighted data, with zeros where the category does not occur
+  in that group, as it already did for weighted data. Previously
+  unweighted tables left those rows out, so the same table had fewer
+  rows without weights.
 - [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
   stops with an error when an item has answers outside the first item’s
   categories, listing those answers. Previously it took the first item’s

@@ -46,6 +46,8 @@
 <li>
 <code><a href="../reference/stem_export_pptx.html">stem_export_pptx()</a></code> and <code><a href="../reference/stem_export_docx.html">stem_export_docx()</a></code> draw a thin black box around the chart legend, when there is one.</li>
 <li>
+<code><a href="../reference/stem_summarise_cat.html">stem_summarise_cat()</a></code> with a <code>group</code> now reports every observed item category in every group also for unweighted data, with zeros where the category does not occur in that group, as it already did for weighted data. Previously unweighted tables left those rows out, so the same table had fewer rows without weights.</li>
+<li>
 <code><a href="../reference/stem_battery.html">stem_battery()</a></code> stops with an error when an item has answers outside the first item’s categories, listing those answers. Previously it took the first item’s categories for all items and silently dropped the other items’ answers outside them, so their percentages were computed from the remaining answers only.</li>
 <li>
 <code><a href="../reference/stem_battery.html">stem_battery()</a></code> stops with an error naming the items that share a label. Previously their answers merged into one bar, showing a mix of both items under one name.</li>
