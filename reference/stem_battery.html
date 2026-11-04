@@ -83,7 +83,11 @@ role of the group.</p>
 
 <dt id="arg-items">items<a class="anchor" aria-label="anchor" href="#arg-items"></a></dt>
 <dd><p>Items to plot. Supports tidyselect helpers (e.g.
-<code><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">dplyr::starts_with()</a></code>).</p></dd>
+<code><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">dplyr::starts_with()</a></code>). The response categories (and their order) are
+taken from the first item; if another item has answers outside them,
+<code>stem_battery()</code> stops with an error listing those answers. If the
+items have different numbers of valid (non-missing) answers, their bars
+rest on different bases and <code>stem_battery()</code> warns, listing them.</p></dd>
 
 
 <dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
@@ -93,13 +97,17 @@ role of the group.</p>
 <dt id="arg-order-by">order_by<a class="anchor" aria-label="anchor" href="#arg-order-by"></a></dt>
 <dd><p>Optional vector of response categories used to order the
 items, e.g. <code>c("Definitely Agree", "Rather Agree")</code> orders items by their
-combined share of those two categories.</p></dd>
+combined share of those two categories. Every value must match a category
+of the items exactly; otherwise <code>stem_battery()</code> stops with an error
+listing the values not found and the categories.</p></dd>
 
 
 <dt id="arg-item-label">item_label<a class="anchor" aria-label="anchor" href="#arg-item-label"></a></dt>
 <dd><p>If <code>TRUE</code> (default), item labels (the <code>"label"</code> attribute)
 are used instead of variable names. Falls back to names, with a warning, if
-any item lacks a label.</p></dd>
+any item lacks a label. Items must have distinct labels; otherwise
+<code>stem_battery()</code> stops with an error naming them (use <code>item_label = FALSE</code>
+or give them distinct labels).</p></dd>
 
 
 <dt id="arg-palette">palette<a class="anchor" aria-label="anchor" href="#arg-palette"></a></dt>

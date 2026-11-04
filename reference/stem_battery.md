@@ -37,6 +37,11 @@ stem_battery(
 
   Items to plot. Supports tidyselect helpers (e.g.
   [`dplyr::starts_with()`](https://tidyselect.r-lib.org/reference/starts_with.html)).
+  The response categories (and their order) are taken from the first
+  item; if another item has answers outside them, `stem_battery()` stops
+  with an error listing those answers. If the items have different
+  numbers of valid (non-missing) answers, their bars rest on different
+  bases and `stem_battery()` warns, listing them.
 
 - weight:
 
@@ -46,13 +51,17 @@ stem_battery(
 
   Optional vector of response categories used to order the items, e.g.
   `c("Definitely Agree", "Rather Agree")` orders items by their combined
-  share of those two categories.
+  share of those two categories. Every value must match a category of
+  the items exactly; otherwise `stem_battery()` stops with an error
+  listing the values not found and the categories.
 
 - item_label:
 
   If `TRUE` (default), item labels (the `"label"` attribute) are used
   instead of variable names. Falls back to names, with a warning, if any
-  item lacks a label.
+  item lacks a label. Items must have distinct labels; otherwise
+  `stem_battery()` stops with an error naming them (use
+  `item_label = FALSE` or give them distinct labels).
 
 - palette:
 

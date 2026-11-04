@@ -17,6 +17,29 @@
   and
   [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
   draw a thin black box around the chart legend, when there is one.
+- [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
+  stops with an error when an item has answers outside the first item’s
+  categories, listing those answers. Previously it took the first item’s
+  categories for all items and silently dropped the other items’ answers
+  outside them, so their percentages were computed from the remaining
+  answers only.
+- [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
+  stops with an error naming the items that share a label. Previously
+  their answers merged into one bar, showing a mix of both items under
+  one name.
+- `stem_battery(order_by = )` stops with an error when any of its values
+  is not exactly a category of the items (e.g. a typo or missing
+  diacritics). Previously such values were silently ignored, so the
+  battery stayed unsorted or was sorted by fewer categories than
+  intended.
+- `stem_battery(order_by = )` orders the items by their shares without
+  missing answers, as shown in the bars. Previously missing answers
+  counted in the denominator, so items with many of them were placed
+  lower than their bars warranted.
+- [`stem_battery()`](https://stem-cz.github.io/stemtools/reference/stem_battery.md)
+  warns when its items have different numbers of valid (non-missing)
+  answers, listing the unweighted n of each item, since their bars then
+  rest on different bases.
 
 ## stemtools 0.2.0
 
