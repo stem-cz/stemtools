@@ -3,6 +3,7 @@
 * `theme_stem()` now uses a 14 pt base text size (previously 18 pt) and draws the axis and legend text at 14 pt, and `label_size` defaults to `12` instead of `14`, so plots on screen match their Office exports.
 * `stem_export_pptx()` and `stem_export_docx()` export the axis and legend text at 14 pt (previously 11 pt) and the numeric labels at a fixed 12 pt. The labels no longer scale with `theme_stem(label_size = )`, which now only affects the plot on screen.
 * `stem_export_pptx()` and `stem_export_docx()` draw a thin black box around the chart legend, when there is one.
+* `stem_summarise_cat()` with a `group` now reports every observed item category in every group also for unweighted data, with zeros where the category does not occur in that group, as it already did for weighted data. Previously unweighted tables left those rows out, so the same table had fewer rows without weights.
 
 # stemtools 0.2.0
 

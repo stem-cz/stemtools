@@ -84,18 +84,6 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
       dplyr::ungroup() |>
       tibble::as_tibble() |>
       drop_label_attr()
-
-    # Every group reports every observed item category, with zeros where the
-    # category does not occur in that group.
-    if (has_group) {
-      counts <- tidyr::expand_grid(
-        dplyr::distinct(counts, {{ group }}),
-        dplyr::distinct(counts, {{ item }})
-      ) |>
-        dplyr::left_join(counts, by = names(dplyr::select(counts, {{ group }}, {{ item }}))) |>
-        tidyr::replace_na(list(freq = 0, freq_low = 0, freq_upp = 0, n = 0L)) |>
-        dplyr::arrange({{ group }}, {{ item }})
-    }
   } else {
     # Drop NA item (and NA group) when na.rm, otherwise dplyr::count() keeps
     # NA as its own category / group.
@@ -114,6 +102,19 @@ stem_summarise_cat <- function(data, item, group = NULL, weight = NULL, long = F
         .by      = {{ group }}
       ) |>
       tibble::as_tibble()
+  }
+
+  # Every group reports every observed item category, with zeros where the
+  # category does not occur in that group (in both branches, so weighted and
+  # unweighted tables have the same rows).
+  if (has_group) {
+    counts <- tidyr::expand_grid(
+      dplyr::distinct(counts, {{ group }}),
+      dplyr::distinct(counts, {{ item }})
+    ) |>
+      dplyr::left_join(counts, by = names(dplyr::select(counts, {{ group }}, {{ item }}))) |>
+      tidyr::replace_na(list(freq = 0, freq_low = 0, freq_upp = 0, n = 0L)) |>
+      dplyr::arrange({{ group }}, {{ item }})
   }
 
   # Absolute sizes, shared by both branches.
