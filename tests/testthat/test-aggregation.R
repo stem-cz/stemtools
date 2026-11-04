@@ -44,6 +44,26 @@ test_that("stem_summarise_cat supports survey weights", {
   expect_equal(sum(out$freq), 1)
 })
 
+test_that("stem_summarise_cat reports zero cells in every group, weighted or not", {
+  df <- data.frame(
+    item  = factor(c("a", "a", "b", "a", "a")),
+    group = c("x", "x", "x", "y", "y"),
+    W     = c(1, 2, 1, 1, 2)
+  )
+  unw <- stem_summarise_cat(df, item, group, return_n = TRUE)
+  wtd <- stem_summarise_cat(df, item, group, weight = W, return_n = TRUE)
+
+  expect_equal(nrow(unw), 4)
+  expect_equal(nrow(wtd), 4)
+  expect_equal(unw[c("group", "item")], wtd[c("group", "item")])
+
+  empty <- unw[unw$group == "y" & unw$item == "b", ]
+  expect_equal(empty$freq, 0)
+  expect_equal(c(empty$freq_low, empty$freq_upp), c(0, 0))
+  expect_equal(empty$n, 0L)
+  expect_equal(empty$group_n, 2L)
+})
+
 test_that("stem_summarise_cat long format adds item/item_cat columns", {
   out <- stem_summarise_cat(trust, police, long = TRUE)
   expect_true(all(c("item", "item_cat") %in% names(out)))
