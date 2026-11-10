@@ -102,6 +102,49 @@ test_that("title_show falls back to the variable name when no label is present",
   expect_identical(p_quoted$labels$title, "\u201epolice\u201c")
 })
 
+# Label colour of each fill in the built text layer of a stacked plot.
+built_label_colors <- function(p) {
+  b <- ggplot2::ggplot_build(p)
+  text <- b$data[[which(vapply(p$layers, function(l) inherits(l$geom, "GeomText"), logical(1)))]]
+  unique(text[c("fill", "colour")])
+}
+
+test_that("contrast_label_color is white on dark fills, light on light ones", {
+  expect_equal(contrast_label_color(c("#000000", "#FFFFFF", "grey70", "#82143C")),
+               c("white", "black", "black", "white"))
+  expect_equal(contrast_label_color("#FFFFFF", light = "grey20"), "grey20")
+})
+
+test_that("stacked labels with the default palette are as before", {
+  # div1: white on the two dark extremes, black on the three light colours.
+  lc <- built_label_colors(stem_barplot(trust, police, group = eu_index))
+  pal <- as.character(stem_palette("div1"))
+  expect_equal(lc$colour[match(pal, lc$fill)],
+               c("white", "black", "black", "black", "white"))
+})
+
+test_that("stacked labels follow a fill scale replaced after the plot is built", {
+  d <- trust
+  d$police <- forcats::fct_expand(d$police, "Nevím")
+  d$police[1:100] <- "Nevím"
+  d$police <- forcats::fct_relevel(d$police, "Nevím", after = Inf)
+  pal <- c(as.character(stem_palette("div1")), "grey70")
+  p <- suppressMessages(
+    stem_barplot(d, police, group = eu_index) + ggplot2::scale_fill_manual(values = pal)
+  )
+  lc <- built_label_colors(p)
+  # Grey "don't know" gets a dark label; the last substantive (dark red) a white one.
+  expect_equal(lc$colour[lc$fill == "grey70"], "black")
+  expect_equal(lc$colour[lc$fill == pal[5]], "white")
+})
+
+test_that("label_bicolor = FALSE colours every stacked label with label_color", {
+  lc <- built_label_colors(
+    stem_inline(trust, police, label_bicolor = FALSE, label_color = "grey20")
+  )
+  expect_true(all(lc$colour == "grey20"))
+})
+
 test_that("stem_battery builds for a set of like items", {
   build_ok(stem_battery(trust, items = c(police, eu, government, army)))
   build_ok(stem_battery(

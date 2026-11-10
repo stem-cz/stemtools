@@ -50,10 +50,11 @@ segments unlabelled) and \code{0} otherwise.}
 \item{label_color}{Colour of the segment labels in grouped (stacked) plots.
 Defaults to \code{"black"}.}
 
-\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots the
-labels of the two side (extreme) item categories are drawn in white, while
-all other labels use \code{label_color}. Set to \code{FALSE} to colour every label
-with \code{label_color}.}
+\item{label_bicolor}{If \code{TRUE} (default), in grouped (stacked) plots each
+label's colour follows the final fill of its segment: white on dark fills,
+\code{label_color} on light ones. It follows the fill even when the fill scale
+is replaced later (e.g. \code{+ scale_fill_manual()}). Set to \code{FALSE} to colour
+every label with \code{label_color}.}
 
 \item{title_show}{If \code{TRUE}, adds a plot title taken from the item's \code{"label"}
 attribute, falling back to the variable name when no label is present. The

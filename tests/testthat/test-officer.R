@@ -63,7 +63,7 @@ test_that("stem_as_mschart() converts stacked plots with the right palette", {
   # Every stacked bar sums to 100%.
   totals <- tapply(chart$data[["%"]], chart$data[[chart$x]], sum)
   expect_equal(as.vector(round(totals)), rep(100, nlevels(trust$eu_index)))
-  # Labels on the two side categories are white, as in stem_stack().
+  # Labels on the two dark side categories are white, as in the plot.
   label_colors <- vapply(
     chart$series_settings$labels_fp,
     function(x) x$color,
@@ -71,6 +71,30 @@ test_that("stem_as_mschart() converts stacked plots with the right palette", {
   )
   expect_equal(unname(label_colors[c(1, 5)]), c("white", "white"))
   expect_equal(unname(label_colors[3]), "black")
+})
+
+test_that("stem_as_mschart() label colours match the plot's after a fill override", {
+  skip_if_no_office()
+  local_stem_theme()
+
+  d <- trust
+  d$police <- forcats::fct_expand(d$police, "Nevím")
+  d$police[1:100] <- "Nevím"
+  d$police <- forcats::fct_relevel(d$police, "Nevím", after = Inf)
+  pal <- c(as.character(stem_palette("div1")), "grey70")
+  p <- suppressMessages(
+    stem_barplot(d, police, group = eu_index) + ggplot2::scale_fill_manual(values = pal)
+  )
+  chart <- stem_as_mschart(p)
+
+  expect_equal(unname(unlist(chart$series_settings$fill)), pal)
+  label_colors <- vapply(
+    chart$series_settings$labels_fp,
+    function(x) x$color,
+    character(1)
+  )
+  expect_equal(unname(label_colors[levels(d$police)]),
+               c("white", "black", "black", "black", "white", "black"))
 })
 
 test_that("stem_as_mschart() handles inline, battery and multiselect plots", {
