@@ -29,7 +29,7 @@
 #' @param label_size Point size of the numeric labels drawn inside the plot
 #'   (the `stem_label` values printed by [stem_barplot()] and friends). Passed
 #'   to [ggplot2::element_geom()] as `fontsize`, so it is given in points, like
-#'   the other text sizes of the theme. Defaults to `12`, the size the labels
+#'   the other text sizes of the theme. Defaults to `14`, the size the labels
 #'   are exported at by [stem_export_pptx()] and [stem_export_docx()].
 #' @param ... Arguments to be passed to [ggplot2::theme()], overriding the Stem
 #'   defaults.
@@ -50,7 +50,7 @@ theme_stem <- function(
   paper = "white",
   accent = "#35978F",
   family = "Calibri",
-  label_size = 12,
+  label_size = 14,
   ...
 ) {
   ggplot2::theme_grey(base_family = family) +

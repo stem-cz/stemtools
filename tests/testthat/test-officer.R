@@ -265,15 +265,15 @@ test_that("stem_add_chart() adds to both document types", {
   expect_error(stem_add_chart(list(), chart), "officer")
 })
 
-test_that("data labels are exported at a fixed 12 pt", {
+test_that("data labels are exported at a fixed 14 pt", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
-  expect_equal(spec$label_size, 12)
+  expect_equal(spec$label_size, 14)
 
   # Independent of the on-screen `label_size`.
   spec18 <- stem_chart_spec(
     stem_barplot(trust, government) + theme_stem(family = "", label_size = 18)
   )
-  expect_equal(spec18$label_size, 12)
+  expect_equal(spec18$label_size, 14)
 
   expect_equal(spec$font_size, 14)
 })
@@ -281,7 +281,7 @@ test_that("data labels are exported at a fixed 12 pt", {
 test_that("stem_label_fp() sizes the labels with the export size", {
   spec <- stem_chart_spec(stem_barplot(trust, government) + theme_stem(family = ""))
   fp <- stem_label_fp(spec, "x")
-  expect_equal(fp[["x"]]$font.size, 12)
+  expect_equal(fp[["x"]]$font.size, 14)
 })
 
 test_that("the mschart theme uses the pinned export type sizes", {

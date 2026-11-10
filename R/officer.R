@@ -270,7 +270,7 @@ stem_export_axis_size <- 14
 stem_export_legend_size <- 14
 stem_export_axis_title_size <- 12
 stem_export_title_size <- 14
-stem_export_label_size <- 12
+stem_export_label_size <- 14
 
 #' Border width of the bars of a Stem plot
 #'

@@ -1,8 +1,6 @@
-# stemtools 0.2.1
+# stemtools 0.2.2
 
-* `theme_stem()` now uses a 14 pt base text size (previously 18 pt) and draws the axis and legend text at 14 pt, and `label_size` defaults to `12` instead of `14`, so plots on screen match their Office exports.
-* `stem_export_pptx()` and `stem_export_docx()` export the axis and legend text at 14 pt (previously 11 pt) and the numeric labels at a fixed 12 pt. The labels no longer scale with `theme_stem(label_size = )`, which now only affects the plot on screen.
-* `stem_export_pptx()` and `stem_export_docx()` draw a thin black box around the chart legend, when there is one.
+* `theme_stem(label_size = )` defaults to `14` again (`12` in 0.2.1), and `stem_export_pptx()` and `stem_export_docx()` export the numeric labels at 14 pt (previously 12 pt), so the labels match the 14 pt axis and legend text.
 * With `label_bicolor = TRUE` (default), the labels of stacked plots are white on dark segments and `label_color` on light ones, judged from each segment's final fill. Previously the first and last categories got white labels whatever their colour, so a fill scale replaced after the plot was built (e.g. a grey "don't know" category added with `scale_fill_manual()`) got white labels on light grey and dark labels on dark colours. With the Stem diverging palettes the labels are unchanged. Native Office charts take the label colours from the plot.
 * `stem_summarise_cat()` with a `group` now reports every observed item category in every group also for unweighted data, with zeros where the category does not occur in that group, as it already did for weighted data. Previously unweighted tables left those rows out, so the same table had fewer rows without weights.
 * `stem_battery()` stops with an error when an item has answers outside the first item's categories, listing those answers. Previously it took the first item's categories for all items and silently dropped the other items' answers outside them, so their percentages were computed from the remaining answers only.
@@ -10,6 +8,12 @@
 * `stem_battery(order_by = )` stops with an error when any of its values is not exactly a category of the items (e.g. a typo or missing diacritics). Previously such values were silently ignored, so the battery stayed unsorted or was sorted by fewer categories than intended.
 * `stem_battery(order_by = )` orders the items by their shares without missing answers, as shown in the bars. Previously missing answers counted in the denominator, so items with many of them were placed lower than their bars warranted.
 * `stem_battery()` warns when its items have different numbers of valid (non-missing) answers, listing the unweighted n of each item, since their bars then rest on different bases.
+
+# stemtools 0.2.1
+
+* `theme_stem()` now uses a 14 pt base text size (previously 18 pt) and draws the axis and legend text at 14 pt, and `label_size` defaults to `12` instead of `14`, so plots on screen match their Office exports.
+* `stem_export_pptx()` and `stem_export_docx()` export the axis and legend text at 14 pt (previously 11 pt) and the numeric labels at a fixed 12 pt. The labels no longer scale with `theme_stem(label_size = )`, which now only affects the plot on screen.
+* `stem_export_pptx()` and `stem_export_docx()` draw a thin black box around the chart legend, when there is one.
 
 # stemtools 0.2.0
 
