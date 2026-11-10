@@ -143,10 +143,11 @@ Defaults to <code>"black"</code>.</p></dd>
 
 
 <dt id="arg-label-bicolor">label_bicolor<a class="anchor" aria-label="anchor" href="#arg-label-bicolor"></a></dt>
-<dd><p>If <code>TRUE</code> (default), in grouped (stacked) plots the
-labels of the two side (extreme) item categories are drawn in white, while
-all other labels use <code>label_color</code>. Set to <code>FALSE</code> to colour every label
-with <code>label_color</code>.</p></dd>
+<dd><p>If <code>TRUE</code> (default), in grouped (stacked) plots each
+label's colour follows the final fill of its segment: white on dark fills,
+<code>label_color</code> on light ones. It follows the fill even when the fill scale
+is replaced later (e.g. <code>+ scale_fill_manual()</code>). Set to <code>FALSE</code> to colour
+every label with <code>label_color</code>.</p></dd>
 
 
 <dt id="arg-errorbar">errorbar<a class="anchor" aria-label="anchor" href="#arg-errorbar"></a></dt>

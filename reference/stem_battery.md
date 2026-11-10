@@ -98,10 +98,11 @@ stem_battery(
 
 - label_bicolor:
 
-  If `TRUE` (default), in grouped (stacked) plots the labels of the two
-  side (extreme) item categories are drawn in white, while all other
-  labels use `label_color`. Set to `FALSE` to colour every label with
-  `label_color`.
+  If `TRUE` (default), in grouped (stacked) plots each label's colour
+  follows the final fill of its segment: white on dark fills,
+  `label_color` on light ones. It follows the fill even when the fill
+  scale is replaced later (e.g. `+ scale_fill_manual()`). Set to `FALSE`
+  to colour every label with `label_color`.
 
 ## Value
 

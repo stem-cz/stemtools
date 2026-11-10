@@ -17,6 +17,15 @@
   and
   [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
   draw a thin black box around the chart legend, when there is one.
+- With `label_bicolor = TRUE` (default), the labels of stacked plots are
+  white on dark segments and `label_color` on light ones, judged from
+  each segment’s final fill. Previously the first and last categories
+  got white labels whatever their colour, so a fill scale replaced after
+  the plot was built (e.g. a grey “don’t know” category added with
+  [`scale_fill_manual()`](https://ggplot2.tidyverse.org/reference/scale_manual.html))
+  got white labels on light grey and dark labels on dark colours. With
+  the Stem diverging palettes the labels are unchanged. Native Office
+  charts take the label colours from the plot.
 - [`stem_summarise_cat()`](https://stem-cz.github.io/stemtools/reference/stem_summarise_cat.md)
   with a `group` now reports every observed item category in every group
   also for unweighted data, with zeros where the category does not occur
