@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/stem-cz/stemtools/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/stem-cz/stemtools/blob/v0.2.2/DESCRIPTION)
 
 Vomáčka A (2026). *stemtools: Tools and helpful wrappers for analysts at
 Stem (https://www.stem.cz)*. R package version 0.2.2,
