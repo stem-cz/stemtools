@@ -434,6 +434,91 @@ column_labels <- function(data) {
   stats::setNames(labels, names(data))
 }
 
+# Response categories of a battery: the levels of the first factor item (NULL
+# for all-character items). Every answer is then matched to them, so an answer
+# outside them would silently turn into NA and drop out of the percentages.
+# Stop when any item has such an answer. Differences that lose nothing (unused
+# levels, another level order) pass: answers are matched by their text.
+battery_categories <- function(item_data) {
+  is_fct <- vapply(item_data, is.factor, logical(1))
+  if (!any(is_fct)) {
+    return(NULL)
+  }
+
+  ref_name <- names(item_data)[which(is_fct)[1]]
+  ref <- levels(item_data[[ref_name]])
+  quote_cats <- function(x) paste0("\"", x, "\"", collapse = ", ")
+
+  lost <- lapply(item_data, function(x) {
+    setdiff(unique(as.character(x[!is.na(x)])), ref)
+  })
+  lost <- lost[lengths(lost) > 0]
+
+  if (length(lost)) {
+    stop(
+      "Some items have answers that are not categories of `", ref_name,
+      "` (", quote_cats(ref), "), so they would be dropped:\n",
+      paste0("* `", names(lost), "` has ", vapply(lost, quote_cats, character(1)),
+             collapse = "\n"),
+      "\nGive the items the same categories (e.g. with forcats::fct_expand()).",
+      call. = FALSE
+    )
+  }
+
+  ref
+}
+
+# Each bar of a battery is a share of that item's valid (non-missing) answers.
+# When the items have different numbers of them (filters, item nonresponse),
+# the bars rest on different bases, so warn and list them.
+check_valid_answers <- function(item_data) {
+  n_valid <- vapply(item_data, function(x) sum(!is.na(x)), integer(1))
+  if (length(unique(n_valid)) <= 1) {
+    return(invisible(NULL))
+  }
+  warning(
+    "Battery items have different numbers of valid answers, so their ",
+    "percentages rest on different bases (unweighted n):\n",
+    paste0("* `", names(n_valid), "`: ", n_valid, collapse = "\n"),
+    call. = FALSE
+  )
+}
+
+# Every `order_by` value must be a response category, exactly: a value that
+# matches nothing (typo, missing diacritics) would silently leave the battery
+# unsorted or sorted by fewer categories than intended.
+check_order_by <- function(order_by, categories) {
+  quote_cats <- function(x) paste0("\"", x, "\"", collapse = ", ")
+  unmatched <- setdiff(order_by, categories)
+  if (!length(unmatched)) {
+    return(invisible(NULL))
+  }
+  stop(
+    "`order_by` values must be categories of the items; not found: ",
+    quote_cats(unmatched), ".\nCategories: ", quote_cats(categories), ".",
+    call. = FALSE
+  )
+}
+
+# Items sharing a label would merge into one bar (factor() collapses duplicate
+# labels into one level), so stop and name them.
+check_unique_labels <- function(labels, item_names) {
+  dup <- unique(labels[duplicated(labels)])
+  if (!length(dup)) {
+    return(invisible(NULL))
+  }
+  detail <- vapply(dup, function(label) {
+    paste0("\"", label, "\" (",
+           paste0("`", item_names[labels == label], "`", collapse = ", "), ")")
+  }, character(1))
+  stop(
+    "Several items have the same label, so their bars would merge:\n",
+    paste0("* ", detail, collapse = "\n"),
+    "\nGive them distinct `label` attributes, or use `item_label = FALSE`.",
+    call. = FALSE
+  )
+}
+
 #' Stacked bar plot for a battery of like items
 #'
 #' Plots a set of categorical variables that share the same response categories
@@ -444,13 +529,21 @@ column_labels <- function(data) {
 #'
 #' @inheritParams stem_barplot
 #' @param items Items to plot. Supports tidyselect helpers (e.g.
-#'   `dplyr::starts_with()`).
+#'   `dplyr::starts_with()`). The response categories (and their order) are
+#'   taken from the first item; if another item has answers outside them,
+#'   `stem_battery()` stops with an error listing those answers. If the
+#'   items have different numbers of valid (non-missing) answers, their bars
+#'   rest on different bases and `stem_battery()` warns, listing them.
 #' @param order_by Optional vector of response categories used to order the
 #'   items, e.g. `c("Definitely Agree", "Rather Agree")` orders items by their
-#'   combined share of those two categories.
+#'   combined share of those two categories. Every value must match a category
+#'   of the items exactly; otherwise `stem_battery()` stops with an error
+#'   listing the values not found and the categories.
 #' @param item_label If `TRUE` (default), item labels (the `"label"` attribute)
 #'   are used instead of variable names. Falls back to names, with a warning, if
-#'   any item lacks a label.
+#'   any item lacks a label. Items must have distinct labels; otherwise
+#'   `stem_battery()` stops with an error naming them (use `item_label = FALSE`
+#'   or give them distinct labels).
 #'
 #' @return A ggplot2 object.
 #' @export
@@ -479,6 +572,8 @@ stem_battery <- function(
 ) {
   item_data <- dplyr::select(data, {{ items }})
   item_names <- names(item_data)
+  categories <- battery_categories(item_data)
+  check_valid_answers(item_data)
 
   long <- data |>
     dplyr::select({{ items }}, {{ weight }}) |>
@@ -489,8 +584,8 @@ stem_battery <- function(
     )
 
   # Keep the shared response categories in their original order.
-  if (is.factor(item_data[[1]])) {
-    long$.response <- factor(long$.response, levels = levels(item_data[[1]]))
+  if (!is.null(categories)) {
+    long$.response <- factor(long$.response, levels = categories)
   }
 
   # Label or name the items.
@@ -504,6 +599,7 @@ stem_battery <- function(
       )
     } else {
       item_labels <- unname(labels_lookup[item_names])
+      check_unique_labels(item_labels, item_names)
     }
   }
   long$.battery_item <- factor(
@@ -514,7 +610,10 @@ stem_battery <- function(
 
   # Optionally order items by their combined share of `order_by` categories.
   if (!is.null(order_by)) {
+    check_order_by(order_by, categories %||% unique(stats::na.omit(long$.response)))
+    # Shares without missing answers, as in the plotted bars.
     order_levels <- long |>
+      dplyr::filter(!is.na(.response)) |>
       dplyr::count(.battery_item, .response, wt = {{ weight }}) |>
       dplyr::mutate(freq = n / sum(n), .by = .battery_item) |>
       dplyr::summarise(

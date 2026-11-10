@@ -24,17 +24,25 @@ stem_battery(
 \item{data}{Data frame holding the item (and group) variables.}
 
 \item{items}{Items to plot. Supports tidyselect helpers (e.g.
-\code{dplyr::starts_with()}).}
+\code{dplyr::starts_with()}). The response categories (and their order) are
+taken from the first item; if another item has answers outside them,
+\code{stem_battery()} stops with an error listing those answers. If the
+items have different numbers of valid (non-missing) answers, their bars
+rest on different bases and \code{stem_battery()} warns, listing them.}
 
 \item{weight}{Optional survey weights.}
 
 \item{order_by}{Optional vector of response categories used to order the
 items, e.g. \code{c("Definitely Agree", "Rather Agree")} orders items by their
-combined share of those two categories.}
+combined share of those two categories. Every value must match a category
+of the items exactly; otherwise \code{stem_battery()} stops with an error
+listing the values not found and the categories.}
 
 \item{item_label}{If \code{TRUE} (default), item labels (the \code{"label"} attribute)
 are used instead of variable names. Falls back to names, with a warning, if
-any item lacks a label.}
+any item lacks a label. Items must have distinct labels; otherwise
+\code{stem_battery()} stops with an error naming them (use \code{item_label = FALSE}
+or give them distinct labels).}
 
 \item{palette}{Name of a Stem palette. See \code{\link[=stem_palette]{stem_palette()}}.}
 
