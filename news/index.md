@@ -1,22 +1,14 @@
 # Changelog
 
-## stemtools 0.2.1
+## stemtools 0.2.2
 
-- [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)
-  now uses a 14 pt base text size (previously 18 pt) and draws the axis
-  and legend text at 14 pt, and `label_size` defaults to `12` instead of
-  `14`, so plots on screen match their Office exports.
-- [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
+- `theme_stem(label_size = )` defaults to `14` again (`12` in 0.2.1),
+  and
+  [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
   and
   [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
-  export the axis and legend text at 14 pt (previously 11 pt) and the
-  numeric labels at a fixed 12 pt. The labels no longer scale with
-  `theme_stem(label_size = )`, which now only affects the plot on
-  screen.
-- [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
-  and
-  [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
-  draw a thin black box around the chart legend, when there is one.
+  export the numeric labels at 14 pt (previously 12 pt), so the labels
+  match the 14 pt axis and legend text.
 - With `label_bicolor = TRUE` (default), the labels of stacked plots are
   white on dark segments and `label_color` on light ones, judged from
   each segment’s final fill. Previously the first and last categories
@@ -55,6 +47,24 @@
   warns when its items have different numbers of valid (non-missing)
   answers, listing the unweighted n of each item, since their bars then
   rest on different bases.
+
+## stemtools 0.2.1
+
+- [`theme_stem()`](https://stem-cz.github.io/stemtools/reference/theme_stem.md)
+  now uses a 14 pt base text size (previously 18 pt) and draws the axis
+  and legend text at 14 pt, and `label_size` defaults to `12` instead of
+  `14`, so plots on screen match their Office exports.
+- [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
+  and
+  [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
+  export the axis and legend text at 14 pt (previously 11 pt) and the
+  numeric labels at a fixed 12 pt. The labels no longer scale with
+  `theme_stem(label_size = )`, which now only affects the plot on
+  screen.
+- [`stem_export_pptx()`](https://stem-cz.github.io/stemtools/reference/stem_export_pptx.md)
+  and
+  [`stem_export_docx()`](https://stem-cz.github.io/stemtools/reference/stem_export_docx.md)
+  draw a thin black box around the chart legend, when there is one.
 
 ## stemtools 0.2.0
 
